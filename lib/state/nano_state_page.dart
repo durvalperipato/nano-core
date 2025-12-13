@@ -3,9 +3,9 @@ import 'package:get_it/get_it.dart';
 import 'package:nano_core/controller/nano_controller.dart';
 import 'package:nano_core/injections/nano_injections.dart';
 
-abstract class NanoStatePage<U extends StatefulWidget, T extends NanoController>
+abstract class NanoStatePage<U extends StatefulWidget, T extends NanoController, V extends NanoInjections>
     extends State<U> {
-  NanoInjections get injections;
+  late final V injections;
 
   String? get id => null;
 
