@@ -1,6 +1,10 @@
+/// A base class to facilitate object comparison based on properties instead of identity.
 abstract class NanoEquatable {
+  /// Const constructor.
   const NanoEquatable();
 
+  /// The list of properties that will be used to determine whether
+  /// two instances are equal.
   List<Object?> get props;
 
   @override
