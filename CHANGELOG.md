@@ -11,6 +11,10 @@ adheres to [Semantic Versioning (SemVer)](https://semver.org/).
 
 ## 🔄 Changed
 
+# [1.1.0] - 2026-05-18
+
+## 🔄 Changed
+
 - NanoStagePage has its own parameterized injections
 
 # [1.0.0] - 2025-12-13
