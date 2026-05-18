@@ -6,4 +6,14 @@ abstract class NanoInjections {
   final String scope;
 
   void binds(GetIt i);
+
+  void initScope() {
+    if (!GetIt.I.hasScope(scope)) {
+      GetIt.I.pushNewScope(scopeName: scope, init: (i) => binds(i));
+    }
+  }
+
+  void dropScope() {
+    if (GetIt.I.hasScope(scope)) GetIt.I.dropScope(scope);
+  }
 }
