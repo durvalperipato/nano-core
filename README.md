@@ -1,16 +1,62 @@
-# nano_core
+# Nano Core
 
-A new Flutter project.
+A lightweight, modular core library for Flutter and Dart projects, designed to provide fundamental building blocks for state management, dependency injection, and value-based equality.
+
+## Features
+
+- **NanoController**: A base class for state management utilizing `StreamController` to broadcast state changes.
+- **NanoEquatable**: A simplified base class for comparing objects by their properties rather than their instance identity.
+- **NanoInjections**: An abstraction over `get_it` to easily manage and push/drop dependency injection scopes.
+- **NanoStateContent**: A base class for defining your application states, integrating seamlessly with `NanoController` and `NanoEquatable`.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+Add `nano_core` to your `pubspec.yaml` dependencies.
 
-A few resources to get you started if this is your first Flutter project:
+### State Management
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Create your states extending `NanoStateContent`:
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```dart
+class MyState extends NanoStateContent {
+  final int count;
+
+  const MyState(this.count);
+
+  @override
+  List<Object?> get props => [count];
+}
+```
+
+Create your controller extending `NanoController`:
+
+```dart
+class MyController extends NanoController<MyState> {
+  MyController() : super(initialState: const MyState(0));
+
+  void increment() {
+    emit(MyState(state.count + 1));
+  }
+}
+```
+
+### Dependency Injection
+
+Manage your scopes extending `NanoInjections`:
+
+```dart
+class AuthInjections extends NanoInjections {
+  AuthInjections() : super(scope: 'auth_scope');
+
+  @override
+  void binds(GetIt i) {
+    i.registerLazySingleton<AuthService>(() => AuthServiceImpl());
+  }
+}
+```
+
+Use `initScope()` to start the scope and `dropScope()` when disposing of the module.
+
+## Documentation and Comments
+
+This repository follows the rule of **NO inline code comments** (`// comment`). Instead, all public APIs, classes, and methods use **Dart documentation comments** (`/// doc comment`) in English. This is to adhere to the Flutter team's best practices, where inline comments are considered an anti-pattern.
