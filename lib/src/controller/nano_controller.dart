@@ -22,14 +22,14 @@ abstract class NanoController<T> extends ChangeNotifier {
   /// Executes an asynchronous [action], automatically updating state to:
   /// - `loading` when starting.
   /// - `success` with result when completed.
-  /// - `failure` with error message if an exception is thrown.
+  /// - `error` with error message if an exception is thrown.
   Future<void> execute(Future<T> Function() action) async {
     emit(state.toLoading());
     try {
       final result = await action();
       emit(state.toSuccess(result));
     } catch (e) {
-      emit(state.toFailure(e.toString()));
+      emit(state.toError(e.toString()));
     }
   }
 }

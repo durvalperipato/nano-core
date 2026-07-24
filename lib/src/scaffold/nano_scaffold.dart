@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../components/nano_loading_overlay.dart';
+import '../components/nano_toast.dart';
 import '../controller/nano_controller.dart';
 
 /// [NanoScaffold] is the reactive base page layout structure in nano-core.
@@ -7,8 +8,8 @@ import '../controller/nano_controller.dart';
 /// Supports:
 /// - [header]: Generic top bar (Web/Desktop Navbar or Mobile AppBar).
 /// - [headerHeight]: Custom height for [header] when it is not a [PreferredSizeWidget].
-/// - Automatic state observation via [NanoController] to display loading overlays
-///   and handle failure/error notifications.
+/// - Automatic state observation via [NanoController] to display loading overlays,
+///   custom error/warning/success toasts via [NanoToast], or custom callbacks.
 class NanoScaffold extends StatefulWidget {
   const NanoScaffold({
     super.key,
@@ -20,7 +21,9 @@ class NanoScaffold extends StatefulWidget {
     this.floatingActionButton,
     this.backgroundColor,
     this.resizeToAvoidBottomInset,
-    this.onFailure,
+    this.onCustomError,
+    this.onCustomWarning,
+    this.onCustomSuccess,
     required this.builder,
   });
 
@@ -48,8 +51,14 @@ class NanoScaffold extends StatefulWidget {
   /// Whether to resize contents when soft keyboard appears.
   final bool? resizeToAvoidBottomInset;
 
-  /// Optional custom error callback for controller failures.
-  final void Function(String error)? onFailure;
+  /// Optional custom error callback. If null, displays default [NanoToast.showError].
+  final void Function(String error)? onCustomError;
+
+  /// Optional custom warning callback. If null, displays default [NanoToast.showWarning].
+  final void Function(String warning)? onCustomWarning;
+
+  /// Optional custom success callback. If null, displays default [NanoToast.showSuccess].
+  final void Function(String message)? onCustomSuccess;
 
   /// Main page content builder.
   final Widget Function(BuildContext context, Widget? child) builder;
@@ -93,17 +102,29 @@ class _NanoScaffoldState extends State<NanoScaffold> {
     if (controller == null) return;
 
     final state = controller.state;
-    if (state.isFailure) {
+
+    if (state.isError) {
       final errorMessage = state.error ?? 'An unexpected error occurred.';
-      if (widget.onFailure != null) {
-        widget.onFailure!(errorMessage);
+      if (widget.onCustomError != null) {
+        widget.onCustomError!(errorMessage);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(errorMessage),
-            backgroundColor: Colors.red,
-          ),
-        );
+        NanoToast.showError(context, errorMessage);
+      }
+    } else if (state.isWarning) {
+      final warningMessage = state.warning ?? 'Attention required.';
+      if (widget.onCustomWarning != null) {
+        widget.onCustomWarning!(warningMessage);
+      } else {
+        NanoToast.showWarning(context, warningMessage);
+      }
+    } else if (state.isSuccess) {
+      final successMsg = state.data?.toString();
+      if (successMsg != null && successMsg.isNotEmpty) {
+        if (widget.onCustomSuccess != null) {
+          widget.onCustomSuccess!(successMsg);
+        } else {
+          NanoToast.showSuccess(context, successMsg);
+        }
       }
     }
   }

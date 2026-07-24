@@ -12,7 +12,7 @@ abstract class NanoCommand<T> extends ValueNotifier<NanoState<T>> {
       final result = await action();
       value = value.toSuccess(result);
     } catch (e) {
-      value = value.toFailure(e.toString());
+      value = value.toError(e.toString());
     }
   }
 }

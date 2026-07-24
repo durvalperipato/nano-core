@@ -9,11 +9,14 @@ enum NanoStateStatus {
   /// Success state after an operation completes successfully.
   success,
 
-  /// Failure state when an error occurs during execution.
-  failure,
+  /// Error state when an error occurs during execution.
+  error,
+
+  /// Warning state when an operation completes with non-fatal warnings.
+  warning,
 }
 
-/// Immutable state container holding [status], optional [data], and optional [error].
+/// Immutable state container holding [status], optional [data], optional [error], and optional [warning].
 class NanoState<T> {
   /// Current execution status.
   final NanoStateStatus status;
@@ -21,14 +24,18 @@ class NanoState<T> {
   /// Data payload associated with success or in-progress states.
   final T? data;
 
-  /// Error message string associated with failure state.
+  /// Error message string associated with error state.
   final String? error;
+
+  /// Warning message string associated with warning state.
+  final String? warning;
 
   /// Creates a [NanoState] instance.
   const NanoState({
     this.status = NanoStateStatus.initial,
     this.data,
     this.error,
+    this.warning,
   });
 
   /// Returns a copy of [NanoState] in [NanoStateStatus.loading] status.
@@ -36,6 +43,7 @@ class NanoState<T> {
         status: NanoStateStatus.loading,
         data: data,
         error: error,
+        warning: warning,
       );
 
   /// Returns a copy of [NanoState] in [NanoStateStatus.success] status with [newData].
@@ -43,13 +51,23 @@ class NanoState<T> {
         status: NanoStateStatus.success,
         data: newData,
         error: null,
+        warning: null,
       );
 
-  /// Returns a copy of [NanoState] in [NanoStateStatus.failure] status with [newError].
-  NanoState<T> toFailure(String newError) => NanoState<T>(
-        status: NanoStateStatus.failure,
+  /// Returns a copy of [NanoState] in [NanoStateStatus.error] status with [newError].
+  NanoState<T> toError(String newError) => NanoState<T>(
+        status: NanoStateStatus.error,
         data: data,
         error: newError,
+        warning: null,
+      );
+
+  /// Returns a copy of [NanoState] in [NanoStateStatus.warning] status with [newWarning].
+  NanoState<T> toWarning(String newWarning) => NanoState<T>(
+        status: NanoStateStatus.warning,
+        data: data,
+        error: null,
+        warning: newWarning,
       );
 
   /// Whether status is [NanoStateStatus.initial].
@@ -61,6 +79,9 @@ class NanoState<T> {
   /// Whether status is [NanoStateStatus.success].
   bool get isSuccess => status == NanoStateStatus.success;
 
-  /// Whether status is [NanoStateStatus.failure].
-  bool get isFailure => status == NanoStateStatus.failure;
+  /// Whether status is [NanoStateStatus.error].
+  bool get isError => status == NanoStateStatus.error;
+
+  /// Whether status is [NanoStateStatus.warning].
+  bool get isWarning => status == NanoStateStatus.warning;
 }
