@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:nano_core/state/nano_state_content.dart';
+import 'package:nano_core/src/state/nano_state_content.dart';
 
 /// A base controller class to manage states extending [NanoStateContent].
 ///

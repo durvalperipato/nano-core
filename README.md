@@ -1,62 +1,59 @@
 # Nano Core
 
-A lightweight, modular core library for Flutter and Dart projects, designed to provide fundamental building blocks for state management, dependency injection, and value-based equality.
+A lightweight reactive architecture framework and design system toolkit for Flutter multiplatform applications.
 
 ## Features
 
-- **NanoController**: A base class for state management utilizing `StreamController` to broadcast state changes.
-- **NanoEquatable**: A simplified base class for comparing objects by their properties rather than their instance identity.
-- **NanoInjections**: An abstraction over `get_it` to easily manage and push/drop dependency injection scopes.
-- **NanoStateContent**: A base class for defining your application states, integrating seamlessly with `NanoController` and `NanoEquatable`.
+- 🚀 **NanoScaffold**: Reactive base page scaffold supporting Web/Desktop headers, mobile AppBars, loading overlays, and error notifications.
+- ⚡ **NanoController & NanoState**: Clean, reactive state management built on `ChangeNotifier` and `ListenableBuilder`.
+- 🛠️ **NanoCommand**: Encapsulated async commands for user actions and operations.
+- 🧩 **Design System Components**: Standalone reusable UI widgets such as `NanoLoadingOverlay`.
+- 💉 **NanoInjections**: Dependency injection scoping with `GetIt`.
 
 ## Getting Started
 
-Add `nano_core` to your `pubspec.yaml` dependencies.
+Add `nano_core` to your `pubspec.yaml`:
 
-### State Management
-
-Create your states extending `NanoStateContent`:
-
-```dart
-class MyState extends NanoStateContent {
-  final int count;
-
-  const MyState(this.count);
-
-  @override
-  List<Object?> get props => [count];
-}
+```yaml
+dependencies:
+  nano_core: ^0.0.1
 ```
 
-Create your controller extending `NanoController`:
+## Quick Example
 
 ```dart
-class MyController extends NanoController<MyState> {
-  MyController() : super(initialState: const MyState(0));
+import 'package:flutter/material.dart';
+import 'package:nano_core/nano_core.dart';
 
-  void increment() {
-    emit(MyState(state.count + 1));
+class MyController extends NanoController<String> {
+  Future<void> loadData() async {
+    execute(() async {
+      await Future.delayed(const Duration(seconds: 2));
+      return 'Data loaded successfully!';
+    });
+  }
+}
+
+class MyPage extends StatelessWidget {
+  const MyPage({super.key, required this.controller});
+
+  final MyController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return NanoScaffold(
+      controller: controller,
+      header: AppBar(title: const Text('Nano Core Example')),
+      builder: (context, child) {
+        return Center(
+          child: Text(controller.state.data ?? 'No data'),
+        );
+      },
+    );
   }
 }
 ```
 
-### Dependency Injection
+## License
 
-Manage your scopes extending `NanoInjections`:
-
-```dart
-class AuthInjections extends NanoInjections {
-  AuthInjections() : super(scope: 'auth_scope');
-
-  @override
-  void binds(GetIt i) {
-    i.registerLazySingleton<AuthService>(() => AuthServiceImpl());
-  }
-}
-```
-
-Use `initScope()` to start the scope and `dropScope()` when disposing of the module.
-
-## Documentation and Comments
-
-This repository follows the rule of **NO inline code comments** (`// comment`). Instead, all public APIs, classes, and methods use **Dart documentation comments** (`/// doc comment`) in English. This is to adhere to the Flutter team's best practices, where inline comments are considered an anti-pattern.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
