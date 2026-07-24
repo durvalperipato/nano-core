@@ -1,6 +1,9 @@
+/// Base class providing value-based equality comparison for objects.
 class NanoEquatable {
+  /// Const constructor.
   const NanoEquatable();
 
+  /// List of properties used to evaluate value equality.
   List<Object?> get props => [];
 
   @override
