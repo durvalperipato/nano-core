@@ -19,6 +19,9 @@ enum NanoToastType {
 /// On Web and Desktop, renders a floating card at the top-right corner of the window.
 /// On Mobile, renders a floating [SnackBar] with rounded corners.
 class NanoToast {
+  /// Private constructor to prevent direct instantiation of [NanoToast].
+  const NanoToast._();
+
   /// Shows a success toast notification with a green accent.
   static void showSuccess(
     BuildContext context,

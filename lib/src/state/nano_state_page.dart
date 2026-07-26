@@ -11,6 +11,9 @@ import '../injections/nano_injections.dart';
 /// - [V]: Associated [NanoInjections] scope.
 abstract class NanoStatePage<U extends StatefulWidget, T extends NanoController, V extends NanoInjections>
     extends State<U> {
+  /// Creates a new [NanoStatePage] instance.
+  NanoStatePage();
+
   /// Dependency injection container instance.
   late final V injections;
 

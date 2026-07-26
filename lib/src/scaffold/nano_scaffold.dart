@@ -11,6 +11,7 @@ import '../controller/nano_controller.dart';
 /// - Automatic state observation via [NanoController] to display loading overlays,
 ///   custom error/warning/success toasts via [NanoToast], or custom callbacks.
 class NanoScaffold extends StatefulWidget {
+  /// Creates a [NanoScaffold] widget layout.
   const NanoScaffold({
     super.key,
     this.controller,
