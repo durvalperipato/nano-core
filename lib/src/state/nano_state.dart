@@ -19,6 +19,14 @@ enum NanoStateStatus {
 /// Immutable state container holding [status], optional [data],
 /// optional [error], and optional [warning].
 class NanoState<T> {
+  /// Creates a [NanoState] instance.
+  const NanoState({
+    this.status = NanoStateStatus.initial,
+    this.data,
+    this.error,
+    this.warning,
+  });
+
   /// Current execution status.
   final NanoStateStatus status;
 
@@ -30,14 +38,6 @@ class NanoState<T> {
 
   /// Warning message string associated with warning state.
   final String? warning;
-
-  /// Creates a [NanoState] instance.
-  const NanoState({
-    this.status = NanoStateStatus.initial,
-    this.data,
-    this.error,
-    this.warning,
-  });
 
   /// Returns a copy of [NanoState] in [NanoStateStatus.loading] status.
   NanoState<T> toLoading() => NanoState<T>(

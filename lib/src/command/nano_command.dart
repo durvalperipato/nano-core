@@ -20,11 +20,11 @@ abstract class NanoCommand<T> extends ValueNotifier<NanoState<T>> {
 
 /// Command with no arguments executing a parameterless action.
 class NanoCommand0<T> extends NanoCommand<T> {
-  /// The asynchronous action function to execute.
-  final Future<T> Function() action;
-
   /// Creates a parameterless command with given [action].
   NanoCommand0(this.action);
+
+  /// The asynchronous action function to execute.
+  final Future<T> Function() action;
 
   /// Executes the underlying action.
   Future<void> execute() => _execute(action);
@@ -32,11 +32,11 @@ class NanoCommand0<T> extends NanoCommand<T> {
 
 /// Command accepting a single argument of type [A].
 class NanoCommand1<A, T> extends NanoCommand<T> {
-  /// The asynchronous action function accepting argument [arg].
-  final Future<T> Function(A arg) action;
-
   /// Creates a single-argument command with given [action].
   NanoCommand1(this.action);
+
+  /// The asynchronous action function accepting argument [arg].
+  final Future<T> Function(A arg) action;
 
   /// Executes the underlying action passing [arg].
   Future<void> execute(A arg) => _execute(() => action(arg));

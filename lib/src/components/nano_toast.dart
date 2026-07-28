@@ -184,10 +184,9 @@ class NanoToast {
 }
 
 class _ToastColorScheme {
+  const _ToastColorScheme({required this.backgroundColor, required this.icon});
   final Color backgroundColor;
   final IconData icon;
-
-  const _ToastColorScheme({required this.backgroundColor, required this.icon});
 }
 
 class _WebToastCard extends StatelessWidget {

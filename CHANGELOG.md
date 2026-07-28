@@ -1,3 +1,9 @@
+## 0.0.4-dev - 2026-07-28
+
+- Added strict linting rules in `analysis_options.yaml` including `sort_constructors_first`, `sort_unnamed_constructors_first`, `lines_longer_than_80_chars`, `always_declare_return_types`, `prefer_single_quotes`, and `unawaited_futures`.
+- Excluded `example/**` directory from strict documentation linting while preserving 100% strict Dartdoc enforcement on core `lib/` package APIs.
+- Reordered constructors across core classes to satisfy `sort_constructors_first`.
+
 ## 0.0.3-beta.1 - 2026-07-28
 
 - Added complete explicit Dartdoc constructor documentation across `NanoController`, `NanoLoadingOverlay`, `NanoScaffold`, `NanoStatePage`, and `NanoToast` to pass pub.dev Pana analysis checks.
