@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// Full-screen or container loading overlay widget for page-level state loading or custom views.
+/// Full-screen or container loading overlay widget for page-level
+/// state loading or custom views.
 class NanoLoadingOverlay extends StatelessWidget {
   /// Creates a [NanoLoadingOverlay] widget.
   const NanoLoadingOverlay({

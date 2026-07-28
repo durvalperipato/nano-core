@@ -16,7 +16,8 @@ enum NanoStateStatus {
   warning,
 }
 
-/// Immutable state container holding [status], optional [data], optional [error], and optional [warning].
+/// Immutable state container holding [status], optional [data],
+/// optional [error], and optional [warning].
 class NanoState<T> {
   /// Current execution status.
   final NanoStateStatus status;
@@ -46,7 +47,8 @@ class NanoState<T> {
     warning: warning,
   );
 
-  /// Returns a copy of [NanoState] in [NanoStateStatus.success] status with [newData].
+  /// Returns a copy of [NanoState] in [NanoStateStatus.success] status
+  /// with [newData].
   NanoState<T> toSuccess(T newData) => NanoState<T>(
     status: NanoStateStatus.success,
     data: newData,
@@ -54,7 +56,8 @@ class NanoState<T> {
     warning: null,
   );
 
-  /// Returns a copy of [NanoState] in [NanoStateStatus.error] status with [newError].
+  /// Returns a copy of [NanoState] in [NanoStateStatus.error] status
+  /// with [newError].
   NanoState<T> toError(String newError) => NanoState<T>(
     status: NanoStateStatus.error,
     data: data,
@@ -62,7 +65,8 @@ class NanoState<T> {
     warning: null,
   );
 
-  /// Returns a copy of [NanoState] in [NanoStateStatus.warning] status with [newWarning].
+  /// Returns a copy of [NanoState] in [NanoStateStatus.warning] status
+  /// with [newWarning].
   NanoState<T> toWarning(String newWarning) => NanoState<T>(
     status: NanoStateStatus.warning,
     data: data,

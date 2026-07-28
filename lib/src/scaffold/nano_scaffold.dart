@@ -7,9 +7,11 @@ import '../controller/nano_controller.dart';
 ///
 /// Supports:
 /// - [header]: Generic top bar (Web/Desktop Navbar or Mobile AppBar).
-/// - [headerHeight]: Custom height for [header] when it is not a [PreferredSizeWidget].
-/// - Automatic state observation via [NanoController] to display loading overlays,
-///   custom error/warning/success toasts via [NanoToast], or custom callbacks.
+/// - [headerHeight]: Custom height for [header] when it is not a
+///   [PreferredSizeWidget].
+/// - Automatic state observation via [NanoController] to display loading
+///   overlays, custom error/warning/success toasts via [NanoToast], or
+///   custom callbacks.
 class NanoScaffold extends StatefulWidget {
   /// Creates a [NanoScaffold] widget layout.
   const NanoScaffold({
@@ -34,7 +36,8 @@ class NanoScaffold extends StatefulWidget {
   /// Top navigation bar or header (Web Navbar, Mobile AppBar, or any Widget).
   final Widget? header;
 
-  /// Custom height for [header] when not a [PreferredSizeWidget]. Defaults to [kToolbarHeight].
+  /// Custom height for [header] when not a [PreferredSizeWidget].
+  /// Defaults to [kToolbarHeight].
   final double headerHeight;
 
   /// Side navigation drawer.
@@ -52,13 +55,16 @@ class NanoScaffold extends StatefulWidget {
   /// Whether to resize contents when soft keyboard appears.
   final bool? resizeToAvoidBottomInset;
 
-  /// Optional custom error callback. If null, displays default [NanoToast.showError].
+  /// Optional custom error callback. If null, displays default
+  /// [NanoToast.showError].
   final void Function(String error)? onCustomError;
 
-  /// Optional custom warning callback. If null, displays default [NanoToast.showWarning].
+  /// Optional custom warning callback. If null, displays default
+  /// [NanoToast.showWarning].
   final void Function(String warning)? onCustomWarning;
 
-  /// Optional custom success callback. If null, displays default [NanoToast.showSuccess].
+  /// Optional custom success callback. If null, displays default
+  /// [NanoToast.showSuccess].
   final void Function(String message)? onCustomSuccess;
 
   /// Main page content builder.

@@ -3,13 +3,15 @@ import 'package:flutter/material.dart';
 
 /// Enum representing the target platform or device category.
 enum NanoDeviceType {
-  /// Mobile devices (smartphones, small screens < 600dp width or native mobile).
+  /// Mobile devices (smartphones, small screens < 600dp width or
+  /// native mobile).
   mobile,
 
   /// Tablet devices (screen width >= 600dp and < 1024dp).
   tablet,
 
-  /// Desktop devices (macOS, Windows, Linux, or large displays >= 1024dp width).
+  /// Desktop devices (macOS, Windows, Linux, or large displays
+  /// >= 1024dp width).
   desktop,
 
   /// Web browser environment.

@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
 import '../state/nano_state.dart';
 
-/// Base abstract class for encapsulated commands extending [ValueNotifier] holding [NanoState].
+/// Base abstract class for encapsulated commands extending
+/// [ValueNotifier] holding [NanoState].
 abstract class NanoCommand<T> extends ValueNotifier<NanoState<T>> {
   /// Creates a [NanoCommand] initializing with default [NanoState].
   NanoCommand() : super(NanoState<T>());

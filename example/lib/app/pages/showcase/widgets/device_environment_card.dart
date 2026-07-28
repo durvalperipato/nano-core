@@ -5,6 +5,7 @@ import 'status_badge.dart';
 
 /// Card component displaying live NanoDeviceType environment detection.
 class DeviceEnvironmentCard extends StatelessWidget {
+  /// Creates a [DeviceEnvironmentCard] widget.
   const DeviceEnvironmentCard({super.key});
 
   @override

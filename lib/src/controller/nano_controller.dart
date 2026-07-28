@@ -17,7 +17,8 @@ abstract class NanoController<T> extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Initializer method called when controller is instantiated or bound to a view.
+  /// Initializer method called when controller is instantiated or
+  /// bound to a view.
   ///
   /// [id]: Optional identifier passed to initialize specific resource states.
   Future<void> init(String? id) async {}
