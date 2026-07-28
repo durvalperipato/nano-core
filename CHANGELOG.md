@@ -7,12 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## Unreleased
+## 0.0.5-dev (Unreleased)
 
 ### Added
 - Added GitHub repository link to header of `example/lib/main.dart`.
 
-## 0.0.4 - 2026-07-28
+## 0.0.4 (2026-07-28)
 
 ### Added
 - Added strict linting rules in `analysis_options.yaml` (`sort_constructors_first`, `sort_unnamed_constructors_first`, `lines_longer_than_80_chars`, `always_declare_return_types`, `prefer_single_quotes`, and `unawaited_futures`).
@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Reordered constructors across core classes to satisfy `sort_constructors_first`.
 - Excluded `example/**` directory from strict documentation linting while preserving 100% strict Dartdoc enforcement on core `lib/` package APIs.
 
-## 0.0.3-beta.1 - 2026-07-28
+## 0.0.3-beta.1 (2026-07-28)
 
 ### Added
 - Added complete explicit Dartdoc constructor documentation across `NanoController`, `NanoLoadingOverlay`, `NanoScaffold`, `NanoStatePage`, and `NanoToast` to pass pub.dev Pana analysis checks.
@@ -31,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Removed unused `lib/main.dart` entrypoint from package core.
 
-## 0.0.2 - 2026-07-24
+## 0.0.2 (2026-07-24)
 
 ### Added
 - Added `NanoToast` smart multiplatform notification component for Web, Desktop, and Mobile.
@@ -41,7 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `homepage` URL (`https://nanodevs.com.br`) in package metadata.
 - Comprehensive English Dartdoc documentation for all core APIs.
 
-## 0.0.1 - 2026-07-24
+## 0.0.1 (2026-07-24)
 
 ### Added
 - Initial release of `nano_core`.
