@@ -1,12 +1,10 @@
 # Nano Core
 
-[![Pub Version](https://img.shields.io/pub/v/nano_core?include_prereleases)](https://pub.dev/packages/nano_core)
+[![Pub Version](https://img.shields.io/pub/v/nano_core)](https://pub.dev/packages/nano_core)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Status: Beta](https://img.shields.io/badge/Status-Active_Beta-orange.svg)](#)
+[![Status: Stable](https://img.shields.io/badge/Status-Stable-green.svg)](#)
 
 A lightweight reactive architecture framework and design system toolkit for Flutter multiplatform applications.
-
-> ⚠️ **Beta Notice**: `nano_core` is currently in active **Beta / Early Development**. APIs are evolving and subject to continuous optimization prior to a stable `1.0.0` release.
 
 ## Features
 
@@ -23,7 +21,7 @@ Add `nano_core` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  nano_core: ^0.0.4-beta.1
+  nano_core: ^0.0.4
 ```
 
 ## Quick Example
