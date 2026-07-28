@@ -14,9 +14,11 @@ enum NanoToastType {
   warning,
 }
 
-/// Smart multiplatform Toast notification component for Web, Desktop, and Mobile.
+/// Smart multiplatform Toast notification component for Web, Desktop,
+/// and Mobile.
 ///
-/// On Web and Desktop, renders a floating card at the top-right corner of the window.
+/// On Web and Desktop, renders a floating card at the top-right corner
+/// of the window.
 /// On Mobile, renders a floating [SnackBar] with rounded corners.
 class NanoToast {
   /// Private constructor to prevent direct instantiation of [NanoToast].
@@ -64,7 +66,8 @@ class NanoToast {
     );
   }
 
-  /// Displays a toast notification appropriate for the current platform and context.
+  /// Displays a toast notification appropriate for the current platform
+  /// and context.
   static void show(
     BuildContext context, {
     required String message,
@@ -181,10 +184,9 @@ class NanoToast {
 }
 
 class _ToastColorScheme {
+  const _ToastColorScheme({required this.backgroundColor, required this.icon});
   final Color backgroundColor;
   final IconData icon;
-
-  const _ToastColorScheme({required this.backgroundColor, required this.icon});
 }
 
 class _WebToastCard extends StatelessWidget {

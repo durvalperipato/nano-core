@@ -2,16 +2,22 @@ import 'package:flutter/material.dart';
 
 /// Reusable section header component for showcase cards.
 class SectionHeader extends StatelessWidget {
+  /// Header icon.
+  final IconData icon;
+
+  /// Main title string.
+  final String title;
+
+  /// Subtitle description string.
+  final String subtitle;
+
+  /// Creates a [SectionHeader] widget.
   const SectionHeader({
     super.key,
     required this.icon,
     required this.title,
     required this.subtitle,
   });
-
-  final IconData icon;
-  final String title;
-  final String subtitle;
 
   @override
   Widget build(BuildContext context) {

@@ -8,6 +8,7 @@ void main() {
 
 /// Main entry widget for the Nano Core showcase application.
 class NanoCoreExampleApp extends StatelessWidget {
+  /// Creates a [NanoCoreExampleApp] widget.
   const NanoCoreExampleApp({super.key});
 
   @override

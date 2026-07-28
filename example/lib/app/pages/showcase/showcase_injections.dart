@@ -4,6 +4,7 @@ import 'showcase_controller.dart';
 
 /// Dependency injection bindings for the showcase page scope.
 class ShowcaseInjections extends NanoInjections {
+  /// Creates a new [ShowcaseInjections] scope.
   ShowcaseInjections() : super(scope: 'showcase');
 
   @override

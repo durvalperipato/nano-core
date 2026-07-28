@@ -2,16 +2,22 @@ import 'package:flutter/material.dart';
 
 /// Reusable status badge component for environment indicators.
 class StatusBadge extends StatelessWidget {
+  /// Badge label string.
+  final String label;
+
+  /// Whether the status is active.
+  final bool isActive;
+
+  /// Theme accent color for the badge.
+  final Color color;
+
+  /// Creates a [StatusBadge] widget.
   const StatusBadge({
     super.key,
     required this.label,
     required this.isActive,
     required this.color,
   });
-
-  final String label;
-  final bool isActive;
-  final Color color;
 
   @override
   Widget build(BuildContext context) {

@@ -1,7 +1,7 @@
 name: nano_core_example
 description: "A professional showcase example for nano_core architecture framework."
 publish_to: 'none'
-version: 0.0.3-beta.1
+version: 0.0.4-beta.1
 
 environment:
   sdk: ^3.10.3

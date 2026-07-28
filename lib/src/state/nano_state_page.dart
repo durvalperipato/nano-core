@@ -3,7 +3,8 @@ import 'package:get_it/get_it.dart';
 import '../controller/nano_controller.dart';
 import '../injections/nano_injections.dart';
 
-/// A base state class for [StatefulWidget] views integrating [NanoController] and [NanoInjections].
+/// A base state class for [StatefulWidget] views integrating
+/// [NanoController] and [NanoInjections].
 ///
 /// Generic type parameters:
 /// - [U]: Target [StatefulWidget].
