@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Reordered constructors across core classes to satisfy `sort_constructors_first`.
 - Excluded `example/**` directory from strict documentation linting while preserving 100% strict Dartdoc enforcement on core `lib/` package APIs.
 
-## 0.0.3-beta.1 (2026-07-28)
+## 0.0.3 (2026-07-28)
 
 ### Added
 - Added complete explicit Dartdoc constructor documentation across `NanoController`, `NanoLoadingOverlay`, `NanoScaffold`, `NanoStatePage`, and `NanoToast` to pass pub.dev Pana analysis checks.
