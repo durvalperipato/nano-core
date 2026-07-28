@@ -5,9 +5,11 @@ import 'section_header.dart';
 
 /// Card component demonstrating NanoCommand and NanoCommandBuilder.
 class NanoCommandCard extends StatelessWidget {
-  const NanoCommandCard({super.key, required this.controller});
-
+  /// Associated controller instance.
   final ShowcaseController controller;
+
+  /// Creates a [NanoCommandCard] widget.
+  const NanoCommandCard({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +23,8 @@ class NanoCommandCard extends StatelessWidget {
               icon: Icons.touch_app,
               title: 'NanoCommand & NanoCommandBuilder',
               subtitle:
-                  'Encapsulate asynchronous user actions with built-in reactive state',
+                  'Encapsulate asynchronous user actions with built-in '
+                  'reactive state',
             ),
             const SizedBox(height: 16),
             NanoCommandBuilder<String>(

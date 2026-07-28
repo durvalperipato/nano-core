@@ -9,6 +9,7 @@ import 'widgets/toast_showcase_card.dart';
 
 /// Showcase Page demonstrating Nano Core architecture and design system.
 class ShowcasePage extends StatefulWidget {
+  /// Creates a [ShowcasePage] widget.
   const ShowcasePage({super.key});
 
   @override

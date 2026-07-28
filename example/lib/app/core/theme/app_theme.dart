@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 
 /// App theme definition for the Nano Core showcase.
 class AppTheme {
+  /// Private constructor to prevent direct instantiation.
   const AppTheme._();
 
+  /// Gets the dark theme data for the showcase application.
   static ThemeData get darkTheme {
     return ThemeData.dark().copyWith(
       scaffoldBackgroundColor: const Color(0xFF0F172A),

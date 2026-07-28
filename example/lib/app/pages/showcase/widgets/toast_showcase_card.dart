@@ -4,6 +4,7 @@ import 'section_header.dart';
 
 /// Card component demonstrating multiplatform NanoToast notifications.
 class ToastShowcaseCard extends StatelessWidget {
+  /// Creates a [ToastShowcaseCard] widget.
   const ToastShowcaseCard({super.key});
 
   @override
@@ -18,7 +19,8 @@ class ToastShowcaseCard extends StatelessWidget {
               icon: Icons.notifications_active,
               title: 'NanoToast System',
               subtitle:
-                  'Adaptive multiplatform toast notifications (Floating web card or SnackBar)',
+                  'Adaptive multiplatform toast notifications '
+                  '(Floating web card or SnackBar)',
             ),
             const SizedBox(height: 16),
             Wrap(

@@ -5,9 +5,11 @@ import 'section_header.dart';
 
 /// Card component demonstrating reactive state simulation with NanoState.
 class StateSimulatorCard extends StatelessWidget {
-  const StateSimulatorCard({super.key, required this.controller});
-
+  /// Associated controller instance.
   final ShowcaseController controller;
+
+  /// Creates a [StateSimulatorCard] widget.
+  const StateSimulatorCard({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +25,8 @@ class StateSimulatorCard extends StatelessWidget {
               icon: Icons.alt_route,
               title: 'Reactive State Machine (NanoState)',
               subtitle:
-                  'Trigger state updates observed automatically by NanoScaffold',
+                  'Trigger state updates observed automatically '
+                  'by NanoScaffold',
             ),
             const SizedBox(height: 16),
             Container(

@@ -1,5 +1,5 @@
-/// Nano Core is a lightweight, reactive architecture framework and design system toolkit
-/// for Flutter multiplatform applications.
+/// Nano Core is a lightweight, reactive architecture framework and
+/// design system toolkit for Flutter multiplatform applications.
 library;
 
 export 'src/command/nano_command.dart';
