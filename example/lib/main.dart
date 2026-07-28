@@ -1,63 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:nano_core/nano_core.dart';
+import 'app/core/theme/app_theme.dart';
+import 'app/pages/showcase/showcase_page.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const NanoCoreExampleApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+/// Main entry widget for the Nano Core showcase application.
+class NanoCoreExampleApp extends StatelessWidget {
+  const NanoCoreExampleApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Nano Core Example',
-      theme: ThemeData.dark(),
-      home: SamplePage(controller: SampleController()),
-    );
-  }
-}
-
-class SampleController extends NanoController<String> {
-  Future<void> loadData() async {
-    execute(() async {
-      await Future.delayed(const Duration(seconds: 2));
-      return 'Hello from Nano Core!';
-    });
-  }
-}
-
-class SamplePage extends StatelessWidget {
-  const SamplePage({super.key, required this.controller});
-
-  final SampleController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    return NanoScaffold(
-      controller: controller,
-      header: AppBar(
-        title: const Text('Nano Core Example'),
-      ),
-      builder: (context, child) {
-        final data = controller.state.data;
-        return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                data ?? 'Press button to load data',
-                style: const TextStyle(fontSize: 18),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: controller.loadData,
-                child: const Text('Load Data'),
-              ),
-            ],
-          ),
-        );
-      },
+      title: 'Nano Core Showcase',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.darkTheme,
+      home: const ShowcasePage(),
     );
   }
 }

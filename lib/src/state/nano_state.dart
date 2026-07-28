@@ -40,35 +40,35 @@ class NanoState<T> {
 
   /// Returns a copy of [NanoState] in [NanoStateStatus.loading] status.
   NanoState<T> toLoading() => NanoState<T>(
-        status: NanoStateStatus.loading,
-        data: data,
-        error: error,
-        warning: warning,
-      );
+    status: NanoStateStatus.loading,
+    data: data,
+    error: error,
+    warning: warning,
+  );
 
   /// Returns a copy of [NanoState] in [NanoStateStatus.success] status with [newData].
   NanoState<T> toSuccess(T newData) => NanoState<T>(
-        status: NanoStateStatus.success,
-        data: newData,
-        error: null,
-        warning: null,
-      );
+    status: NanoStateStatus.success,
+    data: newData,
+    error: null,
+    warning: null,
+  );
 
   /// Returns a copy of [NanoState] in [NanoStateStatus.error] status with [newError].
   NanoState<T> toError(String newError) => NanoState<T>(
-        status: NanoStateStatus.error,
-        data: data,
-        error: newError,
-        warning: null,
-      );
+    status: NanoStateStatus.error,
+    data: data,
+    error: newError,
+    warning: null,
+  );
 
   /// Returns a copy of [NanoState] in [NanoStateStatus.warning] status with [newWarning].
   NanoState<T> toWarning(String newWarning) => NanoState<T>(
-        status: NanoStateStatus.warning,
-        data: data,
-        error: null,
-        warning: newWarning,
-      );
+    status: NanoStateStatus.warning,
+    data: data,
+    error: null,
+    warning: newWarning,
+  );
 
   /// Whether status is [NanoStateStatus.initial].
   bool get isInitial => status == NanoStateStatus.initial;

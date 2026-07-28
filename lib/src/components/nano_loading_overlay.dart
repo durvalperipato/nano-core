@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Full-screen or container loading overlay widget for page-level state loading or custom views.
 class NanoLoadingOverlay extends StatelessWidget {
+  /// Creates a [NanoLoadingOverlay] widget.
   const NanoLoadingOverlay({
     super.key,
     this.backgroundColor = Colors.black26,
@@ -19,11 +20,7 @@ class NanoLoadingOverlay extends StatelessWidget {
     return Positioned.fill(
       child: ColoredBox(
         color: backgroundColor,
-        child: Center(
-          child: CircularProgressIndicator(
-            color: indicatorColor,
-          ),
-        ),
+        child: Center(child: CircularProgressIndicator(color: indicatorColor)),
       ),
     );
   }

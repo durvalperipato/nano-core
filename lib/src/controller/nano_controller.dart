@@ -5,6 +5,9 @@ import '../state/nano_state.dart';
 ///
 /// Extends [ChangeNotifier] to notify listeners when state changes.
 abstract class NanoController<T> extends ChangeNotifier {
+  /// Creates a new [NanoController] instance.
+  NanoController();
+
   /// The current state of the controller.
   NanoState<T> state = NanoState<T>();
 
