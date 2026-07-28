@@ -72,9 +72,19 @@ class NanoToast {
     Duration duration = const Duration(seconds: 3),
   }) {
     if (NanoDeviceType.isMobile(context)) {
-      _showMobileSnackBar(context, message: message, type: type, duration: duration);
+      _showMobileSnackBar(
+        context,
+        message: message,
+        type: type,
+        duration: duration,
+      );
     } else {
-      _showWebOverlayToast(context, message: message, type: type, duration: duration);
+      _showWebOverlayToast(
+        context,
+        message: message,
+        type: type,
+        duration: duration,
+      );
     }
   }
 
@@ -96,7 +106,10 @@ class NanoToast {
             Expanded(
               child: Text(
                 message,
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ],
@@ -104,9 +117,7 @@ class NanoToast {
         backgroundColor: colorScheme.backgroundColor,
         behavior: SnackBarBehavior.floating,
         duration: duration,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.only(bottom: 24, left: 16, right: 16),
       ),
     );
@@ -173,10 +184,7 @@ class _ToastColorScheme {
   final Color backgroundColor;
   final IconData icon;
 
-  const _ToastColorScheme({
-    required this.backgroundColor,
-    required this.icon,
-  });
+  const _ToastColorScheme({required this.backgroundColor, required this.icon});
 }
 
 class _WebToastCard extends StatelessWidget {
@@ -200,7 +208,10 @@ class _WebToastCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color(0xFF1E293B),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: colorScheme.backgroundColor.withAlpha(120), width: 1.5),
+          border: Border.all(
+            color: colorScheme.backgroundColor.withAlpha(120),
+            width: 1.5,
+          ),
           boxShadow: const [
             BoxShadow(
               color: Colors.black38,
@@ -218,13 +229,21 @@ class _WebToastCard extends StatelessWidget {
                 color: colorScheme.backgroundColor.withAlpha(40),
                 shape: BoxShape.circle,
               ),
-              child: Icon(colorScheme.icon, color: colorScheme.backgroundColor, size: 20),
+              child: Icon(
+                colorScheme.icon,
+                color: colorScheme.backgroundColor,
+                size: 20,
+              ),
             ),
             const SizedBox(width: 12),
             Flexible(
               child: Text(
                 message,
-                style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
             const SizedBox(width: 12),

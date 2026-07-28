@@ -20,11 +20,7 @@ class NanoLoadingOverlay extends StatelessWidget {
     return Positioned.fill(
       child: ColoredBox(
         color: backgroundColor,
-        child: Center(
-          child: CircularProgressIndicator(
-            color: indicatorColor,
-          ),
-        ),
+        child: Center(child: CircularProgressIndicator(color: indicatorColor)),
       ),
     );
   }

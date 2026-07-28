@@ -4,7 +4,7 @@ import '../components/nano_toast.dart';
 import '../controller/nano_controller.dart';
 
 /// [NanoScaffold] is the reactive base page layout structure in nano-core.
-/// 
+///
 /// Supports:
 /// - [header]: Generic top bar (Web/Desktop Navbar or Mobile AppBar).
 /// - [headerHeight]: Custom height for [header] when it is not a [PreferredSizeWidget].
@@ -163,8 +163,7 @@ class _NanoScaffoldState extends State<NanoScaffold> {
                 return Stack(
                   children: [
                     widget.builder(context, child),
-                    if (controller.state.isLoading)
-                      const NanoLoadingOverlay(),
+                    if (controller.state.isLoading) const NanoLoadingOverlay(),
                   ],
                 );
               },
