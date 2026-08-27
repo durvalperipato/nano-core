@@ -1,16 +1,25 @@
 import 'dart:async';
 import 'package:nano_core/nano_core.dart';
+import '../../mocks/mock_api.dart';
+import '../../mocks/mock_models.dart';
+import 'showcase_messages.dart';
 
 /// Controller managing state, commands, and mock async operations for Showcase.
 class ShowcaseController extends NanoController<String> {
-  /// Command for triggering reactive background tasks.
-  late final NanoCommand0<String> fetchUserCommand;
+  /// Local Command to fetch a User.
+  late final NanoCommand0<MockUser> fetchUserCommand;
+
+  /// Local Command to fetch a list of Companies.
+  late final NanoCommand0<List<MockCompany>> fetchCompaniesCommand;
 
   /// Creates a new [ShowcaseController] instance.
   ShowcaseController() {
-    fetchUserCommand = NanoCommand0<String>(() async {
-      await Future.delayed(const Duration(seconds: 2));
-      return 'User profile fetched successfully!';
+    fetchUserCommand = NanoCommand0<MockUser>(() async {
+      return MockApi.fetchUser();
+    });
+
+    fetchCompaniesCommand = NanoCommand0<List<MockCompany>>(() async {
+      return MockApi.fetchCompanies();
     });
   }
 
@@ -28,21 +37,29 @@ class ShowcaseController extends NanoController<String> {
   Future<void> simulateWarning() async {
     emit(state.toLoading());
     await Future.delayed(const Duration(milliseconds: 1200));
-    emit(state.toWarning('API rate limit reached (80%). Slowing down...'));
+    emit(state.toWarning(key: ShowcaseMessages.warningRateLimit));
   }
 
   /// Simulates an async operation returning an error.
   Future<void> simulateError() async {
+    emit(state.toLoading());
+    await Future.delayed(const Duration(milliseconds: 1200));
+    emit(state.toError(key: ShowcaseMessages.errorBackend));
+  }
+
+  /// Triggers a global fetch which updates the controller state,
+  /// causing the NanoScaffold to show the NanoLoadingOverlay in the center.
+  Future<void> simulateGlobalFetch() async {
     unawaited(
       execute(() async {
-        await Future.delayed(const Duration(milliseconds: 1200));
-        throw Exception('Failed to connect to backend server. (HTTP 500)');
+        final user = await MockApi.fetchUser();
+        return 'Global Data Fetched: ${user.name}';
       }),
     );
   }
 
   /// Resets controller state to initial.
   void resetState() {
-    emit(const NanoState<String>());
+    emit(const InitialState<String>());
   }
 }

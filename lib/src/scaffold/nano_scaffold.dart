@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../components/nano_loading_overlay.dart';
 import '../components/nano_toast.dart';
 import '../controller/nano_controller.dart';
+import '../state/nano_message_key.dart';
+import '../state/nano_state.dart';
 
 /// [NanoScaffold] is the reactive base page layout structure in nano-core.
 ///
@@ -20,7 +22,7 @@ class NanoScaffold extends StatefulWidget {
     this.header,
     this.headerHeight = kToolbarHeight,
     this.drawer,
-    this.bottomNavigationBar,
+    this.footer,
     this.floatingActionButton,
     this.backgroundColor,
     this.resizeToAvoidBottomInset,
@@ -44,7 +46,7 @@ class NanoScaffold extends StatefulWidget {
   final Widget? drawer;
 
   /// Bottom navigation bar.
-  final Widget? bottomNavigationBar;
+  final Widget? footer;
 
   /// Floating action button.
   final Widget? floatingActionButton;
@@ -57,11 +59,11 @@ class NanoScaffold extends StatefulWidget {
 
   /// Optional custom error callback. If null, displays default
   /// [NanoToast.showError].
-  final void Function(String error)? onCustomError;
+  final void Function(NanoMessageKey? error)? onCustomError;
 
   /// Optional custom warning callback. If null, displays default
   /// [NanoToast.showWarning].
-  final void Function(String warning)? onCustomWarning;
+  final void Function(NanoMessageKey? warning)? onCustomWarning;
 
   /// Optional custom success callback. If null, displays default
   /// [NanoToast.showSuccess].
@@ -110,21 +112,21 @@ class _NanoScaffoldState extends State<NanoScaffold> {
 
     final state = controller.state;
 
-    if (state.isError) {
-      final errorMessage = state.error ?? 'An unexpected error occurred.';
+    if (state is ErrorState) {
+      final errorKey = state.key;
       if (widget.onCustomError != null) {
-        widget.onCustomError!(errorMessage);
+        widget.onCustomError!(errorKey);
       } else {
-        NanoToast.showError(context, errorMessage);
+        NanoToast.showError(context, errorKey?.message(context) ?? '');
       }
-    } else if (state.isWarning) {
-      final warningMessage = state.warning ?? 'Attention required.';
+    } else if (state is WarningState) {
+      final warningKey = state.key;
       if (widget.onCustomWarning != null) {
-        widget.onCustomWarning!(warningMessage);
+        widget.onCustomWarning!(warningKey);
       } else {
-        NanoToast.showWarning(context, warningMessage);
+        NanoToast.showWarning(context, warningKey?.message(context) ?? '');
       }
-    } else if (state.isSuccess) {
+    } else if (state is SuccessState) {
       final successMsg = state.data?.toString();
       if (successMsg != null && successMsg.isNotEmpty) {
         if (widget.onCustomSuccess != null) {
@@ -139,11 +141,7 @@ class _NanoScaffoldState extends State<NanoScaffold> {
   PreferredSizeWidget? _buildEffectiveHeader() {
     final header = widget.header;
     if (header == null) return null;
-
-    if (header is PreferredSizeWidget) {
-      return header;
-    }
-
+    if (header is PreferredSizeWidget) return header;
     return PreferredSize(
       preferredSize: Size.fromHeight(widget.headerHeight),
       child: header,
@@ -157,7 +155,7 @@ class _NanoScaffoldState extends State<NanoScaffold> {
     return Scaffold(
       appBar: _buildEffectiveHeader(),
       drawer: widget.drawer,
-      bottomNavigationBar: widget.bottomNavigationBar,
+      bottomNavigationBar: widget.footer,
       floatingActionButton: widget.floatingActionButton,
       backgroundColor: widget.backgroundColor,
       resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
@@ -169,7 +167,8 @@ class _NanoScaffoldState extends State<NanoScaffold> {
                 return Stack(
                   children: [
                     widget.builder(context, child),
-                    if (controller.state.isLoading) const NanoLoadingOverlay(),
+                    if (controller.state is LoadingState)
+                      const NanoLoadingOverlay(),
                   ],
                 );
               },

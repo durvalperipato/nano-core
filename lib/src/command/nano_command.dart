@@ -5,7 +5,7 @@ import '../state/nano_state.dart';
 /// [ValueNotifier] holding [NanoState].
 abstract class NanoCommand<T> extends ValueNotifier<NanoState<T>> {
   /// Creates a [NanoCommand] initializing with default [NanoState].
-  NanoCommand() : super(NanoState<T>());
+  NanoCommand() : super(InitialState<T>());
 
   Future<void> _execute(Future<T> Function() action) async {
     value = value.toLoading();
@@ -13,7 +13,7 @@ abstract class NanoCommand<T> extends ValueNotifier<NanoState<T>> {
       final result = await action();
       value = value.toSuccess(result);
     } catch (e) {
-      value = value.toError(e.toString());
+      value = value.toError();
     }
   }
 }

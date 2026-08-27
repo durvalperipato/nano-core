@@ -9,7 +9,7 @@ abstract class NanoController<T> extends ChangeNotifier {
   NanoController();
 
   /// The current state of the controller.
-  NanoState<T> state = NanoState<T>();
+  NanoState<T> state = InitialState<T>();
 
   /// Emits a new state and notifies all registered listeners.
   void emit(NanoState<T> newState) {
@@ -33,7 +33,7 @@ abstract class NanoController<T> extends ChangeNotifier {
       final result = await action();
       emit(state.toSuccess(result));
     } catch (e) {
-      emit(state.toError(e.toString()));
+      emit(state.toError());
     }
   }
 }

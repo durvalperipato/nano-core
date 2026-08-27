@@ -1,13 +1,14 @@
 name: nano_core
 description: "A lightweight reactive architecture framework and design system toolkit for Flutter multiplatform applications."
-version: 0.0.5-dev
+version: 0.0.5
 homepage: https://nanodevs.com.br
 repository: https://github.com/durvalperipato/nano-core
 topics:
   - architecture
   - state-management
-  - scaffold
   - design-system
+  - routing
+  - scaffold
 
 environment:
   sdk: ^3.10.3
