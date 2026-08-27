@@ -45,7 +45,7 @@ class StateSimulatorCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Current Status: ${state.status.name.toUpperCase()}',
+                          'Current Status: ${_getStateName(state)}',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: _getStateColor(state),
@@ -53,17 +53,17 @@ class StateSimulatorCard extends StatelessWidget {
                         ),
                         if (state.data != null)
                           Text(
-                            state.data!,
+                            state.data.toString(),
                             style: const TextStyle(color: Colors.white70),
                           ),
-                        if (state.warning != null)
+                        if (state case WarningState s)
                           Text(
-                            state.warning!,
+                            s.key?.message(context) ?? 'Aviso genérico',
                             style: TextStyle(color: _getStateColor(state)),
                           ),
-                        if (state.error != null)
+                        if (state case ErrorState s)
                           Text(
-                            state.error!,
+                            s.key?.message(context) ?? 'Erro genérico',
                             style: TextStyle(color: _getStateColor(state)),
                           ),
                       ],
@@ -104,6 +104,15 @@ class StateSimulatorCard extends StatelessWidget {
                     foregroundColor: Colors.white,
                   ),
                 ),
+                ElevatedButton.icon(
+                  onPressed: controller.simulateGlobalFetch,
+                  icon: const Icon(Icons.cloud_download_outlined),
+                  label: const Text('Global Fetch (Overlay)'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF3B82F6),
+                    foregroundColor: Colors.white,
+                  ),
+                ),
               ],
             ),
           ],
@@ -112,10 +121,20 @@ class StateSimulatorCard extends StatelessWidget {
     );
   }
 
+  String _getStateName(NanoState state) {
+    return switch (state) {
+      InitialState() => 'INITIAL',
+      LoadingState() => 'LOADING',
+      SuccessState() => 'SUCCESS',
+      WarningState() => 'WARNING',
+      ErrorState() => 'ERROR',
+    };
+  }
+
   Color _getStateColor(NanoState state) {
-    if (state.isSuccess) return const Color(0xFF10B981);
-    if (state.isWarning) return const Color(0xFFF59E0B);
-    if (state.isError) return const Color(0xFFEF4444);
+    if (state is SuccessState) return const Color(0xFF10B981);
+    if (state is WarningState) return const Color(0xFFF59E0B);
+    if (state is ErrorState) return const Color(0xFFEF4444);
     return Colors.white70;
   }
 }
@@ -127,20 +146,20 @@ class _StateStatusIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (state.isLoading) {
+    if (state is LoadingState) {
       return const SizedBox(
         width: 24,
         height: 24,
         child: CircularProgressIndicator(strokeWidth: 2.5),
       );
     }
-    if (state.isSuccess) {
+    if (state is SuccessState) {
       return const Icon(Icons.check_circle, color: Color(0xFF10B981), size: 28);
     }
-    if (state.isWarning) {
+    if (state is WarningState) {
       return const Icon(Icons.warning, color: Color(0xFFF59E0B), size: 28);
     }
-    if (state.isError) {
+    if (state is ErrorState) {
       return const Icon(Icons.error, color: Color(0xFFEF4444), size: 28);
     }
     return const Icon(Icons.info_outline, color: Colors.blueAccent, size: 28);
