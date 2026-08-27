@@ -1,0 +1,11 @@
+{
+  "@@locale": "en",
+  "warningRateLimit": "API rate limit reached (80%). Slowing down...",
+  "@warningRateLimit": {
+    "description": "Warning message when API rate limit is near"
+  },
+  "errorBackend": "Failed to connect to backend server. (HTTP 500)",
+  "@errorBackend": {
+    "description": "Error message when backend connection fails"
+  }
+}

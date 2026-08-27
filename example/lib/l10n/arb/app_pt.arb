@@ -1,0 +1,5 @@
+{
+  "@@locale": "pt",
+  "warningRateLimit": "Limite de requisições da API atingido (80%). Desacelerando...",
+  "errorBackend": "Falha ao conectar com o servidor. (HTTP 500)"
+}
