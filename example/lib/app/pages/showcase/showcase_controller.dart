@@ -3,19 +3,23 @@ import 'package:nano_core/nano_core.dart';
 import '../../mocks/mock_api.dart';
 import '../../mocks/mock_models.dart';
 import 'showcase_messages.dart';
+import 'showcase_state.dart';
 
 /// Controller managing state, commands, and mock async operations for Showcase.
-class ShowcaseController extends NanoController<String> {
+class ShowcaseController extends NanoController<ShowcaseViewState> {
+  /// User repository for fetching user data.
+  final MockUserRepository userRepository;
+
   /// Local Command to fetch a User.
-  late final NanoCommand0<MockUser> fetchUserCommand;
+  late final NanoCommand0<MockUser?> fetchUserCommand;
 
   /// Local Command to fetch a list of Companies.
   late final NanoCommand0<List<MockCompany>> fetchCompaniesCommand;
 
   /// Creates a new [ShowcaseController] instance.
-  ShowcaseController() {
-    fetchUserCommand = NanoCommand0<MockUser>(() async {
-      return MockApi.fetchUser();
+  ShowcaseController({required this.userRepository}) {
+    fetchUserCommand = NanoCommand0<MockUser?>(() async {
+      return userRepository.getById('1');
     });
 
     fetchCompaniesCommand = NanoCommand0<List<MockCompany>>(() async {
@@ -28,7 +32,9 @@ class ShowcaseController extends NanoController<String> {
     unawaited(
       execute(() async {
         await Future.delayed(const Duration(milliseconds: 1500));
-        return 'Dashboard analytics updated successfully!';
+        return const ShowcaseViewState(
+          message: 'Dashboard analytics updated successfully!',
+        );
       }),
     );
   }
@@ -52,14 +58,17 @@ class ShowcaseController extends NanoController<String> {
   Future<void> simulateGlobalFetch() async {
     unawaited(
       execute(() async {
-        final user = await MockApi.fetchUser();
-        return 'Global Data Fetched: ${user.name}';
+        final users = await userRepository.getAll();
+        return ShowcaseViewState(
+          users: users,
+          message: 'Global Data Fetched: ${users.length} users from NanoRepository',
+        );
       }),
     );
   }
 
   /// Resets controller state to initial.
   void resetState() {
-    emit(const InitialState<String>());
+    emit(const InitialState<ShowcaseViewState>());
   }
 }

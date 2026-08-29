@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:nano_core/nano_core.dart';
 import 'showcase_controller.dart';
 import 'showcase_injections.dart';
+import 'showcase_messages.dart';
+import 'showcase_state.dart';
 import 'widgets/device_environment_card.dart';
 import 'widgets/nano_command_card.dart';
 import 'widgets/state_simulator_card.dart';
@@ -17,16 +19,23 @@ class ShowcasePage extends StatefulWidget {
 }
 
 class _ShowcasePageState
-    extends
-        NanoStatePage<ShowcasePage, ShowcaseController, ShowcaseInjections> {
+    extends NanoStatePage<ShowcasePage, ShowcaseController> {
   @override
-  ShowcaseInjections get injections => ShowcaseInjections();
+  NanoInjections get injections => ShowcaseInjections();
 
   @override
   Widget build(BuildContext context) {
-    return NanoScaffold(
+    return NanoScaffold<ShowcaseViewState, ShowcaseMessages>(
       controller: controller,
-      header: AppBar(
+      onCustomWarning: (warning) {
+        if (warning != null) {
+          NanoToast.showWarning(
+            context,
+            'Custom Handled Warning: ${warning.message(context)}',
+          );
+        }
+      },
+      headerBuilder: (context, state) => AppBar(
         title: Row(
           children: [
             Container(
@@ -38,7 +47,11 @@ class _ShowcasePageState
               child: const Icon(Icons.bolt, color: Color(0xFF6366F1)),
             ),
             const SizedBox(width: 12),
-            const Text('Nano Core Studio'),
+            Text(
+              state.data?.users.isNotEmpty == true
+                  ? 'Nano Core Studio (${state.data!.users.length} users)'
+                  : 'Nano Core Studio',
+            ),
           ],
         ),
         actions: [
@@ -49,7 +62,7 @@ class _ShowcasePageState
           ),
         ],
       ),
-      builder: (context, child) {
+      builder: (context, state) {
         return SingleChildScrollView(
           padding: const EdgeInsets.all(20),
           child: Column(
