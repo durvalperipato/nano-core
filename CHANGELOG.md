@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## 0.1.0 (2026-08-29)
+
+### Breaking Changes
+- **`NanoController<T>`**: Now strictly enforces `T extends NanoViewState`. Primitive types (`String`, `int`, etc.) or arbitrary unbounded types are no longer permitted as state data models.
+- **`NanoScaffold<T, M>`**: Builder signature updated from `Widget Function(BuildContext, Widget?)` to `Widget Function(BuildContext, NanoState<T>)` allowing direct reactive state access. Added support for typed message keys `M extends NanoMessageKey` and dynamic builders (`headerBuilder`, `footerBuilder`, `drawerBuilder`, `floatingActionButtonBuilder`).
+- **`NanoStatePage<W, C>`**: Generic parameter for `NanoInjections` removed. `injections` is now an abstract getter `NanoInjections get injections;` with automatic GetIt scope initialization (`initScope`) and teardown (`dropScope`).
+- **`NanoStateContent` removed**: Replaced by the standardized `NanoViewState` base class.
+
+### Added
+- `NanoHttpClient` interface defining standardized HTTP client contracts.
+- `NanoHttpResponse` generic response model with `NanoHttpResponseExtension` helpers (`isSuccess`, `isClientError`, `isServerError`).
+- `NanoHttpCode` status code constants.
+- `NanoAdapter` abstract generic model adapter for JSON serialization and deserialization.
+- `NanoEntity` base generic entity with unique identifier and value equality.
+- `NanoRepository` base generic CRUD repository with automated serialization.
+- `NanoViewState` base class enforcing structured, equatable view state models for `NanoController`.
+
+### Removed
+- `NanoStateContent` in favor of the standardized `NanoViewState`.
+
+
 ## 0.0.5 (2026-08-27)
 
 ### Added

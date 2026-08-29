@@ -51,7 +51,7 @@ class _UserCommandSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return NanoCommandBuilder<MockUser>(
+    return NanoCommandBuilder<MockUser?>(
       command: controller.fetchUserCommand,
       builder: (context, state) {
         final isLoading = state is LoadingState;

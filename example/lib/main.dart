@@ -7,10 +7,14 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:nano_core_example/l10n/generated/app_localizations.dart';
+import 'app/core/injections/app_injections.dart';
 import 'app/core/theme/app_theme.dart';
 import 'app/pages/showcase/showcase_page.dart';
 
 void main() {
+  // Initialize global core injections (HTTP client, global services, etc.)
+  AppInjections().initScope();
+
   runApp(const NanoCoreExampleApp());
 }
 
