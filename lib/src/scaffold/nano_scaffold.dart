@@ -4,26 +4,40 @@ import '../components/nano_toast.dart';
 import '../controller/nano_controller.dart';
 import '../state/nano_message_key.dart';
 import '../state/nano_state.dart';
+import '../state/nano_view_state.dart';
 
 /// [NanoScaffold] is the reactive base page layout structure in nano-core.
 ///
+/// Generic over [T], where [T] represents the page's [NanoViewState],
+/// and [M], where [M] represents the strongly typed [NanoMessageKey].
+///
 /// Supports:
-/// - [header]: Generic top bar (Web/Desktop Navbar or Mobile AppBar).
+/// - [header]: Static top bar (Web/Desktop Navbar or Mobile AppBar).
+/// - [headerBuilder]: Dynamic top bar builder receiving current [NanoState].
 /// - [headerHeight]: Custom height for [header] when it is not a
 ///   [PreferredSizeWidget].
 /// - Automatic state observation via [NanoController] to display loading
 ///   overlays, custom error/warning/success toasts via [NanoToast], or
 ///   custom callbacks.
-class NanoScaffold extends StatefulWidget {
+/// - Passes the current [NanoState] directly to [builder], [headerBuilder],
+///   [footerBuilder], [drawerBuilder], and [floatingActionButtonBuilder].
+/// - Strongly-typed message callbacks [onCustomError] and [onCustomWarning]
+///   using [M].
+class NanoScaffold<T extends NanoViewState, M extends NanoMessageKey>
+    extends StatefulWidget {
   /// Creates a [NanoScaffold] widget layout.
   const NanoScaffold({
     super.key,
     this.controller,
     this.header,
+    this.headerBuilder,
     this.headerHeight = kToolbarHeight,
     this.drawer,
+    this.drawerBuilder,
     this.footer,
+    this.footerBuilder,
     this.floatingActionButton,
+    this.floatingActionButtonBuilder,
     this.backgroundColor,
     this.resizeToAvoidBottomInset,
     this.onCustomError,
@@ -33,23 +47,39 @@ class NanoScaffold extends StatefulWidget {
   });
 
   /// Optional reactive controller managing page state.
-  final NanoController? controller;
+  final NanoController<T>? controller;
 
-  /// Top navigation bar or header (Web Navbar, Mobile AppBar, or any Widget).
+  /// Static top navigation bar or header (Web Navbar, Mobile AppBar).
   final Widget? header;
+
+  /// Dynamic top navigation bar builder receiving the current [NanoState].
+  final Widget? Function(BuildContext context, NanoState<T> state)?
+  headerBuilder;
 
   /// Custom height for [header] when not a [PreferredSizeWidget].
   /// Defaults to [kToolbarHeight].
   final double headerHeight;
 
-  /// Side navigation drawer.
+  /// Static side navigation drawer.
   final Widget? drawer;
 
-  /// Bottom navigation bar.
+  /// Dynamic drawer builder receiving the current [NanoState].
+  final Widget? Function(BuildContext context, NanoState<T> state)?
+  drawerBuilder;
+
+  /// Static bottom navigation bar or footer.
   final Widget? footer;
 
-  /// Floating action button.
+  /// Dynamic footer builder receiving the current [NanoState].
+  final Widget? Function(BuildContext context, NanoState<T> state)?
+  footerBuilder;
+
+  /// Static floating action button.
   final Widget? floatingActionButton;
+
+  /// Dynamic floating action button builder receiving the current [NanoState].
+  final Widget? Function(BuildContext context, NanoState<T> state)?
+  floatingActionButtonBuilder;
 
   /// Page background color.
   final Color? backgroundColor;
@@ -59,24 +89,25 @@ class NanoScaffold extends StatefulWidget {
 
   /// Optional custom error callback. If null, displays default
   /// [NanoToast.showError].
-  final void Function(NanoMessageKey? error)? onCustomError;
+  final void Function(M? error)? onCustomError;
 
   /// Optional custom warning callback. If null, displays default
   /// [NanoToast.showWarning].
-  final void Function(NanoMessageKey? warning)? onCustomWarning;
+  final void Function(M? warning)? onCustomWarning;
 
   /// Optional custom success callback. If null, displays default
   /// [NanoToast.showSuccess].
   final void Function(String message)? onCustomSuccess;
 
-  /// Main page content builder.
-  final Widget Function(BuildContext context, Widget? child) builder;
+  /// Main page content builder, receiving current context and [NanoState].
+  final Widget Function(BuildContext context, NanoState<T> state) builder;
 
   @override
-  State<NanoScaffold> createState() => _NanoScaffoldState();
+  State<NanoScaffold<T, M>> createState() => _NanoScaffoldState<T, M>();
 }
 
-class _NanoScaffoldState extends State<NanoScaffold> {
+class _NanoScaffoldState<T extends NanoViewState, M extends NanoMessageKey>
+    extends State<NanoScaffold<T, M>> {
   @override
   void initState() {
     super.initState();
@@ -84,7 +115,7 @@ class _NanoScaffoldState extends State<NanoScaffold> {
   }
 
   @override
-  void didUpdateWidget(covariant NanoScaffold oldWidget) {
+  void didUpdateWidget(covariant NanoScaffold<T, M> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.controller != widget.controller) {
       _unsubscribeController(oldWidget.controller);
@@ -98,11 +129,11 @@ class _NanoScaffoldState extends State<NanoScaffold> {
     super.dispose();
   }
 
-  void _subscribeController(NanoController? controller) {
+  void _subscribeController(NanoController<T>? controller) {
     controller?.addListener(_onStateChanged);
   }
 
-  void _unsubscribeController(NanoController? controller) {
+  void _unsubscribeController(NanoController<T>? controller) {
     controller?.removeListener(_onStateChanged);
   }
 
@@ -112,23 +143,23 @@ class _NanoScaffoldState extends State<NanoScaffold> {
 
     final state = controller.state;
 
-    if (state is ErrorState) {
-      final errorKey = state.key;
+    if (state case ErrorState(:final key)) {
+      final typedKey = key is M ? key : null;
       if (widget.onCustomError != null) {
-        widget.onCustomError!(errorKey);
+        widget.onCustomError!(typedKey);
       } else {
-        NanoToast.showError(context, errorKey?.message(context) ?? '');
+        NanoToast.showError(context, key?.message(context) ?? '');
       }
-    } else if (state is WarningState) {
-      final warningKey = state.key;
+    } else if (state case WarningState(:final key)) {
+      final typedKey = key is M ? key : null;
       if (widget.onCustomWarning != null) {
-        widget.onCustomWarning!(warningKey);
+        widget.onCustomWarning!(typedKey);
       } else {
-        NanoToast.showWarning(context, warningKey?.message(context) ?? '');
+        NanoToast.showWarning(context, key?.message(context) ?? '');
       }
-    } else if (state is SuccessState) {
-      final successMsg = state.data?.toString();
-      if (successMsg != null && successMsg.isNotEmpty) {
+    } else if (state case SuccessState(:final data)) {
+      final successMsg = data.toString();
+      if (successMsg.isNotEmpty) {
         if (widget.onCustomSuccess != null) {
           widget.onCustomSuccess!(successMsg);
         } else {
@@ -138,13 +169,51 @@ class _NanoScaffoldState extends State<NanoScaffold> {
     }
   }
 
-  PreferredSizeWidget? _buildEffectiveHeader() {
-    final header = widget.header;
-    if (header == null) return null;
-    if (header is PreferredSizeWidget) return header;
+  PreferredSizeWidget? _buildEffectiveHeader(NanoState<T> state) {
+    final effectiveWidget = widget.headerBuilder != null
+        ? widget.headerBuilder!(context, state)
+        : widget.header;
+
+    if (effectiveWidget == null) return null;
+    if (effectiveWidget is PreferredSizeWidget) return effectiveWidget;
     return PreferredSize(
       preferredSize: Size.fromHeight(widget.headerHeight),
-      child: header,
+      child: effectiveWidget,
+    );
+  }
+
+  Widget? _buildEffectiveDrawer(NanoState<T> state) {
+    return widget.drawerBuilder != null
+        ? widget.drawerBuilder!(context, state)
+        : widget.drawer;
+  }
+
+  Widget? _buildEffectiveFooter(NanoState<T> state) {
+    return widget.footerBuilder != null
+        ? widget.footerBuilder!(context, state)
+        : widget.footer;
+  }
+
+  Widget? _buildEffectiveFab(NanoState<T> state) {
+    return widget.floatingActionButtonBuilder != null
+        ? widget.floatingActionButtonBuilder!(context, state)
+        : widget.floatingActionButton;
+  }
+
+  Widget _buildScaffoldWithState(NanoState<T> state) {
+    return Scaffold(
+      appBar: _buildEffectiveHeader(state),
+      drawer: _buildEffectiveDrawer(state),
+      bottomNavigationBar: _buildEffectiveFooter(state),
+      floatingActionButton: _buildEffectiveFab(state),
+      backgroundColor: widget.backgroundColor,
+      resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
+      body: Stack(
+        children: [
+          widget.builder(context, state),
+          if (state is LoadingState) const NanoLoadingOverlay(),
+        ],
+      ),
     );
   }
 
@@ -152,27 +221,13 @@ class _NanoScaffoldState extends State<NanoScaffold> {
   Widget build(BuildContext context) {
     final controller = widget.controller;
 
-    return Scaffold(
-      appBar: _buildEffectiveHeader(),
-      drawer: widget.drawer,
-      bottomNavigationBar: widget.footer,
-      floatingActionButton: widget.floatingActionButton,
-      backgroundColor: widget.backgroundColor,
-      resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
-      body: controller == null
-          ? widget.builder(context, null)
-          : ListenableBuilder(
-              listenable: controller,
-              builder: (context, child) {
-                return Stack(
-                  children: [
-                    widget.builder(context, child),
-                    if (controller.state is LoadingState)
-                      const NanoLoadingOverlay(),
-                  ],
-                );
-              },
-            ),
+    if (controller == null) {
+      return _buildScaffoldWithState(InitialState<T>());
+    }
+
+    return ListenableBuilder(
+      listenable: controller,
+      builder: (context, _) => _buildScaffoldWithState(controller.state),
     );
   }
 }

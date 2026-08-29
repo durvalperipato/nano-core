@@ -51,9 +51,9 @@ class StateSimulatorCard extends StatelessWidget {
                             color: _getStateColor(state),
                           ),
                         ),
-                        if (state.data != null)
+                        if (state.data?.message != null)
                           Text(
-                            state.data.toString(),
+                            state.data!.message!,
                             style: const TextStyle(color: Colors.white70),
                           ),
                         if (state case WarningState s)

@@ -1,10 +1,13 @@
 import 'package:flutter/foundation.dart';
 import '../state/nano_state.dart';
+import '../state/nano_view_state.dart';
 
 /// An abstract controller managing state [NanoState] for Flutter UI components.
 ///
 /// Extends [ChangeNotifier] to notify listeners when state changes.
-abstract class NanoController<T> extends ChangeNotifier {
+/// Requires [T] to extend [NanoViewState] for structured, immutable
+/// state models.
+abstract class NanoController<T extends NanoViewState> extends ChangeNotifier {
   /// Creates a new [NanoController] instance.
   NanoController();
 
