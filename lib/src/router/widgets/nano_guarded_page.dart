@@ -8,12 +8,12 @@ import '../routes/nano_route.dart';
 class NanoGuardedPage extends StatelessWidget {
   /// Creates a [NanoGuardedPage] widget.
   const NanoGuardedPage({
-    super.key,
     required this.route,
     required this.path,
     required this.args,
     required this.guards,
     required this.nameToPathMap,
+    super.key,
   });
 
   /// The target route to build.
@@ -38,8 +38,7 @@ class NanoGuardedPage extends StatelessWidget {
         final hasAccess = guard.hasAccess(context, args);
         if (!hasAccess) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            final target =
-                nameToPathMap[guard.redirectTo] ?? guard.redirectTo;
+            final target = nameToPathMap[guard.redirectTo] ?? guard.redirectTo;
             NanoRouter.toReplacementNamed(target, arguments: args.data);
           });
           return const Scaffold(

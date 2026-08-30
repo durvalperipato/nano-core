@@ -8,7 +8,6 @@ import '../router/nano_router.dart';
 class NanoApp extends StatelessWidget {
   /// Creates a [NanoApp] instance.
   const NanoApp({
-    super.key,
     this.router,
     this.home,
     this.title = '',
@@ -35,6 +34,7 @@ class NanoApp extends StatelessWidget {
     this.scrollBehavior,
     this.builder,
     this.navigatorObservers = const <NavigatorObserver>[],
+    super.key,
   });
 
   /// The declarative [NanoRouter] instance managing navigation.

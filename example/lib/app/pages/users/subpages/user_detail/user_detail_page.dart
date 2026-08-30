@@ -8,7 +8,7 @@ class UserDetailPage extends StatelessWidget {
   final MockUser? user;
 
   /// Creates a [UserDetailPage] widget.
-  const UserDetailPage({super.key, this.user});
+  const UserDetailPage({this.user, super.key});
 
   @override
   Widget build(BuildContext context) {

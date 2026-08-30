@@ -5,9 +5,9 @@ import '../models/nano_route_error.dart';
 class NanoErrorPage extends StatelessWidget {
   /// Creates a [NanoErrorPage] widget.
   const NanoErrorPage({
-    super.key,
     required this.error,
     this.errorBuilder,
+    super.key,
   });
 
   /// The route error payload.

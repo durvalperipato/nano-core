@@ -12,6 +12,8 @@ export 'src/equatable/nano_equatable.dart';
 export 'src/entity/nano_entity.dart';
 export 'src/injections/nano_injections.dart';
 export 'src/scaffold/nano_scaffold.dart';
+export 'src/scaffold/widgets/nano_scaffold_header.dart';
+export 'src/scaffold/widgets/nano_scaffold_builder.dart';
 export 'src/state/nano_state.dart';
 export 'src/state/nano_view_state.dart';
 export 'src/state/nano_state_page.dart';
