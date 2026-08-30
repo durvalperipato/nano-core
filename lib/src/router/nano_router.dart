@@ -17,7 +17,7 @@ class NanoRouter {
     this.errorBuilder,
   }) {
     for (final route in routes) {
-      _registerRoute(route, '');
+      _registerRoute(route, '', const []);
     }
   }
 
@@ -37,12 +37,25 @@ class NanoRouter {
 
   final Map<String, NanoRoute> _routeMap = {};
   final Map<String, String> _nameToPathMap = {};
+  final Map<String, List<NanoProtectedRoute>> _routeGuardsMap = {};
 
-  void _registerRoute(NanoRoute route, String parentPath) {
+  void _registerRoute(
+    NanoRoute route,
+    String parentPath,
+    List<NanoProtectedRoute> activeGuards,
+  ) {
     final fullPath = _joinPaths(parentPath, route.path);
+    final currentGuards = List<NanoProtectedRoute>.from(activeGuards);
 
-    if (route is! NanoGroupRoute) {
+    if (route is NanoProtectedRoute) {
+      currentGuards.add(route);
+    }
+
+    if (route is! NanoGroupRoute && route is! NanoProtectedRoute) {
       _routeMap[fullPath] = route;
+      if (currentGuards.isNotEmpty) {
+        _routeGuardsMap[fullPath] = currentGuards;
+      }
     }
 
     if (route.name != null && route.name!.isNotEmpty) {
@@ -50,11 +63,12 @@ class NanoRouter {
     }
 
     for (final child in route.routes) {
-      _registerRoute(child, fullPath);
+      _registerRoute(child, fullPath, currentGuards);
     }
   }
 
   String _joinPaths(String parent, String child) {
+    if (child.isEmpty) return parent.isEmpty ? '/' : parent;
     if (parent.isEmpty || parent == '/') {
       return child.startsWith('/') ? child : '/$child';
     }
@@ -93,29 +107,27 @@ class NanoRouter {
       );
     }
 
-    if (route is NanoProtectedRoute) {
-      return MaterialPageRoute<dynamic>(
-        settings: settings,
-        builder: (context) {
-          final hasAccess = route.hasAccess(context, args);
-          if (!hasAccess) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              final target =
-                  _nameToPathMap[route.redirectTo] ?? route.redirectTo;
-              toReplacementNamed(target, arguments: args.data);
-            });
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
-          return route.builder(context, args);
-        },
-      );
-    }
-
     return MaterialPageRoute<dynamic>(
       settings: settings,
-      builder: (context) => route.builder(context, args),
+      builder: (context) {
+        final guards = _routeGuardsMap[path];
+        if (guards != null && guards.isNotEmpty) {
+          for (final guard in guards) {
+            final hasAccess = guard.hasAccess(context, args);
+            if (!hasAccess) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                final target =
+                    _nameToPathMap[guard.redirectTo] ?? guard.redirectTo;
+                toReplacementNamed(target, arguments: args.data);
+              });
+              return const Scaffold(
+                body: Center(child: CircularProgressIndicator()),
+              );
+            }
+          }
+        }
+        return route.builder(context, args);
+      },
     );
   }
 

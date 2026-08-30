@@ -40,19 +40,22 @@ final appRouter = NanoRouter(
       builder: (context, args) => const LoginPage(),
     ),
 
-    // Grouping admin management routes under '/admin' prefix:
-    NanoGroupRoute(
-      path: AppPaths.admin,
+    // Protected area with route guard wrapping admin routes:
+    NanoProtectedRoute(
+      hasAccess: (context, args) => false,
+      redirectTo: AppRouteNames.login,
       routes: [
-        // Protected route: /admin/panel (redirects to /login if hasAccess is false)
-        NanoProtectedRoute(
-          name: AppRouteNames.admin,
-          path: AppPaths.panel,
-          hasAccess: (context, args) => false,
-          redirectTo: AppRouteNames.login,
-          builder: (context, args) => const Scaffold(
-            body: Center(child: Text('Admin Secret Area')),
-          ),
+        NanoGroupRoute(
+          path: AppPaths.admin,
+          routes: [
+            NanoRoute(
+              name: AppRouteNames.admin,
+              path: AppPaths.panel,
+              builder: (context, args) => const Scaffold(
+                body: Center(child: Text('Admin Secret Area')),
+              ),
+            ),
+          ],
         ),
       ],
     ),

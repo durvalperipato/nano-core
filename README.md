@@ -310,17 +310,20 @@ final appRouter = NanoRouter(
       ],
     ),
 
-    // Route grouping container with prefix path:
-    NanoGroupRoute(
-      path: '/admin',
+    // Protected area with route guard wrapping admin routes:
+    NanoProtectedRoute(
+      hasAccess: (context, args) => AuthService.isAdmin,
+      redirectTo: 'login',
       routes: [
-        // Protected route: /admin/panel
-        NanoProtectedRoute(
-          name: 'admin',
-          path: '/panel',
-          hasAccess: (context, args) => AuthService.isAdmin,
-          redirectTo: 'login',
-          builder: (context, args) => const AdminPage(),
+        NanoGroupRoute(
+          path: '/admin',
+          routes: [
+            NanoRoute(
+              name: 'admin',
+              path: '/panel',
+              builder: (context, args) => const AdminPage(),
+            ),
+          ],
         ),
       ],
     ),
