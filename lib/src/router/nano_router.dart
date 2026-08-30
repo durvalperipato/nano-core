@@ -8,6 +8,8 @@ import 'routes/nano_group_route.dart';
 import 'routes/nano_protected_route.dart';
 import 'routes/nano_redirect_route.dart';
 import 'routes/nano_route.dart';
+import 'widgets/nano_error_page.dart';
+import 'widgets/nano_guarded_page.dart';
 
 /// Central declarative router manager for Flutter applications.
 class NanoRouter {
@@ -90,13 +92,13 @@ class NanoRouter {
     if (route == null) {
       return MaterialPageRoute<dynamic>(
         settings: settings,
-        builder: (context) => _buildError(
-          context,
-          NanoRouteError(
+        builder: (context) => NanoErrorPage(
+          error: NanoRouteError(
             path: path,
             code: NanoRouteCode.notFound,
             message: 'Route "$path" not found.',
           ),
+          errorBuilder: errorBuilder,
         ),
       );
     }
@@ -108,6 +110,14 @@ class NanoRouter {
       );
     }
 
+    final page = NanoGuardedPage(
+      route: route,
+      path: path,
+      args: args,
+      guards: _routeGuardsMap[path] ?? const [],
+      nameToPathMap: _nameToPathMap,
+    );
+
     if (route is NanoAnimatedRoute) {
       return PageRouteBuilder<dynamic>(
         settings: settings,
@@ -118,70 +128,14 @@ class NanoRouter {
         barrierColor: route.barrierColor,
         barrierLabel: route.barrierLabel,
         maintainState: route.maintainState,
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            _buildPageWithGuards(context, route, path, args),
+        pageBuilder: (context, animation, secondaryAnimation) => page,
         transitionsBuilder: route.transitionBuilder,
       );
     }
 
     return MaterialPageRoute<dynamic>(
       settings: settings,
-      builder: (context) => _buildPageWithGuards(context, route, path, args),
-    );
-  }
-
-  Widget _buildPageWithGuards(
-    BuildContext context,
-    NanoRoute route,
-    String path,
-    NanoRouteArgs args,
-  ) {
-    final guards = _routeGuardsMap[path];
-    if (guards != null && guards.isNotEmpty) {
-      for (final guard in guards) {
-        final hasAccess = guard.hasAccess(context, args);
-        if (!hasAccess) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            final target = _nameToPathMap[guard.redirectTo] ?? guard.redirectTo;
-            toReplacementNamed(target, arguments: args.data);
-          });
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-      }
-    }
-    return route.builder(context, args);
-  }
-
-  Widget _buildError(BuildContext context, NanoRouteError error) {
-    if (errorBuilder != null) {
-      return errorBuilder!(context, error);
-    }
-
-    return Scaffold(
-      appBar: AppBar(title: const Text('Page Not Found')),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.error_outline, size: 64, color: Colors.red),
-              const SizedBox(height: 16),
-              Text(
-                '404 - Not Found',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'The requested route "${error.path}" could not be found.',
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        ),
-      ),
+      builder: (context) => page,
     );
   }
 

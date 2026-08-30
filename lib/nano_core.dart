@@ -33,5 +33,7 @@ export 'src/router/models/nano_paths.dart';
 export 'src/router/models/nano_route_args.dart';
 export 'src/router/models/nano_route_code.dart';
 export 'src/router/models/nano_route_error.dart';
+export 'src/router/widgets/nano_error_page.dart';
+export 'src/router/widgets/nano_guarded_page.dart';
 export 'src/router/nano_router.dart';
 export 'src/extensions/nano_navigation_extension.dart';
