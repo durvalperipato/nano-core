@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - `NanoApp`: Root application widget that automatically configures `NanoRouter`, `MaterialApp`, themes, and localizations.
-- Declarative routing architecture with `NanoRouter`, `NanoRoute`, `NanoDetailsRoute`, `NanoGroupRoute`, `NanoProtectedRoute`, `NanoRedirectRoute`, `NanoPaths`, `NanoRouteArgs`, `NanoRouteCode`, and `NanoRouteError`.
+- Declarative routing architecture with `NanoRouter`, `NanoRoute`, `NanoAnimatedRoute`, `NanoDetailsRoute`, `NanoGroupRoute`, `NanoProtectedRoute`, `NanoRedirectRoute`, `NanoPaths`, `NanoRouteArgs`, `NanoRouteCode`, and `NanoRouteError`.
 - Support for nested sub-routes (`routes: [...]`) with automatic path flattening and named navigation (`name: 'user_detail'`).
 - Navigation extensions on `BuildContext` (`toNamed`, `toReplacementNamed`, `toAndRemoveUntilNamed`, `back`, `routeArgs`).
 - Modular `NanoInjections` composition support and pattern demonstration in example.

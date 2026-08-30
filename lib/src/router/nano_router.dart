@@ -3,6 +3,7 @@ import 'models/nano_paths.dart';
 import 'models/nano_route_args.dart';
 import 'models/nano_route_code.dart';
 import 'models/nano_route_error.dart';
+import 'routes/nano_animated_route.dart';
 import 'routes/nano_group_route.dart';
 import 'routes/nano_protected_route.dart';
 import 'routes/nano_redirect_route.dart';
@@ -107,28 +108,50 @@ class NanoRouter {
       );
     }
 
+    if (route is NanoAnimatedRoute) {
+      return PageRouteBuilder<dynamic>(
+        settings: settings,
+        transitionDuration: route.transitionDuration,
+        reverseTransitionDuration: route.reverseTransitionDuration,
+        opaque: route.opaque,
+        barrierDismissible: route.barrierDismissible,
+        barrierColor: route.barrierColor,
+        barrierLabel: route.barrierLabel,
+        maintainState: route.maintainState,
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            _buildPageWithGuards(context, route, path, args),
+        transitionsBuilder: route.transitionBuilder,
+      );
+    }
+
     return MaterialPageRoute<dynamic>(
       settings: settings,
-      builder: (context) {
-        final guards = _routeGuardsMap[path];
-        if (guards != null && guards.isNotEmpty) {
-          for (final guard in guards) {
-            final hasAccess = guard.hasAccess(context, args);
-            if (!hasAccess) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                final target =
-                    _nameToPathMap[guard.redirectTo] ?? guard.redirectTo;
-                toReplacementNamed(target, arguments: args.data);
-              });
-              return const Scaffold(
-                body: Center(child: CircularProgressIndicator()),
-              );
-            }
-          }
-        }
-        return route.builder(context, args);
-      },
+      builder: (context) => _buildPageWithGuards(context, route, path, args),
     );
+  }
+
+  Widget _buildPageWithGuards(
+    BuildContext context,
+    NanoRoute route,
+    String path,
+    NanoRouteArgs args,
+  ) {
+    final guards = _routeGuardsMap[path];
+    if (guards != null && guards.isNotEmpty) {
+      for (final guard in guards) {
+        final hasAccess = guard.hasAccess(context, args);
+        if (!hasAccess) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            final target = _nameToPathMap[guard.redirectTo] ?? guard.redirectTo;
+            toReplacementNamed(target, arguments: args.data);
+          });
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+      }
+    }
+    return route.builder(context, args);
   }
 
   Widget _buildError(BuildContext context, NanoRouteError error) {

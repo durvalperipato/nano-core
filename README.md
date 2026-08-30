@@ -9,7 +9,7 @@ A lightweight reactive architecture framework and design system toolkit for Flut
 ## Features
 
 - 📱 **NanoApp**: Zero-boilerplate root application widget automatically configuring `NanoRouter`, `MaterialApp`, themes, and localizations.
-- 🧭 **NanoRouter & Declarative Routes**: Intuitive zero-dependency declarative router supporting public routes (`NanoRoute`), route groups (`NanoGroupRoute`), typed sub-routes (`NanoDetailsRoute<T>`), access-guarded routes (`NanoProtectedRoute`), and redirects (`NanoRedirectRoute`).
+- 🧭 **NanoRouter & Declarative Routes**: Intuitive zero-dependency declarative router supporting public routes (`NanoRoute`), custom animated transitions (`NanoAnimatedRoute`), route groups (`NanoGroupRoute`), typed sub-routes (`NanoDetailsRoute<T>`), access-guarded routes (`NanoProtectedRoute`), and redirects (`NanoRedirectRoute`).
 - 🚀 **NanoScaffold**: Reactive base page scaffold supporting Web/Desktop headers, mobile AppBars, loading overlays, and error/warning/success toasts.
 - ⚡ **NanoController & NanoState**: Clean, reactive state management built on `ChangeNotifier` and `ListenableBuilder`.
 - 📊 **NanoViewState**: Base class for structured, immutable and equatable view/page state data models.
@@ -289,8 +289,8 @@ import 'package:nano_core/nano_core.dart';
 final appRouter = NanoRouter(
   initialRoute: '/', // Optional: defaults to '/'
   routes: [
-    // Public dashboard route:
-    NanoRoute(
+    // Public dashboard route with smooth fade transition:
+    NanoAnimatedRoute.fade(
       name: 'showcase',
       path: '/',
       builder: (context, args) => const ShowcasePage(),

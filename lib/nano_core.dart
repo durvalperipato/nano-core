@@ -23,6 +23,7 @@ export 'src/http/nano_http_response.dart';
 export 'src/http/nano_http_code.dart';
 export 'src/extensions/nano_http_response_extension.dart';
 export 'src/repository/nano_repository.dart';
+export 'src/router/routes/nano_animated_route.dart';
 export 'src/router/routes/nano_details_route.dart';
 export 'src/router/routes/nano_group_route.dart';
 export 'src/router/routes/nano_protected_route.dart';
