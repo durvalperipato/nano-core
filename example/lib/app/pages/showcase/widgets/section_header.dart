@@ -13,10 +13,10 @@ class SectionHeader extends StatelessWidget {
 
   /// Creates a [SectionHeader] widget.
   const SectionHeader({
-    super.key,
     required this.icon,
     required this.title,
     required this.subtitle,
+    super.key,
   });
 
   @override

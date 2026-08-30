@@ -5,6 +5,7 @@ import '../controller/nano_controller.dart';
 import '../state/nano_message_key.dart';
 import '../state/nano_state.dart';
 import '../state/nano_view_state.dart';
+import 'widgets/nano_scaffold_builder.dart';
 
 /// [NanoScaffold] is the reactive base page layout structure in nano-core.
 ///
@@ -23,11 +24,12 @@ import '../state/nano_view_state.dart';
 ///   [footerBuilder], [drawerBuilder], and [floatingActionButtonBuilder].
 /// - Strongly-typed message callbacks [onCustomError] and [onCustomWarning]
 ///   using [M].
+/// - Customizable [loadingWidget] overlay when the state is [LoadingState].
 class NanoScaffold<T extends NanoViewState, M extends NanoMessageKey>
     extends StatefulWidget {
   /// Creates a [NanoScaffold] widget layout.
   const NanoScaffold({
-    super.key,
+    required this.builder,
     this.controller,
     this.header,
     this.headerBuilder,
@@ -40,10 +42,11 @@ class NanoScaffold<T extends NanoViewState, M extends NanoMessageKey>
     this.floatingActionButtonBuilder,
     this.backgroundColor,
     this.resizeToAvoidBottomInset,
+    this.loadingWidget,
     this.onCustomError,
     this.onCustomWarning,
     this.onCustomSuccess,
-    required this.builder,
+    super.key,
   });
 
   /// Optional reactive controller managing page state.
@@ -86,6 +89,11 @@ class NanoScaffold<T extends NanoViewState, M extends NanoMessageKey>
 
   /// Whether to resize contents when soft keyboard appears.
   final bool? resizeToAvoidBottomInset;
+
+  /// Optional custom loading widget displayed when state is [LoadingState].
+  ///
+  /// Defaults to [NanoLoadingOverlay].
+  final Widget? loadingWidget;
 
   /// Optional custom error callback. If null, displays default
   /// [NanoToast.showError].
@@ -169,65 +177,47 @@ class _NanoScaffoldState<T extends NanoViewState, M extends NanoMessageKey>
     }
   }
 
-  PreferredSizeWidget? _buildEffectiveHeader(NanoState<T> state) {
-    final effectiveWidget = widget.headerBuilder != null
-        ? widget.headerBuilder!(context, state)
-        : widget.header;
-
-    if (effectiveWidget == null) return null;
-    if (effectiveWidget is PreferredSizeWidget) return effectiveWidget;
-    return PreferredSize(
-      preferredSize: Size.fromHeight(widget.headerHeight),
-      child: effectiveWidget,
-    );
-  }
-
-  Widget? _buildEffectiveDrawer(NanoState<T> state) {
-    return widget.drawerBuilder != null
-        ? widget.drawerBuilder!(context, state)
-        : widget.drawer;
-  }
-
-  Widget? _buildEffectiveFooter(NanoState<T> state) {
-    return widget.footerBuilder != null
-        ? widget.footerBuilder!(context, state)
-        : widget.footer;
-  }
-
-  Widget? _buildEffectiveFab(NanoState<T> state) {
-    return widget.floatingActionButtonBuilder != null
-        ? widget.floatingActionButtonBuilder!(context, state)
-        : widget.floatingActionButton;
-  }
-
-  Widget _buildScaffoldWithState(NanoState<T> state) {
-    return Scaffold(
-      appBar: _buildEffectiveHeader(state),
-      drawer: _buildEffectiveDrawer(state),
-      bottomNavigationBar: _buildEffectiveFooter(state),
-      floatingActionButton: _buildEffectiveFab(state),
-      backgroundColor: widget.backgroundColor,
-      resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
-      body: Stack(
-        children: [
-          widget.builder(context, state),
-          if (state is LoadingState) const NanoLoadingOverlay(),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final controller = widget.controller;
 
     if (controller == null) {
-      return _buildScaffoldWithState(InitialState<T>());
+      return NanoScaffoldBuilder<T, M>(
+        state: InitialState<T>(),
+        builder: widget.builder,
+        header: widget.header,
+        headerBuilder: widget.headerBuilder,
+        headerHeight: widget.headerHeight,
+        drawer: widget.drawer,
+        drawerBuilder: widget.drawerBuilder,
+        footer: widget.footer,
+        footerBuilder: widget.footerBuilder,
+        floatingActionButton: widget.floatingActionButton,
+        floatingActionButtonBuilder: widget.floatingActionButtonBuilder,
+        backgroundColor: widget.backgroundColor,
+        resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
+        loadingWidget: widget.loadingWidget,
+      );
     }
 
     return ListenableBuilder(
       listenable: controller,
-      builder: (context, _) => _buildScaffoldWithState(controller.state),
+      builder: (context, _) => NanoScaffoldBuilder<T, M>(
+        state: controller.state,
+        builder: widget.builder,
+        header: widget.header,
+        headerBuilder: widget.headerBuilder,
+        headerHeight: widget.headerHeight,
+        drawer: widget.drawer,
+        drawerBuilder: widget.drawerBuilder,
+        footer: widget.footer,
+        footerBuilder: widget.footerBuilder,
+        floatingActionButton: widget.floatingActionButton,
+        floatingActionButtonBuilder: widget.floatingActionButtonBuilder,
+        backgroundColor: widget.backgroundColor,
+        resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
+        loadingWidget: widget.loadingWidget,
+      ),
     );
   }
 }

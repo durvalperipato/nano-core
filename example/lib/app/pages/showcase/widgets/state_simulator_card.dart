@@ -9,7 +9,7 @@ class StateSimulatorCard extends StatelessWidget {
   final ShowcaseController controller;
 
   /// Creates a [StateSimulatorCard] widget.
-  const StateSimulatorCard({super.key, required this.controller});
+  const StateSimulatorCard({required this.controller, super.key});
 
   @override
   Widget build(BuildContext context) {

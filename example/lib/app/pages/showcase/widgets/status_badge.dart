@@ -13,10 +13,10 @@ class StatusBadge extends StatelessWidget {
 
   /// Creates a [StatusBadge] widget.
   const StatusBadge({
-    super.key,
     required this.label,
     required this.isActive,
     required this.color,
+    super.key,
   });
 
   @override

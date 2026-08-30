@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## 0.2.0 (2026-08-30)
+
+### Added
+- `NanoApp`: Root application widget that automatically configures `NanoRouter`, `MaterialApp`, themes, and localizations.
+- Declarative routing architecture with `NanoRouter`, `NanoRoute`, `NanoAnimatedRoute`, `NanoDetailsRoute`, `NanoGroupRoute`, `NanoProtectedRoute`, `NanoRedirectRoute`, `NanoPaths`, `NanoRouteArgs`, `NanoRouteCode`, and `NanoRouteError`.
+- `NanoAnimatedRoute`: Predefined animated route transitions (`fade`, `slideUp`, `slideRight`, `scale`) and custom `transitionBuilder` support.
+- `NanoProtectedRoute`: Route guard wrapper with inheritance support protecting nested routes and redirecting unauthorized users.
+- `NanoDetailsRoute<T>`: Specialized typed detail routes with automated generic argument extraction.
+- `NanoGroupRoute`: Path-only route grouping without standalone page rendering.
+- `NanoGuardedPage` & `NanoErrorPage`: Dedicated widget classes for route guard evaluation and custom 404/error pages.
+- Navigation extensions on `BuildContext` (`toNamed`, `toReplacementNamed`, `toAndRemoveUntilNamed`, `back`, `routeArgs`).
+- `NanoScaffoldBuilder` & `NanoScaffoldHeader`: Dedicated presentation widget components replacing inline builder helper functions.
+- `loadingWidget` property on `NanoScaffold` and `child` on `NanoLoadingOverlay` for fully customizable loading states.
+- Modular `NanoInjections` composition support and pattern demonstration in example.
+
 ## 0.1.0 (2026-08-29)
 
 ### Breaking Changes

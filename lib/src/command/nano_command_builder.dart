@@ -6,9 +6,9 @@ import 'nano_command.dart';
 class NanoCommandBuilder<T> extends StatelessWidget {
   /// Creates a [NanoCommandBuilder] instance.
   const NanoCommandBuilder({
-    super.key,
     required this.command,
     required this.builder,
+    super.key,
   });
 
   /// Target command to observe.

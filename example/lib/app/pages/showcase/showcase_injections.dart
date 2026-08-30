@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:nano_core/nano_core.dart';
 import '../../mocks/mock_models.dart';
+import '../../mocks/mock_user_injections.dart';
 import 'showcase_controller.dart';
 
 /// Dependency injection bindings for the showcase page scope.
@@ -10,14 +11,12 @@ class ShowcaseInjections extends NanoInjections {
 
   @override
   void binds(GetIt i) {
-    // NanoHttpClient is resolved automatically from the global AppInjections scope!
-    i.registerLazySingleton<MockUserRepository>(
-      () => MockUserRepository(i<NanoHttpClient>()),
-    );
+    // 🧩 Composes modular data layer dependencies:
+    const MockUserInjections().binds(i);
+
+    // Page-specific controller registration:
     i.registerFactory<ShowcaseController>(
       () => ShowcaseController(userRepository: i<MockUserRepository>()),
     );
   }
 }
-
-
