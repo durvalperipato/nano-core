@@ -6,10 +6,11 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:nano_core/nano_core.dart';
 import 'package:nano_core_example/l10n/generated/app_localizations.dart';
 import 'app/core/injections/app_injections.dart';
+import 'app/core/routes/app_routes.dart';
 import 'app/core/theme/app_theme.dart';
-import 'app/pages/showcase/showcase_page.dart';
 
 void main() {
   // Initialize global core injections (HTTP client, global services, etc.)
@@ -25,9 +26,10 @@ class NanoCoreExampleApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return NanoApp(
       title: 'Nano Core Showcase',
       debugShowCheckedModeBanner: false,
+      router: appRouter,
       theme: AppTheme.darkTheme,
       localizationsDelegates: const [
         AppLocalizations.delegate,
@@ -36,7 +38,6 @@ class NanoCoreExampleApp extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [Locale('en'), Locale('pt')],
-      home: const ShowcasePage(),
     );
   }
 }

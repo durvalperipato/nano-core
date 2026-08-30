@@ -6,7 +6,7 @@ import 'showcase_messages.dart';
 import 'showcase_state.dart';
 
 /// Controller managing state, commands, and mock async operations for Showcase.
-class ShowcaseController extends NanoController<ShowcaseViewState> {
+class ShowcaseController extends NanoController<ShowcaseState> {
   /// User repository for fetching user data.
   final MockUserRepository userRepository;
 
@@ -32,7 +32,7 @@ class ShowcaseController extends NanoController<ShowcaseViewState> {
     unawaited(
       execute(() async {
         await Future.delayed(const Duration(milliseconds: 1500));
-        return const ShowcaseViewState(
+        return const ShowcaseState(
           message: 'Dashboard analytics updated successfully!',
         );
       }),
@@ -59,7 +59,7 @@ class ShowcaseController extends NanoController<ShowcaseViewState> {
     unawaited(
       execute(() async {
         final users = await userRepository.getAll();
-        return ShowcaseViewState(
+        return ShowcaseState(
           users: users,
           message: 'Global Data Fetched: ${users.length} users from NanoRepository',
         );
@@ -69,6 +69,6 @@ class ShowcaseController extends NanoController<ShowcaseViewState> {
 
   /// Resets controller state to initial.
   void resetState() {
-    emit(const InitialState<ShowcaseViewState>());
+    emit(const InitialState<ShowcaseState>());
   }
 }

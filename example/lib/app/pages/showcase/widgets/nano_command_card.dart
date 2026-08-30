@@ -10,7 +10,7 @@ class NanoCommandCard extends StatelessWidget {
   final ShowcaseController controller;
 
   /// Creates a [NanoCommandCard] widget.
-  const NanoCommandCard({super.key, required this.controller});
+  const NanoCommandCard({required this.controller, super.key});
 
   @override
   Widget build(BuildContext context) {

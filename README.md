@@ -8,6 +8,8 @@ A lightweight reactive architecture framework and design system toolkit for Flut
 
 ## Features
 
+- 📱 **NanoApp**: Zero-boilerplate root application widget automatically configuring `NanoRouter`, `MaterialApp`, themes, and localizations.
+- 🧭 **NanoRouter & Declarative Routes**: Intuitive zero-dependency declarative router supporting public routes (`NanoRoute`), custom animated transitions (`NanoAnimatedRoute`), route groups (`NanoGroupRoute`), typed sub-routes (`NanoDetailsRoute<T>`), access-guarded routes (`NanoProtectedRoute`), and redirects (`NanoRedirectRoute`).
 - 🚀 **NanoScaffold**: Reactive base page scaffold supporting Web/Desktop headers, mobile AppBars, loading overlays, and error/warning/success toasts.
 - ⚡ **NanoController & NanoState**: Clean, reactive state management built on `ChangeNotifier` and `ListenableBuilder`.
 - 📊 **NanoViewState**: Base class for structured, immutable and equatable view/page state data models.
@@ -15,7 +17,7 @@ A lightweight reactive architecture framework and design system toolkit for Flut
 - 🌐 **NanoHttpClient & NanoHttpResponse**: Standardized generic contract for decoupled HTTP communication, status codes, and helper extensions (`isSuccess`, `isClientError`, `isServerError`).
 - 📦 **NanoRepository & NanoAdapter**: Automated generic CRUD repository layer with serialization/deserialization for domain entities.
 - 🏷️ **NanoEntity & NanoEquatable**: Base domain entity with unique identification and value-based equality.
-- 💉 **NanoInjections & NanoStatePage**: Dependency injection scoping with `GetIt` and page lifecycle binding.
+- 💉 **NanoInjections & NanoStatePage**: Dependency injection scoping with `GetIt`, modular composition, and page lifecycle binding.
 - 🧩 **Design System Components**: Standalone reusable UI widgets such as `NanoLoadingOverlay` and `NanoToast`.
 - 🖥️ **NanoDeviceType**: Real-time cross-platform environment and responsive viewport width inspection.
 
@@ -72,16 +74,16 @@ import 'package:get_it/get_it.dart';
 import 'package:nano_core/nano_core.dart';
 
 // 1. Structured View State
-class UsersViewState extends NanoViewState {
+class UsersState extends NanoViewState {
   final List<User> users;
-  const UsersViewState({this.users = const []});
+  const UsersState({this.users = const []});
 
   @override
   List<Object?> get props => [users];
 }
 
 // 2. Reactive Controller
-class MyController extends NanoController<UsersViewState> {
+class MyController extends NanoController<UsersState> {
   final UserRepository repository;
 
   MyController({required this.repository});
@@ -94,7 +96,7 @@ class MyController extends NanoController<UsersViewState> {
   Future<void> loadUsers() async {
     execute(() async {
       final users = await repository.getAll();
-      return UsersViewState(users: users);
+      return UsersState(users: users);
     });
   }
 }
@@ -129,7 +131,7 @@ class _UsersPageState
 
   @override
   Widget build(BuildContext context) {
-    return NanoScaffold<UsersViewState, NanoMessageKey>(
+    return NanoScaffold<UsersState, NanoMessageKey>(
       controller: controller,
       headerBuilder: (context, state) => AppBar(
         title: Text(
@@ -275,6 +277,100 @@ void main() {
   GetIt.I.registerLazySingleton<NanoHttpClient>(() => DioHttpClient(dio));
   runApp(const MyApp());
 }
+```
+
+### 4. Declarative Routing with NanoRouter & NanoApp
+
+Define all application routes in a single declarative router file:
+
+```dart
+import 'package:nano_core/nano_core.dart';
+
+final appRouter = NanoRouter(
+  initialRoute: '/', // Optional: defaults to '/'
+  routes: [
+    // Public dashboard route with smooth fade transition:
+    NanoAnimatedRoute.fade(
+      name: 'showcase',
+      path: '/',
+      builder: (context, args) => const ShowcasePage(),
+    ),
+
+    // Users list with nested typed detail route:
+    NanoRoute(
+      name: 'users',
+      path: '/users',
+      builder: (context, args) => const UsersPage(),
+      routes: [
+        // Sub-route: /users/detail with automatic argument typing
+        NanoDetailsRoute<User>(
+          name: 'user_detail',
+          builder: (context, user) => UserDetailPage(user: user),
+        ),
+      ],
+    ),
+
+    // Protected area with route guard wrapping admin routes:
+    NanoProtectedRoute(
+      hasAccess: (context, args) => AuthService.isAdmin,
+      redirectTo: 'login',
+      routes: [
+        NanoGroupRoute(
+          path: '/admin',
+          routes: [
+            NanoRoute(
+              name: 'admin',
+              path: '/panel',
+              builder: (context, args) => const AdminPage(),
+            ),
+          ],
+        ),
+      ],
+    ),
+
+    // Redirect / Alias route:
+    NanoRedirectRoute(
+      path: '/home',
+      redirectTo: 'showcase',
+    ),
+  ],
+);
+```
+
+Then plug it directly into `NanoApp` in `main.dart`:
+
+```dart
+void main() {
+  runApp(const MainApp());
+}
+
+class MainApp extends StatelessWidget {
+  const MainApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return NanoApp(
+      title: 'My Nano App',
+      router: appRouter, // 🧭 Configures navigatorKey, initialRoute, and onGenerateRoute
+      theme: AppTheme.darkTheme,
+    );
+  }
+}
+```
+
+#### Navigating anywhere:
+```dart
+// Navigate by route name:
+context.toNamed('user_detail', arguments: user);
+
+// Navigate by path:
+context.toNamed('/users/detail', arguments: user);
+
+// Replace current screen:
+context.toReplacementNamed('login');
+
+// Pop screen:
+context.back();
 ```
 
 ## License
