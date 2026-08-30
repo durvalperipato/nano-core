@@ -61,7 +61,8 @@ class ShowcaseController extends NanoController<ShowcaseState> {
         final users = await userRepository.getAll();
         return ShowcaseState(
           users: users,
-          message: 'Global Data Fetched: ${users.length} users from NanoRepository',
+          message:
+              'Global Data Fetched: ${users.length} users from NanoRepository',
         );
       }),
     );

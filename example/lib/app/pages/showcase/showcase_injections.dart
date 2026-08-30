@@ -20,5 +20,3 @@ class ShowcaseInjections extends NanoInjections {
     );
   }
 }
-
-
