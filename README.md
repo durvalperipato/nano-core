@@ -16,11 +16,15 @@ A lightweight reactive architecture framework and design system toolkit for Flut
 - 📊 **NanoViewState**: Base class for structured, immutable and equatable view/page state data models.
 - 🛠️ **NanoCommand & NanoCommandBuilder**: Encapsulated async commands for user actions and operations.
 - 🌐 **NanoHttpClient & NanoHttpInterceptor**: Standardized generic contract for decoupled HTTP communication, request/response interceptors (JWT injection, refresh tokens), built-in traffic logging (`NanoHttpLogInterceptor`), and helper extensions (`isSuccess`, `isClientError`, `isServerError`).
-- 📦 **NanoRepository & NanoAdapter**: Automated generic CRUD repository layer with serialization/deserialization for domain entities.
+- 📦 **NanoRepository, NanoSearchRepository & NanoQueryAdapter**: Automated generic CRUD repository layer, type-safe search query serialization, and domain model adapters.
+- 📄 **Pagination & NanoPaginator**: Pluggable strategies (`NanoOffsetPagination`, `NanoCursorPagination`), reactive controller (`NanoPaginator`), automatic infinite scrolling widget (`NanoPaginatedListView`), and customizable navigation bar (`NanoPaginationBar`).
+- ⚡ **NanoCache & Smart Caching**: Zero-dependency in-memory caching (`NanoMemoryCache`) with configurable policies (`cacheFirst`, `networkFirst`, `networkOnly`, `cacheOnly`), TTL expiration, and automatic invalidation on CRUD mutations.
+- 🛡️ **Functional Results (NanoResult)**: Modern Dart 3 `sealed class` hierarchy (`NanoSuccess`, `NanoFailure`) with compile-time pattern matching, `fold`, `map`, and `runAsync` safe execution.
+- 📝 **NanoForm & Validators**: Strongly-typed form models, automatic field disposal, `BuildContext` i18n support, and reactive `NanoTextField` component.
 - 🏷️ **NanoEntity & NanoEquatable**: Base domain entity with unique identification and value-based equality.
 - 🪵 **NanoLogger**: Central structured console logger with ANSI styling, severity levels (`debug`, `info`, `success`, `warning`, `error`, `http`), method context tracking, data payloads, and telemetry hooks.
-- 💉 **NanoInjections & NanoStatePage**: Dependency injection scoping with `GetIt`, modular composition, and page lifecycle binding.
-- 🧩 **Design System Components**: Standalone reusable UI widgets such as `NanoLoadingOverlay` and `NanoToast`.
+- 💉 **NanoInjections, NanoDefaultInjections & NanoStatePage**: Dependency injection scoping with `GetIt`, default framework services registration (`NanoDefaultInjections.init`), modular composition, and page lifecycle binding.
+- 🧩 **Design System Components**: Standalone reusable UI widgets such as `NanoLoadingOverlay`, `NanoToast`, `NanoPaginatedListView`, `NanoPaginationBar`, and `NanoTextField`.
 - 🖥️ **NanoDeviceType**: Real-time cross-platform environment and responsive viewport width inspection.
 
 ## Getting Started
@@ -60,11 +64,37 @@ class UserAdapter implements NanoAdapter<User> {
 }
 
 class UserRepository extends NanoRepository<User, String> {
-  UserRepository(NanoHttpClient client)
+  UserRepository([super.client])
       : super(
-          client: client,
           endpoint: '/users',
           adapter: const UserAdapter(),
+        );
+}
+
+// Type-Safe Search with NanoSearchRepository:
+class UserFilter {
+  final String? role;
+  final int page;
+  const UserFilter({this.role, this.page = 1});
+}
+
+class UserFilterAdapter extends NanoQueryAdapter<UserFilter> {
+  const UserFilterAdapter();
+
+  @override
+  Map<String, dynamic> toQueryParams(UserFilter query) => {
+    'page': query.page,
+    if (query.role != null) 'role': query.role,
+  };
+}
+
+class UserSearchRepository
+    extends NanoSearchRepository<User, String, UserFilter> {
+  UserSearchRepository([super.client])
+      : super(
+          endpoint: '/users',
+          adapter: const UserAdapter(),
+          queryAdapter: const UserFilterAdapter(),
         );
 }
 ```
@@ -109,9 +139,13 @@ class UsersInjections extends NanoInjections {
 
   @override
   void binds(GetIt i) {
-    i.registerLazySingleton<UserRepository>(
-      () => UserRepository(i<NanoHttpClient>()),
-    );
+    // 1. Initialize default core framework services:
+    NanoDefaultInjections.init(i, client: DioHttpClient(Dio()));
+
+    // 2. Register repository (client is automatically injected via GetIt!):
+    i.registerLazySingleton<UserRepository>(() => UserRepository());
+
+    // 3. Register page controller:
     i.registerFactory<MyController>(
       () => MyController(repository: i<UserRepository>()),
     );
@@ -387,7 +421,237 @@ context.toReplacementNamed('login');
 context.back();
 ```
 
-### 5. Structured Logging with NanoLogger
+### 5. Type-Safe Search, Query Adapters & Pagination with NanoPaginator
+
+Handle URL query parameter serialization, pagination strategies, and infinite scroll lists with zero boilerplate:
+
+#### 1. Define Typed Filter and Adapter
+```dart
+class UserFilter {
+  final String? name;
+  final String? role;
+  const UserFilter({this.name, this.role});
+}
+
+class UserFilterAdapter implements NanoQueryAdapter<UserFilter> {
+  const UserFilterAdapter();
+
+  @override
+  Map<String, dynamic> toQueryParams(UserFilter query) => {
+    if (query.name != null && query.name!.isNotEmpty) 'name': query.name,
+    if (query.role != null && query.role != 'all') 'role': query.role,
+  };
+}
+```
+
+#### 2. Create Search Repository
+```dart
+class UserRepository extends NanoSearchRepository<User, String, UserFilter> {
+  UserRepository([super.client])
+      : super(
+          endpoint: '/users',
+          adapter: const UserAdapter(),
+          queryAdapter: const UserFilterAdapter(),
+        );
+}
+```
+
+#### 3. Automatic Infinite Scroll (Mobile) or Page Navigation Bar (Web)
+```dart
+// In Controller:
+late final paginator = NanoPaginator<User>(
+  fetcher: (pagination) => userRepository.getAll(pagination: pagination),
+);
+
+// Option A: Mobile Infinite Scroll:
+NanoPaginatedListView<User>(
+  paginator: controller.paginator,
+  itemBuilder: (context, user, index) => ListTile(title: Text(user.name)),
+);
+
+// Option B: Web / Desktop Navigation Bar:
+NanoPaginationBar(
+  paginator: controller.paginator,
+  showPageSizeSelector: true,
+  availablePageSizes: const [5, 10, 20, 50],
+);
+```
+
+#### 4. Instantaneous Caching (0ms latency & Offline fallback)
+Works seamlessly across **Web, iOS, Android, macOS, Windows, and Linux**:
+
+```dart
+// 1. Configure in-memory cache globally at startup:
+NanoDefaultInjections.init(
+  i,
+  client: DioHttpClient(Dio()),
+  cache: NanoMemoryCache(defaultTtl: const Duration(minutes: 5)),
+);
+
+// 2. Fetch using cache-first (instant response on subsequent visits):
+final users = await userRepository.getAll(cachePolicy: NanoCachePolicy.cacheFirst);
+
+// 3. Force network update during pull-to-refresh:
+final freshUsers = await userRepository.getAll(cachePolicy: NanoCachePolicy.networkOnly);
+```
+
+<details>
+<summary><b>💾 Custom Persistent Cache (e.g., SharedPreferences / LocalStorage)</b></summary>
+
+You can persist cached data across app restarts simply by implementing `NanoCache`:
+
+```dart
+import 'dart:convert';
+import 'package:nano_core/nano_core.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class SharedPrefsCache implements NanoCache {
+  final SharedPreferences prefs;
+  const SharedPrefsCache(this.prefs);
+
+  @override
+  T? get<T>(String key) {
+    final raw = prefs.getString(key);
+    if (raw == null) return null;
+    return jsonDecode(raw) as T?;
+  }
+
+  @override
+  void set<T>(String key, T value, {Duration? ttl}) {
+    prefs.setString(key, jsonEncode(value));
+  }
+
+  @override
+  void delete(String key) => prefs.remove(key);
+
+  @override
+  void clear({String? prefix}) {
+    final keys = prefs.getKeys();
+    for (final k in keys) {
+      if (prefix == null || k.startsWith(prefix)) {
+        prefs.remove(k);
+      }
+    }
+  }
+
+  @override
+  bool has(String key) => prefs.containsKey(key);
+}
+```
+</details>
+
+### 6. Type-Safe Functional Results with NanoResult
+
+Handle operations with typed business errors without throwing exceptions, using modern Dart 3 `sealed class` pattern matching:
+
+```dart
+// 1. Return typed results from UseCases or Services:
+Future<NanoResult<User, String>> login(String email, String password) async {
+  if (password.length < 6) {
+    return const NanoResult.failure('Password too short');
+  }
+  try {
+    final user = await authApi.authenticate(email, password);
+    return NanoResult.success(user);
+  } catch (e) {
+    return NanoResult.failure('Invalid credentials');
+  }
+}
+
+// 2. Consume with Dart 3 Pattern Matching:
+final result = await login('dev@nano.core', 'secret123');
+
+final message = switch (result) {
+  NanoSuccess(:final data) => 'Welcome back, ${data.name}!',
+  NanoFailure(:final error) => 'Login failed: $error',
+};
+
+// 3. Or wrap any existing async call safely:
+final safeResult = await NanoResult.runAsync(() => userRepository.getAll());
+```
+
+### 7. Reactive Forms, Internationalized Validators & NanoTextField
+
+Build robust, strongly-typed forms with immutable entities, automatic view state updates via `updateForm`, and `BuildContext` i18n support:
+
+#### 1. Define Form Entity & View State
+```dart
+class UserFormEntity extends NanoFormEntity {
+  const UserFormEntity({
+    this.name = '',
+    this.email = '',
+  });
+
+  final String name;
+  final String email;
+
+  UserFormEntity copyWith({
+    String Function()? name,
+    String Function()? email,
+  }) =>
+      UserFormEntity(
+        name: name != null ? name() : this.name,
+        email: email != null ? email() : this.email,
+      );
+
+  @override
+  List<Object?> get props => [name, email];
+}
+
+class RegisterViewState extends NanoFormState<UserFormEntity> {
+  const RegisterViewState({required super.form});
+
+  RegisterViewState copyWith({UserFormEntity? form}) =>
+      RegisterViewState(form: form ?? this.form);
+}
+```
+
+#### 2. Manage via Controller with updateForm
+```dart
+class RegisterController
+    extends NanoFormController<RegisterViewState, UserFormEntity> {
+  final UserRepository userRepository;
+
+  RegisterController(this.userRepository)
+      : super(initialData: const RegisterViewState(form: UserFormEntity()));
+
+  void onNameChanged(String newName) {
+    updateForm((state) => state.copyWith(
+          form: state.form.copyWith(name: () => newName),
+        ));
+  }
+
+  void saveUser() {
+    execute(() => userRepository.create(state.data!.form));
+  }
+}
+```
+
+#### 3. Render with Reactive NanoTextField in View
+```dart
+Column(
+  children: [
+    NanoTextField(
+      value: state.data?.form.name,
+      label: 'Full Name',
+      prefixIcon: const Icon(Icons.person_outline),
+      validators: [
+        NanoValidator.required((context) => 'Name is required'),
+        NanoValidator.minLength(3, (context) => 'Minimum 3 characters'),
+      ],
+      autoValidateMode: NanoAutoValidateMode.onUserInteraction,
+      onChanged: controller.onNameChanged,
+    ),
+    const SizedBox(height: 20),
+    FilledButton(
+      onPressed: controller.saveUser,
+      child: const Text('Save User'),
+    ),
+  ],
+)
+```
+
+### 8. Structured Logging with NanoLogger
 
 Log formatted, color-coded, and tagged events with method tracking and data inspection:
 

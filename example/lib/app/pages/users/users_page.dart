@@ -40,37 +40,72 @@ class _UsersPageState extends NanoStatePage<UsersPage, UsersController> {
       builder: (context, state) {
         final users = state.data?.users ?? [];
 
-        if (users.isEmpty && state is! LoadingState) {
-          return Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.people_outline, size: 64, color: Colors.grey),
-                const SizedBox(height: 12),
-                const Text('No users found.'),
-                const SizedBox(height: 12),
-                ElevatedButton(
-                  onPressed: controller.fetchUsers,
-                  child: const Text('Fetch Users'),
+        return Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: 'Search by name (NanoSearchRepository)...',
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.clear),
+                    onPressed: () => controller.fetchUsers(),
+                  ),
+                  filled: true,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
-              ],
+                onSubmitted: controller.searchUsers,
+                onChanged: (value) {
+                  if (value.isEmpty) {
+                    controller.fetchUsers();
+                  }
+                },
+              ),
             ),
-          );
-        }
-
-        return ListView.separated(
-          padding: const EdgeInsets.all(16),
-          itemCount: users.length,
-          separatorBuilder: (_, _) => const SizedBox(height: 12),
-          itemBuilder: (context, index) {
-            final user = users[index];
-            return _UserCard(
-              user: user,
-              onTap: () {
-                context.toNamed(AppRouteNames.userDetail, arguments: {'user': user});
-              },
-            );
-          },
+            Expanded(
+              child: users.isEmpty && state is! LoadingState
+                  ? Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.person_search,
+                            size: 64,
+                            color: Colors.grey,
+                          ),
+                          const SizedBox(height: 12),
+                          const Text('No users match this filter.'),
+                          const SizedBox(height: 12),
+                          ElevatedButton(
+                            onPressed: controller.fetchUsers,
+                            child: const Text('Reset Filter'),
+                          ),
+                        ],
+                      ),
+                    )
+                  : ListView.separated(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: users.length,
+                      separatorBuilder: (_, _) => const SizedBox(height: 12),
+                      itemBuilder: (context, index) {
+                        final user = users[index];
+                        return _UserCard(
+                          user: user,
+                          onTap: () {
+                            context.toNamed(
+                              AppRouteNames.userDetail,
+                              arguments: {'user': user},
+                            );
+                          },
+                        );
+                      },
+                    ),
+            ),
+          ],
         );
       },
     );
