@@ -599,55 +599,57 @@ class UserFormEntity extends NanoFormEntity {
 }
 
 class RegisterViewState extends NanoFormState<UserFormEntity> {
-  const RegisterViewState({required super.form});
+  const RegisterViewState({super.form = const UserFormEntity()});
 
   RegisterViewState copyWith({UserFormEntity? form}) =>
       RegisterViewState(form: form ?? this.form);
 }
 ```
 
-#### 2. Manage via Controller with updateForm
+#### 2. Manage via Controller with submit & reset
 ```dart
 class RegisterController
     extends NanoFormController<RegisterViewState, UserFormEntity> {
   final UserRepository userRepository;
 
   RegisterController(this.userRepository)
-      : super(initialData: const RegisterViewState(form: UserFormEntity()));
-
-  void onNameChanged(String newName) {
-    updateForm((state) => state.copyWith(
-          form: state.form.copyWith(name: () => newName),
-        ));
-  }
+      : super(initialData: const RegisterViewState());
 
   void saveUser() {
-    execute(() => userRepository.create(state.data!.form));
+    // 🎯 submit automatically validates all fields before execution:
+    submit((form) {
+      execute(() => userRepository.create(form));
+    });
   }
 }
 ```
 
-#### 3. Render with Reactive NanoTextField in View
+#### 3. Render with NanoForm & Reactive NanoTextField in View
 ```dart
-Column(
-  children: [
-    NanoTextField(
-      value: state.data?.form.name,
-      label: 'Full Name',
-      prefixIcon: const Icon(Icons.person_outline),
-      validators: [
-        NanoValidator.required((context) => 'Name is required'),
-        NanoValidator.minLength(3, (context) => 'Minimum 3 characters'),
-      ],
-      autoValidateMode: NanoAutoValidateMode.onUserInteraction,
-      onChanged: controller.onNameChanged,
-    ),
-    const SizedBox(height: 20),
-    FilledButton(
-      onPressed: controller.saveUser,
-      child: const Text('Save User'),
-    ),
-  ],
+NanoForm(
+  controller: controller,
+  child: Column(
+    children: [
+      NanoTextField(
+        value: state.data?.form.name,
+        label: 'Full Name',
+        prefixIcon: const Icon(Icons.person_outline),
+        validators: [
+          NanoValidator.required((context) => 'Name is required'),
+          NanoValidator.minLength(3, (context) => 'Minimum 3 characters'),
+        ],
+        autoValidateMode: NanoAutoValidateMode.onUserInteraction,
+        onChanged: (text) => controller.updateForm(
+          (s) => s.copyWith(form: s.form.copyWith(name: () => text)),
+        ),
+      ),
+      const SizedBox(height: 20),
+      FilledButton(
+        onPressed: controller.saveUser,
+        child: const Text('Save User'),
+      ),
+    ],
+  ),
 )
 ```
 
