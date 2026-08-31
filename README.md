@@ -18,6 +18,7 @@ A lightweight reactive architecture framework and design system toolkit for Flut
 - 🌐 **NanoHttpClient & NanoHttpInterceptor**: Standardized generic contract for decoupled HTTP communication, request/response interceptors (JWT injection, refresh tokens), built-in traffic logging (`NanoHttpLogInterceptor`), and helper extensions (`isSuccess`, `isClientError`, `isServerError`).
 - 📦 **NanoRepository, NanoSearchRepository & NanoQueryAdapter**: Automated generic CRUD repository layer, type-safe search query serialization, and domain model adapters.
 - 📄 **Pagination & NanoPaginator**: Pluggable strategies (`NanoOffsetPagination`, `NanoCursorPagination`), reactive controller (`NanoPaginator`), automatic infinite scrolling widget (`NanoPaginatedListView`), and customizable navigation bar (`NanoPaginationBar`).
+- ⚡ **NanoCache & Smart Caching**: Zero-dependency in-memory caching (`NanoMemoryCache`) with configurable policies (`cacheFirst`, `networkFirst`, `networkOnly`, `cacheOnly`), TTL expiration, and automatic invalidation on CRUD mutations.
 - 🏷️ **NanoEntity & NanoEquatable**: Base domain entity with unique identification and value-based equality.
 - 🪵 **NanoLogger**: Central structured console logger with ANSI styling, severity levels (`debug`, `info`, `success`, `warning`, `error`, `http`), method context tracking, data payloads, and telemetry hooks.
 - 💉 **NanoInjections, NanoDefaultInjections & NanoStatePage**: Dependency injection scoping with `GetIt`, default framework services registration (`NanoDefaultInjections.init`), modular composition, and page lifecycle binding.
@@ -473,6 +474,69 @@ NanoPaginationBar(
   availablePageSizes: const [5, 10, 20, 50],
 );
 ```
+
+#### 4. Instantaneous Caching (0ms latency & Offline fallback)
+Works seamlessly across **Web, iOS, Android, macOS, Windows, and Linux**:
+
+```dart
+// 1. Configure in-memory cache globally at startup:
+NanoDefaultInjections.init(
+  i,
+  client: DioHttpClient(Dio()),
+  cache: NanoMemoryCache(defaultTtl: const Duration(minutes: 5)),
+);
+
+// 2. Fetch using cache-first (instant response on subsequent visits):
+final users = await userRepository.getAll(cachePolicy: NanoCachePolicy.cacheFirst);
+
+// 3. Force network update during pull-to-refresh:
+final freshUsers = await userRepository.getAll(cachePolicy: NanoCachePolicy.networkOnly);
+```
+
+<details>
+<summary><b>💾 Custom Persistent Cache (e.g., SharedPreferences / LocalStorage)</b></summary>
+
+You can persist cached data across app restarts simply by implementing `NanoCache`:
+
+```dart
+import 'dart:convert';
+import 'package:nano_core/nano_core.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class SharedPrefsCache implements NanoCache {
+  final SharedPreferences prefs;
+  const SharedPrefsCache(this.prefs);
+
+  @override
+  T? get<T>(String key) {
+    final raw = prefs.getString(key);
+    if (raw == null) return null;
+    return jsonDecode(raw) as T?;
+  }
+
+  @override
+  void set<T>(String key, T value, {Duration? ttl}) {
+    prefs.setString(key, jsonEncode(value));
+  }
+
+  @override
+  void delete(String key) => prefs.remove(key);
+
+  @override
+  void clear({String? prefix}) {
+    final keys = prefs.getKeys();
+    for (final k in keys) {
+      if (prefix == null || k.startsWith(prefix)) {
+        prefs.remove(k);
+      }
+    }
+  }
+
+  @override
+  bool has(String key) => prefs.containsKey(key);
+}
+```
+</details>
 
 ### 6. Structured Logging with NanoLogger
 

@@ -1,4 +1,5 @@
 import '../adapter/nano_query_adapter.dart';
+import '../cache/nano_cache_policy.dart';
 import '../entity/nano_entity.dart';
 import '../pagination/nano_pagination.dart';
 import 'nano_repository.dart';
@@ -16,6 +17,9 @@ abstract class NanoSearchRepository<T extends NanoEntity<ID>, ID, Q>
     required super.adapter,
     required this.queryAdapter,
     super.client,
+    super.cache,
+    super.cachePolicy,
+    super.cacheTtl,
   });
 
   /// The dedicated adapter used to serialize the query model [Q] into query
@@ -23,14 +27,18 @@ abstract class NanoSearchRepository<T extends NanoEntity<ID>, ID, Q>
   final NanoQueryAdapter<Q> queryAdapter;
 
   /// Searches and retrieves a list of entities using a strongly-typed query
-  /// model [Q], optionally applying [pagination].
+  /// model [Q], optionally applying [pagination] and [cachePolicy].
   Future<List<T>> search(
     Q query, {
     NanoPagination? pagination,
+    NanoCachePolicy? cachePolicy,
+    Duration? cacheTtl,
     Map<String, String>? headers,
   }) async {
     return getAll(
       pagination: pagination,
+      cachePolicy: cachePolicy,
+      cacheTtl: cacheTtl,
       queryParameters: queryAdapter.toQueryParams(query),
       headers: headers,
     );

@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.4.0-dev
 
-- `NanoDefaultInjections`: Central default dependency injection container with `NanoDefaultInjections.init(i, client: ..., pagination: ...)` and `register()` helpers for framework-level services.
+- `NanoDefaultInjections`: Central default dependency injection container with `NanoDefaultInjections.init(i, client: ..., pagination: ..., cache: ...)` and `register()` helpers for framework-level services.
+- `NanoCache`, `NanoCachePolicy` & `NanoMemoryCache`: Built-in zero-dependency caching layer with configurable policies (`cacheFirst`, `networkFirst`, `networkOnly`, `cacheOnly`), TTL expiration, and automatic cache invalidation on mutations.
 - `NanoPagination`, `NanoOffsetPagination` & `NanoCursorPagination`: Universal pluggable pagination contracts for Offset/Page-based and Cursor/Token-based strategies.
 - `NanoPaginator`: Stateful pagination controller managing page progression, accumulated items, and async page lifecycle.
 - `NanoPaginatedListView`: Reactive component widget for automatic infinite scrolling, pull-to-refresh, bottom spinner loading, and empty/error state handling.

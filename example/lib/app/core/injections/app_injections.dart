@@ -11,7 +11,12 @@ class AppInjections extends NanoInjections {
 
   @override
   void binds(GetIt i) {
-    // Register default framework services (such as HTTP client) once:
-    NanoDefaultInjections.init(i, client: MockHttpClient());
+    // Register default framework services (HTTP client, Cache, and Pagination) once:
+    NanoDefaultInjections.init(
+      i,
+      client: MockHttpClient(),
+      cache: NanoMemoryCache(defaultTtl: const Duration(minutes: 5)),
+      pagination: const NanoOffsetPagination(pageSize: 4),
+    );
   }
 }

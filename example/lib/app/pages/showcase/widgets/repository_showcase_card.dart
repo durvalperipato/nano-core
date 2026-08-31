@@ -3,8 +3,8 @@ import 'package:nano_core/nano_core.dart';
 import '../../../mocks/mock_models.dart';
 import 'section_header.dart';
 
-/// Card showcasing [NanoRepository], [NanoSearchRepository], and [NanoPaginator]
-/// with live URL inspection and pagination controls.
+/// Card showcasing [NanoRepository], [NanoSearchRepository], [NanoPaginator],
+/// and [NanoCache] with live URL inspection, cache policies, and pagination.
 class RepositoryShowcaseCard extends StatefulWidget {
   /// Creates a [RepositoryShowcaseCard] widget.
   const RepositoryShowcaseCard({super.key});
@@ -16,8 +16,10 @@ class RepositoryShowcaseCard extends StatefulWidget {
 class _RepositoryShowcaseCardState extends State<RepositoryShowcaseCard> {
   final _searchController = TextEditingController(text: '');
   String _selectedRole = 'all';
+  NanoCachePolicy _selectedPolicy = NanoCachePolicy.cacheFirst;
   bool _isLoading = false;
   String _lastUrl = 'GET /users?page=1&pageSize=4';
+  String _lastLatency = '';
 
   late final MockUserSearchRepository _searchRepository;
   late final NanoPaginator<MockUser> _paginator;
@@ -44,11 +46,24 @@ class _RepositoryShowcaseCardState extends State<RepositoryShowcaseCard> {
             .map((e) => '${e.key}=${Uri.encodeComponent(e.value.toString())}')
             .join('&');
 
+        final stopwatch = Stopwatch()..start();
+        final users = await _searchRepository.search(
+          filter,
+          pagination: pagination,
+          cachePolicy: _selectedPolicy,
+        );
+        stopwatch.stop();
+
+        final latency = stopwatch.elapsedMilliseconds < 50
+            ? '⚡ 0ms (Cache Hit)'
+            : '🌐 ${stopwatch.elapsedMilliseconds}ms (Network)';
+
         setState(() {
           _lastUrl = 'GET /users?$queryString';
+          _lastLatency = latency;
         });
 
-        return _searchRepository.search(filter, pagination: pagination);
+        return users;
       },
     );
     _paginator.loadFirstPage();
@@ -68,25 +83,37 @@ class _RepositoryShowcaseCardState extends State<RepositoryShowcaseCard> {
   Future<void> _executeGetAll() async {
     setState(() => _isLoading = true);
     const url = 'GET /users';
+    final stopwatch = Stopwatch()..start();
 
     try {
-      final users = await _searchRepository.getAll();
+      final users = await _searchRepository.getAll(cachePolicy: _selectedPolicy);
+      stopwatch.stop();
       if (!mounted) return;
+
+      final latency = stopwatch.elapsedMilliseconds < 50
+          ? '⚡ 0ms (Cache Hit)'
+          : '🌐 ${stopwatch.elapsedMilliseconds}ms (Network)';
 
       setState(() {
         _lastUrl = url;
+        _lastLatency = latency;
         _isLoading = false;
       });
 
       NanoToast.showSuccess(
         context,
-        'Request: $url\nFound ${users.length} user(s)',
+        'Request: $url\nFound ${users.length} user(s) [$latency]',
       );
     } catch (e) {
       if (!mounted) return;
       setState(() => _isLoading = false);
       NanoToast.showError(context, 'Failed to fetch: $e');
     }
+  }
+
+  void _invalidateCache() {
+    _searchRepository.invalidateCache();
+    NanoToast.showSuccess(context, 'Repository cache cleared!');
   }
 
   @override
@@ -99,13 +126,13 @@ class _RepositoryShowcaseCardState extends State<RepositoryShowcaseCard> {
           children: [
             const SectionHeader(
               icon: Icons.storage_outlined,
-              title: 'Repository & NanoPaginator',
+              title: 'Repository, Cache & NanoPaginator',
               subtitle:
-                  'Type-safe search, pagination strategies, and URL inspection',
+                  'Cache policies (cacheFirst, networkOnly), TTL, and live latency',
             ),
             const SizedBox(height: 16),
 
-            // Live Network Inspector box
+            // Live Network & Cache Inspector box
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(14),
@@ -125,11 +152,12 @@ class _RepositoryShowcaseCardState extends State<RepositoryShowcaseCard> {
                           vertical: 3,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF10B981).withValues(alpha: 0.2),
+                          color:
+                              const Color(0xFF10B981).withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: const Text(
-                          'HTTP URL INSPECTOR',
+                          'HTTP & CACHE INSPECTOR',
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
@@ -137,6 +165,32 @@ class _RepositoryShowcaseCardState extends State<RepositoryShowcaseCard> {
                           ),
                         ),
                       ),
+                      const SizedBox(width: 8),
+                      if (_lastLatency.isNotEmpty)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: _lastLatency.contains('Cache')
+                                ? const Color(0xFF38BDF8)
+                                    .withValues(alpha: 0.2)
+                                : const Color(0xFFF59E0B)
+                                    .withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            _lastLatency,
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: _lastLatency.contains('Cache')
+                                  ? const Color(0xFF38BDF8)
+                                  : const Color(0xFFF59E0B),
+                            ),
+                          ),
+                        ),
                       const Spacer(),
                       ListenableBuilder(
                         listenable: _paginator,
@@ -169,6 +223,53 @@ class _RepositoryShowcaseCardState extends State<RepositoryShowcaseCard> {
               ),
             ),
             const SizedBox(height: 16),
+
+            // Cache Policy Selector
+            Row(
+              children: [
+                const Text(
+                  'Cache Policy:',
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                ),
+                const SizedBox(width: 8),
+                ChoiceChip(
+                  label: const Text('cacheFirst'),
+                  selected: _selectedPolicy == NanoCachePolicy.cacheFirst,
+                  onSelected: (selected) {
+                    if (selected) {
+                      setState(() => _selectedPolicy = NanoCachePolicy.cacheFirst);
+                    }
+                  },
+                ),
+                const SizedBox(width: 6),
+                ChoiceChip(
+                  label: const Text('networkOnly'),
+                  selected: _selectedPolicy == NanoCachePolicy.networkOnly,
+                  onSelected: (selected) {
+                    if (selected) {
+                      setState(() => _selectedPolicy = NanoCachePolicy.networkOnly);
+                    }
+                  },
+                ),
+                const SizedBox(width: 6),
+                ChoiceChip(
+                  label: const Text('networkFirst'),
+                  selected: _selectedPolicy == NanoCachePolicy.networkFirst,
+                  onSelected: (selected) {
+                    if (selected) {
+                      setState(() => _selectedPolicy = NanoCachePolicy.networkFirst);
+                    }
+                  },
+                ),
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(Icons.delete_sweep_outlined),
+                  tooltip: 'Invalidate Cache',
+                  onPressed: _invalidateCache,
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
 
             // Filter controls
             TextField(
