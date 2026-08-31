@@ -16,7 +16,7 @@ class UsersInjections extends NanoInjections {
 
     // Registers the page controller:
     i.registerFactory<UsersController>(
-      () => UsersController(userRepository: i<MockUserRepository>()),
+      () => UsersController(userRepository: i<MockUserSearchRepository>()),
     );
   }
 }

@@ -11,7 +11,7 @@ class AppInjections extends NanoInjections {
 
   @override
   void binds(GetIt i) {
-    // Register the HTTP client implementation once at app startup
-    i.registerLazySingleton<NanoHttpClient>(() => const MockHttpClient());
+    // Register default framework services (such as HTTP client) once:
+    NanoDefaultInjections.init(i, client: MockHttpClient());
   }
 }

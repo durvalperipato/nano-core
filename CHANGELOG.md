@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## 0.4.0-dev
+
+- `NanoDefaultInjections`: Central default dependency injection container with `NanoDefaultInjections.init(i, client: ...)` and `register()` helpers for framework-level services.
+- Made `client` parameter optional in `NanoRepository` and `NanoSearchRepository` with automatic fallback to `GetIt.I<NanoHttpClient>()`.
+- `NanoQueryAdapter`: Dedicated abstract contract for serializing strongly-typed query and filter models into URL query parameters without forcing unused JSON deserialization.
+- `NanoSearchRepository`: Specialized generic repository requiring a `NanoQueryAdapter` to perform type-safe query searches via `search(Q query)`.
+
 ## 0.3.0 (2026-08-31)
 
 ### Added

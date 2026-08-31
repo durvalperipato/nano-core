@@ -16,10 +16,10 @@ A lightweight reactive architecture framework and design system toolkit for Flut
 - 📊 **NanoViewState**: Base class for structured, immutable and equatable view/page state data models.
 - 🛠️ **NanoCommand & NanoCommandBuilder**: Encapsulated async commands for user actions and operations.
 - 🌐 **NanoHttpClient & NanoHttpInterceptor**: Standardized generic contract for decoupled HTTP communication, request/response interceptors (JWT injection, refresh tokens), built-in traffic logging (`NanoHttpLogInterceptor`), and helper extensions (`isSuccess`, `isClientError`, `isServerError`).
-- 📦 **NanoRepository & NanoAdapter**: Automated generic CRUD repository layer with serialization/deserialization for domain entities.
+- 📦 **NanoRepository, NanoSearchRepository & NanoQueryAdapter**: Automated generic CRUD repository layer, type-safe search query serialization, and domain model adapters.
 - 🏷️ **NanoEntity & NanoEquatable**: Base domain entity with unique identification and value-based equality.
 - 🪵 **NanoLogger**: Central structured console logger with ANSI styling, severity levels (`debug`, `info`, `success`, `warning`, `error`, `http`), method context tracking, data payloads, and telemetry hooks.
-- 💉 **NanoInjections & NanoStatePage**: Dependency injection scoping with `GetIt`, modular composition, and page lifecycle binding.
+- 💉 **NanoInjections, NanoDefaultInjections & NanoStatePage**: Dependency injection scoping with `GetIt`, default framework services registration (`NanoDefaultInjections.init`), modular composition, and page lifecycle binding.
 - 🧩 **Design System Components**: Standalone reusable UI widgets such as `NanoLoadingOverlay` and `NanoToast`.
 - 🖥️ **NanoDeviceType**: Real-time cross-platform environment and responsive viewport width inspection.
 
@@ -60,11 +60,37 @@ class UserAdapter implements NanoAdapter<User> {
 }
 
 class UserRepository extends NanoRepository<User, String> {
-  UserRepository(NanoHttpClient client)
+  UserRepository([super.client])
       : super(
-          client: client,
           endpoint: '/users',
           adapter: const UserAdapter(),
+        );
+}
+
+// Type-Safe Search with NanoSearchRepository:
+class UserFilter {
+  final String? role;
+  final int page;
+  const UserFilter({this.role, this.page = 1});
+}
+
+class UserFilterAdapter extends NanoQueryAdapter<UserFilter> {
+  const UserFilterAdapter();
+
+  @override
+  Map<String, dynamic> toQueryParams(UserFilter query) => {
+    'page': query.page,
+    if (query.role != null) 'role': query.role,
+  };
+}
+
+class UserSearchRepository
+    extends NanoSearchRepository<User, String, UserFilter> {
+  UserSearchRepository([super.client])
+      : super(
+          endpoint: '/users',
+          adapter: const UserAdapter(),
+          queryAdapter: const UserFilterAdapter(),
         );
 }
 ```
@@ -109,9 +135,13 @@ class UsersInjections extends NanoInjections {
 
   @override
   void binds(GetIt i) {
-    i.registerLazySingleton<UserRepository>(
-      () => UserRepository(i<NanoHttpClient>()),
-    );
+    // 1. Initialize default core framework services:
+    NanoDefaultInjections.init(i, client: DioHttpClient(Dio()));
+
+    // 2. Register repository (client is automatically injected via GetIt!):
+    i.registerLazySingleton<UserRepository>(() => UserRepository());
+
+    // 3. Register page controller:
     i.registerFactory<MyController>(
       () => MyController(repository: i<UserRepository>()),
     );

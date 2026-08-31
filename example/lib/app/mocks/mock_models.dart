@@ -40,11 +40,41 @@ class MockUserAdapter implements NanoAdapter<MockUser> {
 }
 
 class MockUserRepository extends NanoRepository<MockUser, String> {
-  MockUserRepository(NanoHttpClient client)
+  MockUserRepository([NanoHttpClient? client])
       : super(
-          client: client,
           endpoint: '/users',
           adapter: const MockUserAdapter(),
+          client: client,
+        );
+}
+
+class MockUserFilter {
+  final String? name;
+  final String? role;
+
+  const MockUserFilter({this.name, this.role});
+}
+
+class MockUserFilterAdapter extends NanoQueryAdapter<MockUserFilter> {
+  const MockUserFilterAdapter();
+
+  @override
+  Map<String, dynamic> toQueryParams(MockUserFilter query) {
+    return {
+      if (query.name != null) 'name': query.name,
+      if (query.role != null) 'role': query.role,
+    };
+  }
+}
+
+class MockUserSearchRepository
+    extends NanoSearchRepository<MockUser, String, MockUserFilter> {
+  MockUserSearchRepository([NanoHttpClient? client])
+      : super(
+          endpoint: '/users',
+          adapter: const MockUserAdapter(),
+          queryAdapter: const MockUserFilterAdapter(),
+          client: client,
         );
 }
 

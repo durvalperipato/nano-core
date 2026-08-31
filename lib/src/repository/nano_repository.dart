@@ -1,3 +1,4 @@
+import 'package:get_it/get_it.dart';
 import '../adapter/nano_adapter.dart';
 import '../entity/nano_entity.dart';
 import '../extensions/nano_http_response_extension.dart';
@@ -9,14 +10,22 @@ import '../http/nano_http_client.dart';
 /// and model serialization/deserialization for entities of type [T].
 abstract class NanoRepository<T extends NanoEntity<ID>, ID> {
   /// Creates a [NanoRepository] instance.
+  ///
+  /// If [client] is omitted, it automatically falls back to the global
+  /// [NanoHttpClient] registered in [GetIt] (via [NanoCoreInjections]).
   const NanoRepository({
-    required this.client,
     required this.endpoint,
     required this.adapter,
-  });
+    NanoHttpClient? client,
+  }) : _client = client;
+
+  final NanoHttpClient? _client;
 
   /// The HTTP client used to perform requests.
-  final NanoHttpClient client;
+  ///
+  /// Returns the explicitly injected client or retrieves the global instance
+  /// from [GetIt].
+  NanoHttpClient get client => _client ?? GetIt.I<NanoHttpClient>();
 
   /// The base endpoint URL path for this repository (e.g., `/users`).
   final String endpoint;
