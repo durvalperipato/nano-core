@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## 0.3.0 (2026-08-31)
+
+### Added
+- `NanoRouteObserver`: Dedicated navigation observer with granular callbacks (`onRouteChange`, `onRoutePushed`, `onRoutePopped`, `onRouteReplaced`, `onRouteRemoved`) for screen analytics, telemetry, and logging.
+- `observers` property on `NanoRouter` and automated observer forwarding in `NanoApp`.
+- `NanoHttpInterceptor`: Extensible contract for intercepting and mutating HTTP requests, responses, and handling errors (JWT injection, refresh tokens, retries).
+- `NanoHttpRequest` and `NanoHttpError`: Standardized immutable and equatable models for HTTP requests and structured network errors.
+- `NanoHttpLogInterceptor`: Ready-to-use HTTP traffic logger for requests, responses, headers, bodies, and exceptions in developer tools.
+- `NanoLogger`: Central structured logger with severity levels (`debug`, `info`, `success`, `warning`, `error`, `http`), ANSI terminal styling, method tracking, data payloads, and global telemetry hooks (`onError`, `customPrinter`).
+- `NanoStateObservable`: Universal abstract state contract allowing `NanoScaffold` to observe any state management approach (BLoC, Cubit, MobX, Signals, or custom `ChangeNotifier` adapters).
+- `NanoStreamAdapter`: Generic adapter bridging any `Stream` (BLoC, Cubit, RxDart, WebSockets) into `NanoStateObservable`.
+- `NanoListenableAdapter`: Generic adapter bridging any `Listenable` (MobX, Signals, ValueNotifier, ChangeNotifier) into `NanoStateObservable`.
+- Decoupled `NanoScaffold`'s `controller` parameter to accept any `NanoStateObservable<T>`.
+- Implemented `NanoStateObservable<T>` on `NanoController<T>`.
+
 ## 0.2.0 (2026-08-30)
 
 ### Added

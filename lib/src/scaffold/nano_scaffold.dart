@@ -4,6 +4,7 @@ import '../components/nano_toast.dart';
 import '../controller/nano_controller.dart';
 import '../state/nano_message_key.dart';
 import '../state/nano_state.dart';
+import '../state/nano_state_observable.dart';
 import '../state/nano_view_state.dart';
 import 'widgets/nano_scaffold_builder.dart';
 
@@ -17,7 +18,8 @@ import 'widgets/nano_scaffold_builder.dart';
 /// - [headerBuilder]: Dynamic top bar builder receiving current [NanoState].
 /// - [headerHeight]: Custom height for [header] when it is not a
 ///   [PreferredSizeWidget].
-/// - Automatic state observation via [NanoController] to display loading
+/// - Automatic state observation via [NanoStateObservable] (such as
+///   [NanoController], BLoC, Cubit, or MobX adapters) to display loading
 ///   overlays, custom error/warning/success toasts via [NanoToast], or
 ///   custom callbacks.
 /// - Passes the current [NanoState] directly to [builder], [headerBuilder],
@@ -49,8 +51,9 @@ class NanoScaffold<T extends NanoViewState, M extends NanoMessageKey>
     super.key,
   });
 
-  /// Optional reactive controller managing page state.
-  final NanoController<T>? controller;
+  /// Optional reactive state observable (such as [NanoController] or custom
+  /// BLoC / MobX adapter) managing page state.
+  final NanoStateObservable<T>? controller;
 
   /// Static top navigation bar or header (Web Navbar, Mobile AppBar).
   final Widget? header;
@@ -137,11 +140,11 @@ class _NanoScaffoldState<T extends NanoViewState, M extends NanoMessageKey>
     super.dispose();
   }
 
-  void _subscribeController(NanoController<T>? controller) {
+  void _subscribeController(NanoStateObservable<T>? controller) {
     controller?.addListener(_onStateChanged);
   }
 
-  void _unsubscribeController(NanoController<T>? controller) {
+  void _unsubscribeController(NanoStateObservable<T>? controller) {
     controller?.removeListener(_onStateChanged);
   }
 
