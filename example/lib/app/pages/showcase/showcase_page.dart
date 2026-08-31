@@ -5,10 +5,12 @@ import 'showcase_injections.dart';
 import 'showcase_messages.dart';
 import 'showcase_state.dart';
 import 'widgets/device_environment_card.dart';
+import 'widgets/logger_showcase_card.dart';
 import 'widgets/nano_command_card.dart';
 import 'widgets/navigation_showcase_card.dart';
 import 'widgets/state_simulator_card.dart';
 import 'widgets/toast_showcase_card.dart';
+import 'widgets/universal_adapter_showcase_card.dart';
 
 /// Showcase Page demonstrating Nano Core architecture and design system.
 class ShowcasePage extends StatefulWidget {
@@ -76,6 +78,10 @@ class _ShowcasePageState
               const ToastShowcaseCard(),
               const SizedBox(height: 20),
               const NavigationShowcaseCard(),
+              const SizedBox(height: 20),
+              const LoggerShowcaseCard(),
+              const SizedBox(height: 20),
+              const UniversalAdapterShowcaseCard(),
               const SizedBox(height: 20),
               NanoCommandCard(controller: controller),
             ],

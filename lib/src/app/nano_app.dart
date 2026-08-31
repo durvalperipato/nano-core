@@ -149,7 +149,10 @@ class NanoApp extends StatelessWidget {
         restorationScopeId: restorationScopeId,
         scrollBehavior: scrollBehavior,
         builder: builder,
-        navigatorObservers: navigatorObservers,
+        navigatorObservers: [
+          ...effectiveRouter.observers,
+          ...navigatorObservers,
+        ],
       );
     }
 

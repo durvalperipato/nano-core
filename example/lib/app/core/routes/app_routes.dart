@@ -11,6 +11,13 @@ import 'app_route_names.dart';
 /// Central declarative router configuration for the example application.
 final appRouter = NanoRouter(
   initialRoute: AppPaths.root,
+  observers: [
+    NanoRouteObserver(
+      onRouteChange: (from, to, args) {
+        debugPrint('🧭 [NanoRouteObserver] Navigated from: $from -> to: $to');
+      },
+    ),
+  ],
   routes: [
     // Main showcase dashboard:
     NanoRoute(

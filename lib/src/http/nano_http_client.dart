@@ -1,3 +1,4 @@
+import 'interceptors/nano_http_interceptor.dart';
 import 'nano_http_response.dart';
 
 /// An abstract interface defining the standard contract for HTTP clients.
@@ -5,6 +6,15 @@ import 'nano_http_response.dart';
 /// This allows swapping out the underlying HTTP implementation
 /// (e.g., Dio, Http) without affecting the rest of the application.
 abstract class NanoHttpClient {
+  /// Creates a [NanoHttpClient] instance.
+  const NanoHttpClient();
+
+  /// The list of registered HTTP interceptors.
+  List<NanoHttpInterceptor> get interceptors => const [];
+
+  /// Registers an interceptor to the client pipeline.
+  void addInterceptor(NanoHttpInterceptor interceptor) {}
+
   /// Sends an HTTP GET request.
   Future<NanoHttpResponse<T>> get<T>(
     String path, {

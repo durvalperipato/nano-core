@@ -1,7 +1,7 @@
 import 'package:nano_core/nano_core.dart';
 
 /// A mock implementation of [NanoHttpClient] for testing and demo purposes.
-class MockHttpClient implements NanoHttpClient {
+class MockHttpClient extends NanoHttpClient {
   /// Creates a [MockHttpClient] instance.
   const MockHttpClient();
 
