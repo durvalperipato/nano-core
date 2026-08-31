@@ -1,3 +1,5 @@
+import 'nano_http_request.dart';
+
 /// A standardized generic response object for all HTTP requests.
 class NanoHttpResponse<T> {
   /// Creates a new [NanoHttpResponse] instance.
@@ -5,6 +7,7 @@ class NanoHttpResponse<T> {
     this.data,
     this.statusCode,
     this.statusMessage,
+    this.request,
   });
 
   /// The payload data returned by the server, parsed to type [T].
@@ -15,4 +18,7 @@ class NanoHttpResponse<T> {
 
   /// A descriptive message representing the status of the response.
   final String? statusMessage;
+
+  /// The original [NanoHttpRequest] associated with this response.
+  final NanoHttpRequest? request;
 }

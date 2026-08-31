@@ -18,6 +18,7 @@ class NanoRouter {
     required this.routes,
     this.initialRoute = NanoPaths.root,
     this.errorBuilder,
+    this.observers = const [],
   }) {
     for (final route in routes) {
       _registerRoute(route, '', const []);
@@ -27,6 +28,9 @@ class NanoRouter {
   /// Global navigator key shared across the app.
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
+
+  /// The list of navigation observers observing route changes.
+  final List<NavigatorObserver> observers;
 
   /// The initial route path or name.
   final String initialRoute;
@@ -50,15 +54,11 @@ class NanoRouter {
     final fullPath = _joinPaths(parentPath, route.path);
     final currentGuards = List<NanoProtectedRoute>.from(activeGuards);
 
-    if (route is NanoProtectedRoute) {
-      currentGuards.add(route);
-    }
+    if (route is NanoProtectedRoute) currentGuards.add(route);
 
     if (route is! NanoGroupRoute && route is! NanoProtectedRoute) {
       _routeMap[fullPath] = route;
-      if (currentGuards.isNotEmpty) {
-        _routeGuardsMap[fullPath] = currentGuards;
-      }
+      if (currentGuards.isNotEmpty) _routeGuardsMap[fullPath] = currentGuards;
     }
 
     if (route.name != null && route.name!.isNotEmpty) {
@@ -182,8 +182,6 @@ class NanoRouter {
   /// Pops the current route off the navigator.
   static void back<T extends Object?>([T? result]) {
     final state = navigatorKey.currentState;
-    if (state != null && state.canPop()) {
-      state.pop<T>(result);
-    }
+    if (state != null && state.canPop()) state.pop<T>(result);
   }
 }

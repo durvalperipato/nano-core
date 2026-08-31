@@ -10,13 +10,15 @@ A lightweight reactive architecture framework and design system toolkit for Flut
 
 - 📱 **NanoApp**: Zero-boilerplate root application widget automatically configuring `NanoRouter`, `MaterialApp`, themes, and localizations.
 - 🧭 **NanoRouter & Declarative Routes**: Intuitive zero-dependency declarative router supporting public routes (`NanoRoute`), custom animated transitions (`NanoAnimatedRoute`), route groups (`NanoGroupRoute`), typed sub-routes (`NanoDetailsRoute<T>`), access-guarded routes (`NanoProtectedRoute`), and redirects (`NanoRedirectRoute`).
+- 🔭 **NanoRouteObserver**: Granular navigation observer for screen tracking, Firebase Analytics, Datadog, breadcrumbs, and route lifecycle telemetry.
 - 🚀 **NanoScaffold**: Reactive base page scaffold supporting Web/Desktop headers, mobile AppBars, loading overlays, and error/warning/success toasts.
 - ⚡ **NanoController & NanoState**: Clean, reactive state management built on `ChangeNotifier` and `ListenableBuilder`.
 - 📊 **NanoViewState**: Base class for structured, immutable and equatable view/page state data models.
 - 🛠️ **NanoCommand & NanoCommandBuilder**: Encapsulated async commands for user actions and operations.
-- 🌐 **NanoHttpClient & NanoHttpResponse**: Standardized generic contract for decoupled HTTP communication, status codes, and helper extensions (`isSuccess`, `isClientError`, `isServerError`).
+- 🌐 **NanoHttpClient & NanoHttpInterceptor**: Standardized generic contract for decoupled HTTP communication, request/response interceptors (JWT injection, refresh tokens), built-in traffic logging (`NanoHttpLogInterceptor`), and helper extensions (`isSuccess`, `isClientError`, `isServerError`).
 - 📦 **NanoRepository & NanoAdapter**: Automated generic CRUD repository layer with serialization/deserialization for domain entities.
 - 🏷️ **NanoEntity & NanoEquatable**: Base domain entity with unique identification and value-based equality.
+- 🪵 **NanoLogger**: Central structured console logger with ANSI styling, severity levels (`debug`, `info`, `success`, `warning`, `error`, `http`), method context tracking, data payloads, and telemetry hooks.
 - 💉 **NanoInjections & NanoStatePage**: Dependency injection scoping with `GetIt`, modular composition, and page lifecycle binding.
 - 🧩 **Design System Components**: Standalone reusable UI widgets such as `NanoLoadingOverlay` and `NanoToast`.
 - 🖥️ **NanoDeviceType**: Real-time cross-platform environment and responsive viewport width inspection.
@@ -269,25 +271,37 @@ class DioHttpClient implements NanoHttpClient {
 }
 ```
 
-Register it once at app startup with `GetIt` / `NanoInjections`:
+Register it with interceptors at app startup with `GetIt` / `NanoInjections`:
 
 ```dart
 void main() {
-  final dio = Dio(BaseOptions(baseUrl: 'https://api.example.com'));
-  GetIt.I.registerLazySingleton<NanoHttpClient>(() => DioHttpClient(dio));
+  final client = DioHttpClient(Dio(BaseOptions(baseUrl: 'https://api.example.com')));
+  
+  // Add traffic logging or custom authentication interceptors:
+  client.addInterceptor(const NanoHttpLogInterceptor());
+  
+  GetIt.I.registerLazySingleton<NanoHttpClient>(() => client);
   runApp(const MyApp());
 }
 ```
 
-### 4. Declarative Routing with NanoRouter & NanoApp
+### 4. Declarative Routing with NanoRouter, Observers & NanoApp
 
-Define all application routes in a single declarative router file:
+Define all application routes and analytics observers in a single declarative router file:
 
 ```dart
 import 'package:nano_core/nano_core.dart';
 
 final appRouter = NanoRouter(
   initialRoute: '/', // Optional: defaults to '/'
+  observers: [
+    // 🔭 Track screens automatically with Firebase Analytics / Datadog:
+    NanoRouteObserver(
+      onRouteChange: (from, to, args) {
+        debugPrint('Navigated from: $from -> to: $to');
+      },
+    ),
+  ],
   routes: [
     // Public dashboard route with smooth fade transition:
     NanoAnimatedRoute.fade(
@@ -371,6 +385,60 @@ context.toReplacementNamed('login');
 
 // Pop screen:
 context.back();
+```
+
+### 5. Structured Logging with NanoLogger
+
+Log formatted, color-coded, and tagged events with method tracking and data inspection:
+
+```dart
+import 'package:nano_core/nano_core.dart';
+
+// Info with method tracking and data payload:
+NanoLogger.info(
+  'User authenticated successfully',
+  tag: 'AuthService',
+  method: 'loginWithEmail',
+  data: {'userId': '123', 'role': 'admin'},
+);
+
+// Success notification (using the short alias NanoLog or NLog):
+NanoLog.success('Cache synchronized', tag: 'UserRepository');
+NLog.info('Shortest syntax!');
+
+// HTTP event with httpMethod and statusCode:
+NLog.http(
+  '/users',
+  httpMethod: 'GET',
+  statusCode: 200,
+  tag: 'NanoHttp',
+  method: 'getUsers',
+  data: {'count': 2},
+);
+
+// Error reporting with exception, statusCode and stack trace:
+NanoLog.error(
+  'Failed to fetch user profile',
+  statusCode: 404,
+  tag: 'UserRepository',
+  method: 'getById',
+  data: {'id': '123'},
+  error: exception,
+  stackTrace: stackTrace,
+);
+```
+
+> **Tip:** You can use `NanoLogger`, `NanoLog`, or `NLog` interchangeably as concise aliases.
+
+Hook errors directly into Crashlytics or Sentry:
+```dart
+NanoLogger.onError = (entry) {
+  FirebaseCrashlytics.instance.recordError(
+    entry.error,
+    entry.stackTrace,
+    reason: entry.message,
+  );
+};
 ```
 
 ## License

@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## 0.3.0-dev
+
+### Added
+- `NanoRouteObserver`: Dedicated navigation observer with granular callbacks (`onRouteChange`, `onRoutePushed`, `onRoutePopped`, `onRouteReplaced`, `onRouteRemoved`) for screen analytics, telemetry, and logging.
+- `observers` property on `NanoRouter` and automated observer forwarding in `NanoApp`.
+- `NanoHttpInterceptor`: Extensible contract for intercepting and mutating HTTP requests, responses, and handling errors (JWT injection, refresh tokens, retries).
+- `NanoHttpRequest` and `NanoHttpError`: Standardized immutable and equatable models for HTTP requests and structured network errors.
+- `NanoHttpLogInterceptor`: Ready-to-use HTTP traffic logger for requests, responses, headers, bodies, and exceptions in developer tools.
+- `NanoLogger`: Central structured logger with severity levels (`debug`, `info`, `success`, `warning`, `error`, `http`), ANSI terminal styling, method tracking, data payloads, and global telemetry hooks (`onError`, `customPrinter`).
+- `NanoLogEntry` & `NanoLogLevel`: Structured immutable log record model and priority-ranked severity enum.
+- `interceptors` getter and `addInterceptor` method on `NanoHttpClient`.
+
 ## 0.2.0 (2026-08-30)
 
 ### Added
