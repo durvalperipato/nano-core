@@ -11,7 +11,7 @@ A lightweight reactive architecture framework and design system toolkit for Flut
 - 📱 **NanoApp**: Zero-boilerplate root application widget automatically configuring `NanoRouter`, `MaterialApp`, themes, and localizations.
 - 🧭 **NanoRouter & Declarative Routes**: Intuitive zero-dependency declarative router supporting public routes (`NanoRoute`), custom animated transitions (`NanoAnimatedRoute`), route groups (`NanoGroupRoute`), typed sub-routes (`NanoDetailsRoute<T>`), access-guarded routes (`NanoProtectedRoute`), and redirects (`NanoRedirectRoute`).
 - 🔭 **NanoRouteObserver**: Granular navigation observer for screen tracking, Firebase Analytics, Datadog, breadcrumbs, and route lifecycle telemetry.
-- 🚀 **NanoScaffold**: Reactive base page scaffold supporting Web/Desktop headers, mobile AppBars, loading overlays, and error/warning/success toasts.
+- 🚀 **NanoScaffold & NanoStateObservable**: Decoupled reactive base page scaffold supporting Web/Desktop headers, mobile AppBars, loading overlays, toasts, and universal state observation (`NanoController`, BLoC, Cubit, MobX adapters).
 - ⚡ **NanoController & NanoState**: Clean, reactive state management built on `ChangeNotifier` and `ListenableBuilder`.
 - 📊 **NanoViewState**: Base class for structured, immutable and equatable view/page state data models.
 - 🛠️ **NanoCommand & NanoCommandBuilder**: Encapsulated async commands for user actions and operations.
@@ -440,6 +440,155 @@ NanoLogger.onError = (entry) {
   );
 };
 ```
+
+### 6. Universal State Management (BLoC, Cubit, MobX, GetX, Signals)
+
+`NanoScaffold` can observe any external state management library via the lightweight `NanoStateObservable` contract or using out-of-the-box generic adapters:
+
+#### ⚡ Option A: Out-of-the-Box Generic Adapters (Zero Boilerplate)
+
+```dart
+// 1. Any Stream (BLoC, Cubit, RxDart, WebSockets):
+final blocController = NanoStreamAdapter<UserState, BlocState>(
+  stream: userBloc.stream,
+  initialState: InitialState(),
+  mapper: (blocState) => switch (blocState) {
+    UserLoading() => LoadingState(),
+    UserSuccess(:final user) => SuccessState(data: user),
+    _ => InitialState(),
+  },
+);
+
+// 2. Any Listenable (MobX, Signals, ValueNotifier, Provider):
+final storeController = NanoListenableAdapter<UserState>(
+  listenable: userStore,
+  stateGetter: () => userStore.isBusy
+      ? LoadingState()
+      : SuccessState(data: userStore.user),
+);
+
+// Use directly in NanoScaffold:
+NanoScaffold(
+  controller: blocController,
+  builder: (context, state) => Text('User: ${state.data?.name}'),
+);
+```
+
+#### 🛠️ Option B: Custom Class Implementation
+
+<details>
+<summary><b>1. BLoC / Cubit Class Adapter</b></summary>
+
+```dart
+class UserCubitAdapter extends ChangeNotifier
+    implements NanoStateObservable<UserState> {
+  final UserCubit cubit;
+  late final StreamSubscription _sub;
+
+  UserCubitAdapter(this.cubit) {
+    _sub = cubit.stream.listen((_) => notifyListeners());
+  }
+
+  @override
+  NanoState<UserState> get state => switch (cubit.state) {
+    UserLoading() => LoadingState(),
+    UserSuccess(:final user) => SuccessState(data: user),
+    UserError() => ErrorState(),
+    _ => InitialState(),
+  };
+
+  @override
+  void dispose() {
+    _sub.cancel();
+    super.dispose();
+  }
+}
+```
+</details>
+
+<details>
+<summary><b>2. MobX Class Adapter</b></summary>
+
+```dart
+class UserMobxAdapter extends ChangeNotifier
+    implements NanoStateObservable<UserState> {
+  final UserStore store;
+  late final ReactionDisposer _disposer;
+
+  UserMobxAdapter(this.store) {
+    _disposer = autorun((_) => notifyListeners());
+  }
+
+  @override
+  NanoState<UserState> get state {
+    if (store.isLoading) return LoadingState();
+    if (store.user != null) return SuccessState(data: store.user!);
+    return InitialState();
+  }
+
+  @override
+  void dispose() {
+    _disposer();
+    super.dispose();
+  }
+}
+```
+</details>
+
+<details>
+<summary><b>3. GetX Class Adapter</b></summary>
+
+```dart
+class UserGetxAdapter extends ChangeNotifier
+    implements NanoStateObservable<UserState> {
+  final UserController getxController;
+  late final Worker _worker;
+
+  UserGetxAdapter(this.getxController) {
+    _worker = ever(getxController.stateRx, (_) => notifyListeners());
+  }
+
+  @override
+  NanoState<UserState> get state => getxController.stateRx.value;
+
+  @override
+  void dispose() {
+    _worker.dispose();
+    super.dispose();
+  }
+}
+```
+</details>
+
+<details>
+<summary><b>4. Signals / ValueNotifier Class Adapter</b></summary>
+
+```dart
+class UserSignalsAdapter extends ChangeNotifier
+    implements NanoStateObservable<UserState> {
+  final Signal<NanoState<UserState>> signalState;
+  late final VoidCallback _cleanup;
+
+  UserSignalsAdapter(this.signalState) {
+    _cleanup = effect(() {
+      signalState.value; // register dependency
+      notifyListeners();
+    });
+  }
+
+  @override
+  NanoState<UserState> get state => signalState.value;
+
+  @override
+  void dispose() {
+    _cleanup();
+    super.dispose();
+  }
+}
+```
+</details>
+
+---
 
 ## License
 
