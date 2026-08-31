@@ -29,7 +29,7 @@ Add `nano_core` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  nano_core: ^0.2.0
+  nano_core: ^0.3.0
 ```
 
 ## Quick Example

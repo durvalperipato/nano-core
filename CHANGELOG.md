@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## 0.3.0-dev
+## 0.3.0 (2026-08-31)
 
 ### Added
 - `NanoRouteObserver`: Dedicated navigation observer with granular callbacks (`onRouteChange`, `onRoutePushed`, `onRoutePopped`, `onRouteReplaced`, `onRouteRemoved`) for screen analytics, telemetry, and logging.
