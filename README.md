@@ -19,10 +19,12 @@ A lightweight reactive architecture framework and design system toolkit for Flut
 - 📦 **NanoRepository, NanoSearchRepository & NanoQueryAdapter**: Automated generic CRUD repository layer, type-safe search query serialization, and domain model adapters.
 - 📄 **Pagination & NanoPaginator**: Pluggable strategies (`NanoOffsetPagination`, `NanoCursorPagination`), reactive controller (`NanoPaginator`), automatic infinite scrolling widget (`NanoPaginatedListView`), and customizable navigation bar (`NanoPaginationBar`).
 - ⚡ **NanoCache & Smart Caching**: Zero-dependency in-memory caching (`NanoMemoryCache`) with configurable policies (`cacheFirst`, `networkFirst`, `networkOnly`, `cacheOnly`), TTL expiration, and automatic invalidation on CRUD mutations.
+- 🛡️ **Functional Results (NanoResult)**: Modern Dart 3 `sealed class` hierarchy (`NanoSuccess`, `NanoFailure`) with compile-time pattern matching, `fold`, `map`, and `runAsync` safe execution.
+- 📝 **NanoForm & Validators**: Strongly-typed form models, automatic field disposal, `BuildContext` i18n support, and reactive `NanoTextField` component.
 - 🏷️ **NanoEntity & NanoEquatable**: Base domain entity with unique identification and value-based equality.
 - 🪵 **NanoLogger**: Central structured console logger with ANSI styling, severity levels (`debug`, `info`, `success`, `warning`, `error`, `http`), method context tracking, data payloads, and telemetry hooks.
 - 💉 **NanoInjections, NanoDefaultInjections & NanoStatePage**: Dependency injection scoping with `GetIt`, default framework services registration (`NanoDefaultInjections.init`), modular composition, and page lifecycle binding.
-- 🧩 **Design System Components**: Standalone reusable UI widgets such as `NanoLoadingOverlay`, `NanoToast`, `NanoPaginatedListView`, and `NanoPaginationBar`.
+- 🧩 **Design System Components**: Standalone reusable UI widgets such as `NanoLoadingOverlay`, `NanoToast`, `NanoPaginatedListView`, `NanoPaginationBar`, and `NanoTextField`.
 - 🖥️ **NanoDeviceType**: Real-time cross-platform environment and responsive viewport width inspection.
 
 ## Getting Started
@@ -538,7 +540,118 @@ class SharedPrefsCache implements NanoCache {
 ```
 </details>
 
-### 6. Structured Logging with NanoLogger
+### 6. Type-Safe Functional Results with NanoResult
+
+Handle operations with typed business errors without throwing exceptions, using modern Dart 3 `sealed class` pattern matching:
+
+```dart
+// 1. Return typed results from UseCases or Services:
+Future<NanoResult<User, String>> login(String email, String password) async {
+  if (password.length < 6) {
+    return const NanoResult.failure('Password too short');
+  }
+  try {
+    final user = await authApi.authenticate(email, password);
+    return NanoResult.success(user);
+  } catch (e) {
+    return NanoResult.failure('Invalid credentials');
+  }
+}
+
+// 2. Consume with Dart 3 Pattern Matching:
+final result = await login('dev@nano.core', 'secret123');
+
+final message = switch (result) {
+  NanoSuccess(:final data) => 'Welcome back, ${data.name}!',
+  NanoFailure(:final error) => 'Login failed: $error',
+};
+
+// 3. Or wrap any existing async call safely:
+final safeResult = await NanoResult.runAsync(() => userRepository.getAll());
+```
+
+### 7. Reactive Forms, Internationalized Validators & NanoTextField
+
+Build robust, strongly-typed forms with immutable entities, automatic view state updates via `updateForm`, and `BuildContext` i18n support:
+
+#### 1. Define Form Entity & View State
+```dart
+class UserFormEntity extends NanoFormEntity {
+  const UserFormEntity({
+    this.name = '',
+    this.email = '',
+  });
+
+  final String name;
+  final String email;
+
+  UserFormEntity copyWith({
+    String Function()? name,
+    String Function()? email,
+  }) =>
+      UserFormEntity(
+        name: name != null ? name() : this.name,
+        email: email != null ? email() : this.email,
+      );
+
+  @override
+  List<Object?> get props => [name, email];
+}
+
+class RegisterViewState extends NanoFormState<UserFormEntity> {
+  const RegisterViewState({required super.form});
+
+  RegisterViewState copyWith({UserFormEntity? form}) =>
+      RegisterViewState(form: form ?? this.form);
+}
+```
+
+#### 2. Manage via Controller with updateForm
+```dart
+class RegisterController
+    extends NanoFormController<RegisterViewState, UserFormEntity> {
+  final UserRepository userRepository;
+
+  RegisterController(this.userRepository)
+      : super(initialData: const RegisterViewState(form: UserFormEntity()));
+
+  void onNameChanged(String newName) {
+    updateForm((state) => state.copyWith(
+          form: state.form.copyWith(name: () => newName),
+        ));
+  }
+
+  void saveUser() {
+    execute(() => userRepository.create(state.data!.form));
+  }
+}
+```
+
+#### 3. Render with Reactive NanoTextField in View
+```dart
+Column(
+  children: [
+    NanoTextField(
+      value: state.data?.form.name,
+      label: 'Full Name',
+      prefixIcon: const Icon(Icons.person_outline),
+      validators: [
+        NanoValidator.required((context) => 'Name is required'),
+        NanoValidator.minLength(3, (context) => 'Minimum 3 characters'),
+      ],
+      autoValidateMode: NanoAutoValidateMode.onUserInteraction,
+      onChanged: controller.onNameChanged,
+    ),
+    const SizedBox(height: 20),
+    FilledButton(
+      onPressed: controller.saveUser,
+      child: const Text('Save User'),
+    ),
+  ],
+)
+```
+
+### 8. Structured Logging with NanoLogger
 
 Log formatted, color-coded, and tagged events with method tracking and data inspection:
 
