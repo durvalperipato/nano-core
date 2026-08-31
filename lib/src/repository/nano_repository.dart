@@ -3,6 +3,7 @@ import '../adapter/nano_adapter.dart';
 import '../entity/nano_entity.dart';
 import '../extensions/nano_http_response_extension.dart';
 import '../http/nano_http_client.dart';
+import '../pagination/nano_pagination.dart';
 
 /// An abstract generic repository providing standard CRUD operations.
 ///
@@ -33,14 +34,21 @@ abstract class NanoRepository<T extends NanoEntity<ID>, ID> {
   /// The adapter used to serialize and deserialize [T].
   final NanoAdapter<T> adapter;
 
-  /// Retrieves a list of all entities of type [T].
+  /// Retrieves a list of entities of type [T], optionally applying
+  /// [pagination].
   Future<List<T>> getAll({
+    NanoPagination? pagination,
     Map<String, dynamic>? queryParameters,
     Map<String, String>? headers,
   }) async {
+    final params = {
+      ...?pagination?.toQueryParams(),
+      ...?queryParameters,
+    };
+
     final response = await client.get<List<dynamic>>(
       endpoint,
-      queryParameters: queryParameters,
+      queryParameters: params.isNotEmpty ? params : null,
       headers: headers,
     );
 

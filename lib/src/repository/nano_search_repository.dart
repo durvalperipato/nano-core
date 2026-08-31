@@ -1,5 +1,6 @@
 import '../adapter/nano_query_adapter.dart';
 import '../entity/nano_entity.dart';
+import '../pagination/nano_pagination.dart';
 import 'nano_repository.dart';
 
 /// A specialized generic repository supporting strongly-typed query and filter
@@ -22,12 +23,14 @@ abstract class NanoSearchRepository<T extends NanoEntity<ID>, ID, Q>
   final NanoQueryAdapter<Q> queryAdapter;
 
   /// Searches and retrieves a list of entities using a strongly-typed query
-  /// model [Q].
+  /// model [Q], optionally applying [pagination].
   Future<List<T>> search(
     Q query, {
+    NanoPagination? pagination,
     Map<String, String>? headers,
   }) async {
     return getAll(
+      pagination: pagination,
       queryParameters: queryAdapter.toQueryParams(query),
       headers: headers,
     );

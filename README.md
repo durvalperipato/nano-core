@@ -17,10 +17,11 @@ A lightweight reactive architecture framework and design system toolkit for Flut
 - 🛠️ **NanoCommand & NanoCommandBuilder**: Encapsulated async commands for user actions and operations.
 - 🌐 **NanoHttpClient & NanoHttpInterceptor**: Standardized generic contract for decoupled HTTP communication, request/response interceptors (JWT injection, refresh tokens), built-in traffic logging (`NanoHttpLogInterceptor`), and helper extensions (`isSuccess`, `isClientError`, `isServerError`).
 - 📦 **NanoRepository, NanoSearchRepository & NanoQueryAdapter**: Automated generic CRUD repository layer, type-safe search query serialization, and domain model adapters.
+- 📄 **Pagination & NanoPaginator**: Pluggable strategies (`NanoOffsetPagination`, `NanoCursorPagination`), reactive controller (`NanoPaginator`), automatic infinite scrolling widget (`NanoPaginatedListView`), and customizable navigation bar (`NanoPaginationBar`).
 - 🏷️ **NanoEntity & NanoEquatable**: Base domain entity with unique identification and value-based equality.
 - 🪵 **NanoLogger**: Central structured console logger with ANSI styling, severity levels (`debug`, `info`, `success`, `warning`, `error`, `http`), method context tracking, data payloads, and telemetry hooks.
 - 💉 **NanoInjections, NanoDefaultInjections & NanoStatePage**: Dependency injection scoping with `GetIt`, default framework services registration (`NanoDefaultInjections.init`), modular composition, and page lifecycle binding.
-- 🧩 **Design System Components**: Standalone reusable UI widgets such as `NanoLoadingOverlay` and `NanoToast`.
+- 🧩 **Design System Components**: Standalone reusable UI widgets such as `NanoLoadingOverlay`, `NanoToast`, `NanoPaginatedListView`, and `NanoPaginationBar`.
 - 🖥️ **NanoDeviceType**: Real-time cross-platform environment and responsive viewport width inspection.
 
 ## Getting Started
@@ -417,7 +418,63 @@ context.toReplacementNamed('login');
 context.back();
 ```
 
-### 5. Structured Logging with NanoLogger
+### 5. Type-Safe Search, Query Adapters & Pagination with NanoPaginator
+
+Handle URL query parameter serialization, pagination strategies, and infinite scroll lists with zero boilerplate:
+
+#### 1. Define Typed Filter and Adapter
+```dart
+class UserFilter {
+  final String? name;
+  final String? role;
+  const UserFilter({this.name, this.role});
+}
+
+class UserFilterAdapter implements NanoQueryAdapter<UserFilter> {
+  const UserFilterAdapter();
+
+  @override
+  Map<String, dynamic> toQueryParams(UserFilter query) => {
+    if (query.name != null && query.name!.isNotEmpty) 'name': query.name,
+    if (query.role != null && query.role != 'all') 'role': query.role,
+  };
+}
+```
+
+#### 2. Create Search Repository
+```dart
+class UserRepository extends NanoSearchRepository<User, String, UserFilter> {
+  UserRepository([super.client])
+      : super(
+          endpoint: '/users',
+          adapter: const UserAdapter(),
+          queryAdapter: const UserFilterAdapter(),
+        );
+}
+```
+
+#### 3. Automatic Infinite Scroll (Mobile) or Page Navigation Bar (Web)
+```dart
+// In Controller:
+late final paginator = NanoPaginator<User>(
+  fetcher: (pagination) => userRepository.getAll(pagination: pagination),
+);
+
+// Option A: Mobile Infinite Scroll:
+NanoPaginatedListView<User>(
+  paginator: controller.paginator,
+  itemBuilder: (context, user, index) => ListTile(title: Text(user.name)),
+);
+
+// Option B: Web / Desktop Navigation Bar:
+NanoPaginationBar(
+  paginator: controller.paginator,
+  showPageSizeSelector: true,
+  availablePageSizes: const [5, 10, 20, 50],
+);
+```
+
+### 6. Structured Logging with NanoLogger
 
 Log formatted, color-coded, and tagged events with method tracking and data inspection:
 

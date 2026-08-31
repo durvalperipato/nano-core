@@ -64,26 +64,36 @@ class MockHttpClient extends NanoHttpClient {
     await Future.delayed(const Duration(milliseconds: 1200));
 
     if (path == '/users') {
-      var users = [
-        {
-          'id': '1',
-          'name': 'John Doe',
-          'email': 'john@example.com',
-          'role': 'admin',
+      var users = List.generate(
+        15,
+        (index) {
+          final id = (index + 1).toString();
+          final roles = ['admin', 'developer', 'designer'];
+          final names = [
+            'John Doe',
+            'Alice Smith',
+            'Durval Peripato',
+            'Bob Johnson',
+            'Carol Williams',
+            'David Brown',
+            'Eva Davis',
+            'Frank Miller',
+            'Grace Wilson',
+            'Henry Moore',
+            'Ivy Taylor',
+            'Jack Anderson',
+            'Kate Thomas',
+            'Leo Jackson',
+            'Mia White',
+          ];
+          return {
+            'id': id,
+            'name': names[index % names.length],
+            'email': 'user$id@nanodevs.com.br',
+            'role': roles[index % roles.length],
+          };
         },
-        {
-          'id': '2',
-          'name': 'Alice Smith',
-          'email': 'alice@example.com',
-          'role': 'developer',
-        },
-        {
-          'id': '3',
-          'name': 'Durval Peripato',
-          'email': 'durval@nanodevs.com.br',
-          'role': 'admin',
-        },
-      ];
+      );
 
       if (queryParameters != null && queryParameters.containsKey('name')) {
         final query = queryParameters['name'].toString().toLowerCase();
@@ -99,12 +109,34 @@ class MockHttpClient extends NanoHttpClient {
             .toList();
       }
 
+      // Pagination slicing:
+      final page = queryParameters?['page'] is int
+          ? queryParameters!['page'] as int
+          : int.tryParse(queryParameters?['page']?.toString() ?? '1') ?? 1;
+
+      final pageSize = queryParameters?['pageSize'] is int
+          ? queryParameters!['pageSize'] as int
+          : queryParameters?['limit'] is int
+              ? queryParameters!['limit'] as int
+              : int.tryParse(queryParameters?['pageSize']?.toString() ??
+                      queryParameters?['limit']?.toString() ??
+                      '') ??
+                  5;
+
+      final startIndex = (page - 1) * pageSize;
+      final pagedUsers = (startIndex < users.length)
+          ? users.sublist(
+              startIndex,
+              (startIndex + pageSize).clamp(0, users.length),
+            )
+          : <Map<String, dynamic>>[];
+
       final res = NanoHttpResponse<T>(
-        data: users as T?,
+        data: pagedUsers as T?,
         statusCode: NanoHttpCode.ok,
         statusMessage: 'OK',
       );
-      return _dispatchResponse(res, req);
+      return await _dispatchResponse(res, req);
     }
 
     if (path.startsWith('/users/')) {
