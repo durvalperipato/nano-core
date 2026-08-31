@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## 0.4.0 (2026-08-31)
+
+- `NanoDefaultInjections`: Central default dependency injection container with `NanoDefaultInjections.init(i, client: ..., pagination: ..., cache: ...)` and `register()` helpers for framework-level services.
+- `NanoCache`, `NanoCachePolicy` & `NanoMemoryCache`: Built-in zero-dependency caching layer with configurable policies (`cacheFirst`, `networkFirst`, `networkOnly`, `cacheOnly`), TTL expiration, and automatic cache invalidation on mutations.
+- `NanoResult`, `NanoSuccess` & `NanoFailure`: Functional result pattern using Dart 3 sealed class hierarchy with compile-time pattern matching, `fold`, `map`, `mapError`, and `runAsync` safe execution helpers.
+- `NanoFormEntity`, `NanoFormState` & `NanoFormController`: Strongly-typed immutable form state management system with `copyWith`, `updateForm` lifecycle, and reactive state emissions.
+- `NanoValidator`: Rich collection of chainable form validators (`required`, `email`, `minLength`, `maxLength`, `min`, `max`, `pattern`, `match`, `cpf`, `cnpj`, `custom`) with dynamic `BuildContext` internationalization (i18n) support.
+- `NanoAutoValidateMode`: Granular validation trigger modes (`onSubmit`, `onUserInteraction`, `onFocusLost`, `always`, `disabled`).
+- `NanoTextField`: Reactive text field UI component with automatic controller/focus synchronization, password visibility toggle, and localized error rendering.
+- `NanoPagination`, `NanoOffsetPagination` & `NanoCursorPagination`: Universal pluggable pagination contracts for Offset/Page-based and Cursor/Token-based strategies.
+- `NanoPaginator`: Stateful pagination controller managing page progression, accumulated items, and async page lifecycle.
+- `NanoPaginatedListView`: Reactive component widget for automatic infinite scrolling, pull-to-refresh, bottom spinner loading, and empty/error state handling.
+- `NanoPaginationBar`: Reactive component navigation bar with next/previous page triggers, page indicators, and dynamic `pageSize` selector.
+- Integrated `pagination` parameter into `NanoRepository.getAll` and `NanoSearchRepository.search`.
+- Made `client` parameter optional in `NanoRepository` and `NanoSearchRepository` with automatic fallback to `GetIt.I<NanoHttpClient>()`.
+- `NanoQueryAdapter`: Dedicated abstract contract for serializing strongly-typed query and filter models into URL query parameters without forcing unused JSON deserialization.
+- `NanoSearchRepository`: Specialized generic repository requiring a `NanoQueryAdapter` to perform type-safe query searches via `search(Q query)`.
+
 ## 0.3.0 (2026-08-31)
 
 ### Added

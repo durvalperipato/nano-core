@@ -21,4 +21,19 @@ class NanoHttpResponse<T> {
 
   /// The original [NanoHttpRequest] associated with this response.
   final NanoHttpRequest? request;
+
+  /// Creates a copy of this response with modified properties.
+  NanoHttpResponse<T> copyWith({
+    T? data,
+    int? statusCode,
+    String? statusMessage,
+    NanoHttpRequest? request,
+  }) {
+    return NanoHttpResponse<T>(
+      data: data ?? this.data,
+      statusCode: statusCode ?? this.statusCode,
+      statusMessage: statusMessage ?? this.statusMessage,
+      request: request ?? this.request,
+    );
+  }
 }

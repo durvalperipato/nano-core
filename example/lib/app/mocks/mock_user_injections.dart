@@ -9,8 +9,9 @@ class MockUserInjections extends NanoInjections {
 
   @override
   void binds(GetIt i) {
-    i.registerLazySingleton<MockUserRepository>(
-      () => MockUserRepository(i<NanoHttpClient>()),
+    i.registerLazySingleton<MockUserRepository>(() => MockUserRepository());
+    i.registerLazySingleton<MockUserSearchRepository>(
+      () => MockUserSearchRepository(),
     );
   }
 }
