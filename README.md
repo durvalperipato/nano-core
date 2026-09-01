@@ -9,22 +9,43 @@ A lightweight reactive architecture framework and design system toolkit for Flut
 ## Features
 
 - 📱 **NanoApp**: Zero-boilerplate root application widget automatically configuring `NanoRouter`, `MaterialApp`, themes, and localizations.
-- 🧭 **NanoRouter & Declarative Routes**: Intuitive zero-dependency declarative router supporting public routes (`NanoRoute`), custom animated transitions (`NanoAnimatedRoute`), route groups (`NanoGroupRoute`), typed sub-routes (`NanoDetailsRoute<T>`), access-guarded routes (`NanoProtectedRoute`), and redirects (`NanoRedirectRoute`).
+
+- 🧭 **NanoRouter & Declarative Routes**: Intuitive zero-dependency declarative router supporting public routes (`NanoRoute`), custom animated transitions (`NanoAnimatedRoute`), route groups (`NanoGroupRoute`), typed sub-routes (`NanoDetailsRoute<Args>`), access-guarded routes (`NanoProtectedRoute`), and redirects (`NanoRedirectRoute`).
+
 - 🔭 **NanoRouteObserver**: Granular navigation observer for screen tracking, Firebase Analytics, Datadog, breadcrumbs, and route lifecycle telemetry.
+
 - 🚀 **NanoScaffold & NanoStateObservable**: Decoupled reactive base page scaffold supporting Web/Desktop headers, mobile AppBars, loading overlays, toasts, and universal state observation (`NanoController`, BLoC, Cubit, MobX adapters).
+
 - ⚡ **NanoController & NanoState**: Clean, reactive state management built on `ChangeNotifier` and `ListenableBuilder`.
+
 - 📊 **NanoViewState**: Base class for structured, immutable and equatable view/page state data models.
+
 - 🛠️ **NanoCommand & NanoCommandBuilder**: Encapsulated async commands for user actions and operations.
+
 - 🌐 **NanoHttpClient & NanoHttpInterceptor**: Standardized generic contract for decoupled HTTP communication, request/response interceptors (JWT injection, refresh tokens), built-in traffic logging (`NanoHttpLogInterceptor`), and helper extensions (`isSuccess`, `isClientError`, `isServerError`).
+
 - 📦 **NanoRepository, NanoSearchRepository & NanoQueryAdapter**: Automated generic CRUD repository layer, type-safe search query serialization, and domain model adapters.
+
 - 📄 **Pagination & NanoPaginator**: Pluggable strategies (`NanoOffsetPagination`, `NanoCursorPagination`), reactive controller (`NanoPaginator`), automatic infinite scrolling widget (`NanoPaginatedListView`), and customizable navigation bar (`NanoPaginationBar`).
+
 - ⚡ **NanoCache & Smart Caching**: Zero-dependency in-memory caching (`NanoMemoryCache`) with configurable policies (`cacheFirst`, `networkFirst`, `networkOnly`, `cacheOnly`), TTL expiration, and automatic invalidation on CRUD mutations.
+
 - 🛡️ **Functional Results (NanoResult)**: Modern Dart 3 `sealed class` hierarchy (`NanoSuccess`, `NanoFailure`) with compile-time pattern matching, `fold`, `map`, and `runAsync` safe execution.
+
 - 📝 **NanoForm & Validators**: Strongly-typed form models, automatic field disposal, `BuildContext` i18n support, and reactive `NanoTextField` component.
+
 - 🏷️ **NanoEntity & NanoEquatable**: Base domain entity with unique identification and value-based equality.
+
 - 🪵 **NanoLogger**: Central structured console logger with ANSI styling, severity levels (`debug`, `info`, `success`, `warning`, `error`, `http`), method context tracking, data payloads, and telemetry hooks.
+
 - 💉 **NanoInjections, NanoDefaultInjections & NanoStatePage**: Dependency injection scoping with `GetIt`, default framework services registration (`NanoDefaultInjections.init`), modular composition, and page lifecycle binding.
+
+- ⏱️ **NanoDebouncer**: Flexible async execution delay for search inputs, autocomplete, and live filters with native `NanoTextField(debounceDuration: ...)` support.
+
+- 🌐 **NanoConnectivity**: Zero-dependency cross-platform reactive network monitor (`NanoConnectivity`, `NanoConnectivityStatus`) with seamless `NanoScaffold(connectivityBuilder: ...)` integration.
+
 - 🧩 **Design System Components**: Standalone reusable UI widgets such as `NanoLoadingOverlay`, `NanoToast`, `NanoPaginatedListView`, `NanoPaginationBar`, and `NanoTextField`.
+
 - 🖥️ **NanoDeviceType**: Real-time cross-platform environment and responsive viewport width inspection.
 
 ## Getting Started
@@ -33,7 +54,7 @@ Add `nano_core` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  nano_core: ^0.3.0
+  nano_core: ^0.5.0
 ```
 
 ## Quick Example
@@ -169,7 +190,7 @@ class _UsersPageState
   Widget build(BuildContext context) {
     return NanoScaffold<UsersState, NanoMessageKey>(
       controller: controller,
-      headerBuilder: (context, state) => AppBar(
+      header: (context, state) => AppBar(
         title: Text(
           state.data?.users.isNotEmpty == true
               ? 'Users (${state.data!.users.length})'
@@ -853,6 +874,63 @@ class UserSignalsAdapter extends ChangeNotifier
 }
 ```
 </details>
+
+---
+
+### 9. Debounced Search Inputs
+
+Delay expensive operations or search API calls until the user pauses typing:
+
+```dart
+// Native integration with NanoTextField:
+NanoTextField(
+  label: 'Search products...',
+  prefixIcon: const Icon(Icons.search),
+  debounceDuration: const Duration(milliseconds: 400),
+  onChanged: (query) => controller.search(query),
+)
+
+// Or using standalone NanoDebouncer:
+final debouncer = NanoDebouncer(duration: const Duration(milliseconds: 300));
+debouncer.run(() => fetchSearchResults(query));
+```
+
+---
+
+### 10. Reactive Connectivity & Offline Handling
+
+Monitor network connectivity state with zero external dependencies:
+
+```dart
+// 1. Register in NanoDefaultInjections:
+NanoDefaultInjections.register(
+  connectivity: NanoConnectivity(),
+);
+
+// 2. Observe in NanoScaffold with custom connectivityBuilder:
+NanoScaffold<ProductsState, ProductsMessages>(
+  controller: controller,
+  connectivityBuilder: (context, status) => switch (status) {
+    NanoConnectivityStatus.none => Container(
+      color: Colors.red.withValues(alpha: 0.9),
+      padding: const EdgeInsets.all(8),
+      child: const Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.wifi_off, color: Colors.white, size: 18),
+          SizedBox(width: 8),
+          Text(
+            'No internet connection',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+    ),
+    _ => null,
+  },
+  builder: (context, state) => ...,
+)
+```
 
 ---
 

@@ -8,8 +8,8 @@ import 'nano_view_state.dart';
 /// This allows [NanoScaffold] to remain decoupled from concrete controller
 /// implementations, seamlessly supporting [NanoController], BLoC, Cubit,
 /// MobX, Signals, or custom [ChangeNotifier] state adapters.
-abstract interface class NanoStateObservable<T extends NanoViewState>
+abstract interface class NanoStateObservable<ViewState extends NanoViewState>
     implements Listenable {
   /// The current [NanoState] snapshot.
-  NanoState<T> get state;
+  NanoState<ViewState> get state;
 }

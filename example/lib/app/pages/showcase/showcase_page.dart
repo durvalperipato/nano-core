@@ -4,6 +4,7 @@ import 'showcase_controller.dart';
 import 'showcase_injections.dart';
 import 'showcase_messages.dart';
 import 'showcase_state.dart';
+import 'widgets/connectivity_and_debounce_card.dart';
 import 'widgets/device_environment_card.dart';
 import 'widgets/form_showcase_card.dart';
 import 'widgets/logger_showcase_card.dart';
@@ -41,7 +42,7 @@ class _ShowcasePageState
           );
         }
       },
-      headerBuilder: (context, state) => AppBar(
+      header: (context, state) => AppBar(
         title: Row(
           children: [
             Container(
@@ -75,6 +76,8 @@ class _ShowcasePageState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const DeviceEnvironmentCard(),
+              const SizedBox(height: 20),
+              const ConnectivityAndDebounceCard(),
               const SizedBox(height: 20),
               StateSimulatorCard(controller: controller),
               const SizedBox(height: 20),

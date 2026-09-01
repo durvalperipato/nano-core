@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## 0.5.0 (2026-09-01)
+
+- **Clean Code Generics Refactor**: Standardized descriptive and semantic generic type parameters across all classes and adapters (`ViewState`, `MessageKey`, `Entity`, `Id`, `Query`, `Success`, `Failure`, `FormEntity`, `Args`, `Output`, `PageWidget`).
+- `NanoDebouncer`: Flexible async execution delay for search inputs, autocomplete, and live filters with native `NanoTextField(debounceDuration: ...)` integration.
+- `NanoConnectivity` & `NanoConnectivityStatus`: Zero-dependency cross-platform reactive network monitor supporting Wi-Fi, Cellular (4G/5G), Ethernet, Bluetooth, VPN, and Offline states.
+- Simplified `NanoScaffold` layout slots into unified builders (`header`, `drawer`, `footer`, `floatingActionButton`, `builder`).
+- Integrated `NanoConnectivity` observation and custom `connectivityBuilder` directly into `NanoScaffold`.
+- Added `connectivity` registration support to `NanoDefaultInjections.init` and `NanoDefaultInjections.register`.
+- Enforced strict arrow function syntax (`=>`) for all single-line methods across the framework.
+
+---
+
 ## 0.4.0 (2026-08-31)
 
 - `NanoDefaultInjections`: Central default dependency injection container with `NanoDefaultInjections.init(i, client: ..., pagination: ..., cache: ...)` and `register()` helpers for framework-level services.

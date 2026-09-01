@@ -9,24 +9,24 @@ import 'nano_form_state.dart';
 /// [NanoFormState] holding a [NanoFormEntity] with integrated form key
 /// validation and lifecycle management.
 abstract class NanoFormController<
-  S extends NanoFormState<F>,
-  F extends NanoFormEntity
+  ViewState extends NanoFormState<FormEntity>,
+  FormEntity extends NanoFormEntity
 >
-    extends NanoController<S> {
+    extends NanoController<ViewState> {
   /// Creates a [NanoFormController] with optional initial view state.
-  NanoFormController({S? initialData}) : _initialData = initialData {
+  NanoFormController({ViewState? initialData}) : _initialData = initialData {
     if (initialData != null) {
-      state = SuccessState<S>(initialData);
+      state = SuccessState<ViewState>(initialData);
     }
   }
 
-  final S? _initialData;
+  final ViewState? _initialData;
 
   /// Global form key managing the surrounding [NanoForm] or [Form] state.
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   /// Convenience getter for the active form entity in state.
-  F? get currentForm => state.data?.form;
+  FormEntity? get currentForm => state.data?.form;
 
   /// Validates all form fields associated with [formKey].
   ///
@@ -37,7 +37,7 @@ abstract class NanoFormController<
   ///
   /// If validation fails, [onInvalid] is invoked instead.
   Future<void> submit(
-    FutureOr<void> Function(F form) onValid, {
+    FutureOr<void> Function(FormEntity form) onValid, {
     void Function()? onInvalid,
   }) async {
     if (validate()) {
@@ -54,15 +54,15 @@ abstract class NanoFormController<
   void reset() {
     formKey.currentState?.reset();
     if (_initialData != null) {
-      emit(SuccessState<S>(_initialData));
+      emit(SuccessState<ViewState>(_initialData));
     }
   }
 
   /// Updates the form view state and emits the new state.
-  void updateForm(S Function(S currentState) stateUpdater) {
+  void updateForm(ViewState Function(ViewState currentState) stateUpdater) {
     final current = state.data;
     if (current != null) {
-      emit(SuccessState<S>(stateUpdater(current)));
+      emit(SuccessState<ViewState>(stateUpdater(current)));
     }
   }
 }
