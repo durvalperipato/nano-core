@@ -23,7 +23,7 @@ class _UsersPageState extends NanoStatePage<UsersPage, UsersController> {
   Widget build(BuildContext context) {
     return NanoScaffold<UsersState, NanoMessageKey>(
       controller: controller,
-      headerBuilder: (context, state) => AppBar(
+      header: (context, state) => AppBar(
         title: Text(
           state.data?.users.isNotEmpty == true
               ? 'Users (${state.data!.users.length})'

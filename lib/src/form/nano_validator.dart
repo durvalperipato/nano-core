@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 ///
 /// Can return a static [String], an internationalized
 /// `String Function(BuildContext)` callback, or `null`.
-typedef NanoValidatorFunction<T> = dynamic Function(T? value);
+typedef NanoValidatorFunction<Value> = dynamic Function(Value? value);
 
 /// Collection of standard, chainable form field validators with full
 /// internationalization ([BuildContext]) support.
@@ -26,7 +26,7 @@ abstract final class NanoValidator {
   }
 
   /// Requires the field to have a non-null, non-empty value.
-  static NanoValidatorFunction<T> required<T>(dynamic message) {
+  static NanoValidatorFunction<Value> required<Value>(dynamic message) {
     return (value) {
       if (value == null) return message;
       if (value is String && value.trim().isEmpty) return message;
@@ -98,8 +98,8 @@ abstract final class NanoValidator {
   }
 
   /// Validates that this field value equals another getter / value.
-  static NanoValidatorFunction<T> match<T>(
-    T Function() otherValueGetter,
+  static NanoValidatorFunction<Value> match<Value>(
+    Value Function() otherValueGetter,
     dynamic message,
   ) {
     return (value) {
@@ -120,16 +120,14 @@ abstract final class NanoValidator {
       for (var i = 0; i < 9; i++) {
         sum += int.parse(numbers[i]) * (10 - i);
       }
-      var firstDigit = 11 - (sum % 11);
-      if (firstDigit >= 10) firstDigit = 0;
+      final firstDigit = sum % 11 < 2 ? 0 : 11 - (sum % 11);
       if (firstDigit != int.parse(numbers[9])) return message;
 
       sum = 0;
       for (var i = 0; i < 10; i++) {
         sum += int.parse(numbers[i]) * (11 - i);
       }
-      var secondDigit = 11 - (sum % 11);
-      if (secondDigit >= 10) secondDigit = 0;
+      final secondDigit = sum % 11 < 2 ? 0 : 11 - (sum % 11);
       if (secondDigit != int.parse(numbers[10])) return message;
 
       return null;
@@ -165,9 +163,8 @@ abstract final class NanoValidator {
   }
 
   /// Custom inline validator function.
-  static NanoValidatorFunction<T> custom<T>(
-    dynamic Function(T? value) validatorFn,
-  ) {
-    return validatorFn;
-  }
+  static NanoValidatorFunction<Value> custom<Value>(
+    dynamic Function(Value? value) validatorFn,
+  ) =>
+      validatorFn;
 }

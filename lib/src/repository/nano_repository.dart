@@ -9,7 +9,7 @@ import '../pagination/nano_pagination.dart';
 
 /// An abstract generic repository providing standard CRUD operations with
 /// optional caching, pagination, and type-safe query adapters.
-abstract class NanoRepository<T extends NanoEntity<ID>, ID> {
+abstract class NanoRepository<Entity extends NanoEntity<Id>, Id> {
   /// Creates a [NanoRepository] instance.
   ///
   /// If [client], [cache], or [cachePolicy] are omitted, they automatically
@@ -50,8 +50,8 @@ abstract class NanoRepository<T extends NanoEntity<ID>, ID> {
   /// The base endpoint URL path for this repository (e.g., `/users`).
   final String endpoint;
 
-  /// The adapter used to serialize and deserialize [T].
-  final NanoAdapter<T> adapter;
+  /// The adapter used to serialize and deserialize [Entity].
+  final NanoAdapter<Entity> adapter;
 
   /// Builds a deterministic cache key from an endpoint and query parameters.
   String _buildCacheKey(String path, Map<String, dynamic>? params) {
@@ -66,9 +66,9 @@ abstract class NanoRepository<T extends NanoEntity<ID>, ID> {
   void invalidateCache({String? prefix}) =>
       cache?.clear(prefix: prefix ?? endpoint);
 
-  /// Retrieves a list of entities of type [T], optionally applying
+  /// Retrieves a list of entities of type [Entity], optionally applying
   /// [pagination] and [cachePolicy].
-  Future<List<T>> getAll({
+  Future<List<Entity>> getAll({
     NanoPagination? pagination,
     NanoCachePolicy? cachePolicy,
     Duration? cacheTtl,
@@ -89,7 +89,7 @@ abstract class NanoRepository<T extends NanoEntity<ID>, ID> {
     // 1. Cache-Only:
     if (effectivePolicy == NanoCachePolicy.cacheOnly) {
       final cached = cache?.get<List<dynamic>>(cacheKey);
-      if (cached == null) return <T>[];
+      if (cached == null) return <Entity>[];
       return cached
           .map((item) => adapter.fromJson(item as Map<String, dynamic>))
           .toList();
@@ -114,7 +114,7 @@ abstract class NanoRepository<T extends NanoEntity<ID>, ID> {
       );
 
       final data = response.data;
-      if (data == null) return <T>[];
+      if (data == null) return <Entity>[];
 
       // Save raw response to cache:
       cache?.set(cacheKey, data, ttl: effectiveTtl);
@@ -136,10 +136,10 @@ abstract class NanoRepository<T extends NanoEntity<ID>, ID> {
     }
   }
 
-  /// Retrieves a single entity of type [T] by its [id], optionally applying
-  /// [cachePolicy].
-  Future<T?> getById(
-    ID id, {
+  /// Retrieves a single entity of type [Entity] by its [id], optionally
+  /// applying [cachePolicy].
+  Future<Entity?> getById(
+    Id id, {
     NanoCachePolicy? cachePolicy,
     Duration? cacheTtl,
     Map<String, dynamic>? queryParameters,
@@ -187,8 +187,8 @@ abstract class NanoRepository<T extends NanoEntity<ID>, ID> {
   }
 
   /// Creates a new entity on the server and invalidates related cache.
-  Future<T> create(
-    T entity, {
+  Future<Entity> create(
+    Entity entity, {
     Map<String, dynamic>? queryParameters,
     Map<String, String>? headers,
   }) async {
@@ -208,8 +208,8 @@ abstract class NanoRepository<T extends NanoEntity<ID>, ID> {
   }
 
   /// Updates an existing entity on the server and invalidates related cache.
-  Future<T> update(
-    T entity, {
+  Future<Entity> update(
+    Entity entity, {
     Map<String, dynamic>? queryParameters,
     Map<String, String>? headers,
   }) async {
@@ -231,7 +231,7 @@ abstract class NanoRepository<T extends NanoEntity<ID>, ID> {
   /// Deletes an entity from the server by its [id] and invalidates
   /// related cache.
   Future<bool> delete(
-    ID id, {
+    Id id, {
     Map<String, dynamic>? queryParameters,
     Map<String, String>? headers,
   }) async {

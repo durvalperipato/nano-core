@@ -3,7 +3,7 @@ import '../state/nano_state.dart';
 import 'nano_command.dart';
 
 /// A reactive widget builder responding to [NanoCommand] state changes.
-class NanoCommandBuilder<T> extends StatelessWidget {
+class NanoCommandBuilder<Output> extends StatelessWidget {
   /// Creates a [NanoCommandBuilder] instance.
   const NanoCommandBuilder({
     required this.command,
@@ -12,18 +12,15 @@ class NanoCommandBuilder<T> extends StatelessWidget {
   });
 
   /// Target command to observe.
-  final NanoCommand<T> command;
+  final NanoCommand<Output> command;
 
   /// Builder callback rendering UI based on current [NanoState].
-  final Widget Function(BuildContext context, NanoState<T> state) builder;
+  final Widget Function(BuildContext context, NanoState<Output> state) builder;
 
   @override
-  Widget build(BuildContext context) {
-    return ValueListenableBuilder<NanoState<T>>(
-      valueListenable: command,
-      builder: (context, state, _) {
-        return builder(context, state);
-      },
-    );
-  }
+  Widget build(BuildContext context) =>
+      ValueListenableBuilder<NanoState<Output>>(
+        valueListenable: command,
+        builder: (context, state, _) => builder(context, state),
+      );
 }

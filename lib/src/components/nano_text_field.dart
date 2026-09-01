@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../form/nano_autovalidate_mode.dart';
 import '../form/nano_validator.dart';
+import '../utils/nano_debouncer.dart';
 
 /// A Material text field component supporting value synchronization,
 /// validation with [BuildContext] internationalization, auto-validation modes,
@@ -10,6 +11,7 @@ class NanoTextField extends StatefulWidget {
   const NanoTextField({
     this.value,
     this.onChanged,
+    this.debounceDuration,
     this.validators = const [],
     this.autoValidateMode = NanoAutoValidateMode.onSubmit,
     this.label,
@@ -33,6 +35,11 @@ class NanoTextField extends StatefulWidget {
 
   /// Callback invoked whenever the input text changes.
   final ValueChanged<String>? onChanged;
+
+  /// Optional debounce delay duration before triggering [onChanged].
+  ///
+  /// Useful for search inputs and preventing rapid API calls.
+  final Duration? debounceDuration;
 
   /// List of validation functions evaluated on this field.
   final List<NanoValidatorFunction<String>> validators;
@@ -88,6 +95,7 @@ class _NanoTextFieldState extends State<NanoTextField> {
   late final FocusNode _focusNode;
   bool _obscureText = false;
   FormFieldState<String>? _fieldState;
+  late NanoDebouncer? _debouncer;
 
   @override
   void initState() {
@@ -95,6 +103,9 @@ class _NanoTextFieldState extends State<NanoTextField> {
     _obscureText = widget.isPassword;
     _controller = TextEditingController(text: widget.value ?? '');
     _focusNode = FocusNode();
+    _debouncer = widget.debounceDuration != null
+        ? NanoDebouncer(duration: widget.debounceDuration!)
+        : null;
 
     _focusNode.addListener(_handleFocusChange);
   }
@@ -109,10 +120,17 @@ class _NanoTextFieldState extends State<NanoTextField> {
       );
       _fieldState?.didChange(widget.value);
     }
+    if (widget.debounceDuration != oldWidget.debounceDuration) {
+      _debouncer?.dispose();
+      _debouncer = widget.debounceDuration != null
+          ? NanoDebouncer(duration: widget.debounceDuration!)
+          : null;
+    }
   }
 
   @override
   void dispose() {
+    _debouncer?.dispose();
     _focusNode.removeListener(_handleFocusChange);
     _controller.dispose();
     _focusNode.dispose();
@@ -194,7 +212,12 @@ class _NanoTextFieldState extends State<NanoTextField> {
           onSubmitted: widget.onSubmitted,
           onChanged: (text) {
             fieldState.didChange(text);
-            widget.onChanged?.call(text);
+            final debouncer = _debouncer;
+            if (debouncer != null) {
+              debouncer.run(() => widget.onChanged?.call(text));
+            } else {
+              widget.onChanged?.call(text);
+            }
           },
           decoration: widget.decoration != null
               ? widget.decoration!.copyWith(

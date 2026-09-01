@@ -7,19 +7,20 @@ import '../state/nano_view_state.dart';
 ///
 /// Extends [ChangeNotifier] and implements [NanoStateObservable] to notify
 /// listeners when state changes.
-/// Requires [T] to extend [NanoViewState] for structured, immutable
+/// Requires [ViewState] to extend [NanoViewState] for structured, immutable
 /// state models.
-abstract class NanoController<T extends NanoViewState> extends ChangeNotifier
-    implements NanoStateObservable<T> {
+abstract class NanoController<ViewState extends NanoViewState>
+    extends ChangeNotifier
+    implements NanoStateObservable<ViewState> {
   /// Creates a new [NanoController] instance.
   NanoController();
 
   /// The current state of the controller.
   @override
-  NanoState<T> state = InitialState<T>();
+  NanoState<ViewState> state = InitialState<ViewState>();
 
   /// Emits a new state and notifies all registered listeners.
-  void emit(NanoState<T> newState) {
+  void emit(NanoState<ViewState> newState) {
     state = newState;
     notifyListeners();
   }
@@ -34,7 +35,7 @@ abstract class NanoController<T extends NanoViewState> extends ChangeNotifier
   /// - `loading` when starting.
   /// - `success` with result when completed.
   /// - `error` with error message if an exception is thrown.
-  Future<void> execute(Future<T> Function() action) async {
+  Future<void> execute(Future<ViewState> Function() action) async {
     emit(state.toLoading());
     try {
       final result = await action();

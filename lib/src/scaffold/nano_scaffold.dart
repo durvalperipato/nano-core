@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import '../components/nano_loading_overlay.dart';
 import '../components/nano_toast.dart';
+import '../connectivity/nano_connectivity.dart';
+import '../connectivity/nano_connectivity_status.dart';
 import '../controller/nano_controller.dart';
 import '../state/nano_message_key.dart';
 import '../state/nano_state.dart';
@@ -10,41 +13,47 @@ import 'widgets/nano_scaffold_builder.dart';
 
 /// [NanoScaffold] is the reactive base page layout structure in nano-core.
 ///
-/// Generic over [T], where [T] represents the page's [NanoViewState],
-/// and [M], where [M] represents the strongly typed [NanoMessageKey].
+/// Generic over [ViewState], where [ViewState] represents the page's
+/// [NanoViewState], and [MessageKey], where [MessageKey] represents the
+/// strongly typed [NanoMessageKey].
 ///
 /// Supports:
-/// - [header]: Static top bar (Web/Desktop Navbar or Mobile AppBar).
-/// - [headerBuilder]: Dynamic top bar builder receiving current [NanoState].
-/// - [headerHeight]: Custom height for [header] when it is not a
-///   [PreferredSizeWidget].
+/// - [header]: Top navigation bar builder receiving context and [NanoState].
+/// - [headerHeight]: Custom height for [header]. Defaults to [kToolbarHeight].
+/// - [drawer]: Side drawer builder receiving context and [NanoState].
+/// - [footer]: Bottom navigation bar or footer builder.
+/// - [floatingActionButton]: Floating action button builder.
 /// - Automatic state observation via [NanoStateObservable] (such as
 ///   [NanoController], BLoC, Cubit, or MobX adapters) to display loading
 ///   overlays, custom error/warning/success toasts via [NanoToast], or
 ///   custom callbacks.
-/// - Passes the current [NanoState] directly to [builder], [headerBuilder],
-///   [footerBuilder], [drawerBuilder], and [floatingActionButtonBuilder].
+/// - Passes the current [NanoState] directly to [builder], [header],
+///   [footer], [drawer], and [floatingActionButton].
 /// - Strongly-typed message callbacks [onCustomError] and [onCustomWarning]
-///   using [M].
+///   using [MessageKey].
 /// - Customizable [loadingWidget] overlay when the state is [LoadingState].
-class NanoScaffold<T extends NanoViewState, M extends NanoMessageKey>
+/// - Reactive [connectivity] observation with [connectivityBuilder] and
+///   [onConnectivityChanged] hook.
+class NanoScaffold<
+  ViewState extends NanoViewState,
+  MessageKey extends NanoMessageKey
+>
     extends StatefulWidget {
   /// Creates a [NanoScaffold] widget layout.
   const NanoScaffold({
     required this.builder,
     this.controller,
     this.header,
-    this.headerBuilder,
     this.headerHeight = kToolbarHeight,
     this.drawer,
-    this.drawerBuilder,
     this.footer,
-    this.footerBuilder,
     this.floatingActionButton,
-    this.floatingActionButtonBuilder,
     this.backgroundColor,
     this.resizeToAvoidBottomInset,
     this.loadingWidget,
+    this.connectivity,
+    this.connectivityBuilder,
+    this.onConnectivityChanged,
     this.onCustomError,
     this.onCustomWarning,
     this.onCustomSuccess,
@@ -53,39 +62,39 @@ class NanoScaffold<T extends NanoViewState, M extends NanoMessageKey>
 
   /// Optional reactive state observable (such as [NanoController] or custom
   /// BLoC / MobX adapter) managing page state.
-  final NanoStateObservable<T>? controller;
+  final NanoStateObservable<ViewState>? controller;
 
-  /// Static top navigation bar or header (Web Navbar, Mobile AppBar).
-  final Widget? header;
+  /// Optional connectivity observable. If null, attempts to resolve from
+  /// [GetIt] if registered.
+  final NanoConnectivity? connectivity;
 
-  /// Dynamic top navigation bar builder receiving the current [NanoState].
-  final Widget? Function(BuildContext context, NanoState<T> state)?
-  headerBuilder;
+  /// Optional custom connectivity widget builder receiving the active
+  /// [NanoConnectivityStatus]. Return a widget to render an overlay/banner
+  /// or null to render nothing.
+  final Widget? Function(BuildContext context, NanoConnectivityStatus status)?
+  connectivityBuilder;
 
-  /// Custom height for [header] when not a [PreferredSizeWidget].
-  /// Defaults to [kToolbarHeight].
+  /// Optional callback triggered when network connectivity status changes.
+  final void Function(NanoConnectivityStatus status)? onConnectivityChanged;
+
+  /// Top navigation bar or header builder (Web Navbar, Mobile AppBar).
+  final Widget? Function(BuildContext context, NanoState<ViewState> state)?
+  header;
+
+  /// Custom height for [header]. Defaults to [kToolbarHeight].
   final double headerHeight;
 
-  /// Static side navigation drawer.
-  final Widget? drawer;
+  /// Side navigation drawer builder.
+  final Widget? Function(BuildContext context, NanoState<ViewState> state)?
+  drawer;
 
-  /// Dynamic drawer builder receiving the current [NanoState].
-  final Widget? Function(BuildContext context, NanoState<T> state)?
-  drawerBuilder;
+  /// Bottom navigation bar or footer builder.
+  final Widget? Function(BuildContext context, NanoState<ViewState> state)?
+  footer;
 
-  /// Static bottom navigation bar or footer.
-  final Widget? footer;
-
-  /// Dynamic footer builder receiving the current [NanoState].
-  final Widget? Function(BuildContext context, NanoState<T> state)?
-  footerBuilder;
-
-  /// Static floating action button.
-  final Widget? floatingActionButton;
-
-  /// Dynamic floating action button builder receiving the current [NanoState].
-  final Widget? Function(BuildContext context, NanoState<T> state)?
-  floatingActionButtonBuilder;
+  /// Floating action button builder.
+  final Widget? Function(BuildContext context, NanoState<ViewState> state)?
+  floatingActionButton;
 
   /// Page background color.
   final Color? backgroundColor;
@@ -100,53 +109,85 @@ class NanoScaffold<T extends NanoViewState, M extends NanoMessageKey>
 
   /// Optional custom error callback. If null, displays default
   /// [NanoToast.showError].
-  final void Function(M? error)? onCustomError;
+  final void Function(MessageKey? error)? onCustomError;
 
   /// Optional custom warning callback. If null, displays default
   /// [NanoToast.showWarning].
-  final void Function(M? warning)? onCustomWarning;
+  final void Function(MessageKey? warning)? onCustomWarning;
 
   /// Optional custom success callback. If null, displays default
   /// [NanoToast.showSuccess].
   final void Function(String message)? onCustomSuccess;
 
   /// Main page content builder, receiving current context and [NanoState].
-  final Widget Function(BuildContext context, NanoState<T> state) builder;
+  final Widget Function(BuildContext context, NanoState<ViewState> state)
+  builder;
 
   @override
-  State<NanoScaffold<T, M>> createState() => _NanoScaffoldState<T, M>();
+  State<NanoScaffold<ViewState, MessageKey>> createState() =>
+      _NanoScaffoldState<ViewState, MessageKey>();
 }
 
-class _NanoScaffoldState<T extends NanoViewState, M extends NanoMessageKey>
-    extends State<NanoScaffold<T, M>> {
+class _NanoScaffoldState<
+  ViewState extends NanoViewState,
+  MessageKey extends NanoMessageKey
+>
+    extends State<NanoScaffold<ViewState, MessageKey>> {
+  NanoConnectivity? _connectivity;
+
   @override
   void initState() {
     super.initState();
     _subscribeController(widget.controller);
+    _resolveAndSubscribeConnectivity();
   }
 
   @override
-  void didUpdateWidget(covariant NanoScaffold<T, M> oldWidget) {
+  void didUpdateWidget(
+    covariant NanoScaffold<ViewState, MessageKey> oldWidget,
+  ) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.controller != widget.controller) {
       _unsubscribeController(oldWidget.controller);
       _subscribeController(widget.controller);
+    }
+    if (oldWidget.connectivity != widget.connectivity) {
+      _unsubscribeConnectivity(_connectivity);
+      _resolveAndSubscribeConnectivity();
     }
   }
 
   @override
   void dispose() {
     _unsubscribeController(widget.controller);
+    _unsubscribeConnectivity(_connectivity);
     super.dispose();
   }
 
-  void _subscribeController(NanoStateObservable<T>? controller) {
-    controller?.addListener(_onStateChanged);
+  void _resolveAndSubscribeConnectivity() {
+    _connectivity =
+        widget.connectivity ??
+        (GetIt.I.isRegistered<NanoConnectivity>()
+            ? GetIt.I<NanoConnectivity>()
+            : null);
+    _connectivity?.addListener(_onConnectivityChanged);
   }
 
-  void _unsubscribeController(NanoStateObservable<T>? controller) {
-    controller?.removeListener(_onStateChanged);
+  void _unsubscribeConnectivity(NanoConnectivity? connectivity) =>
+      connectivity?.removeListener(_onConnectivityChanged);
+
+  void _onConnectivityChanged() {
+    final connectivity = _connectivity;
+    if (connectivity == null) return;
+    widget.onConnectivityChanged?.call(connectivity.status);
+    setState(() {});
   }
+
+  void _subscribeController(NanoStateObservable<ViewState>? controller) =>
+      controller?.addListener(_onStateChanged);
+
+  void _unsubscribeController(NanoStateObservable<ViewState>? controller) =>
+      controller?.removeListener(_onStateChanged);
 
   void _onStateChanged() {
     final controller = widget.controller;
@@ -155,14 +196,14 @@ class _NanoScaffoldState<T extends NanoViewState, M extends NanoMessageKey>
     final state = controller.state;
 
     if (state case ErrorState(:final key)) {
-      final typedKey = key is M ? key : null;
+      final typedKey = key is MessageKey ? key : null;
       if (widget.onCustomError != null) {
         widget.onCustomError!(typedKey);
       } else {
         NanoToast.showError(context, key?.message(context) ?? '');
       }
     } else if (state case WarningState(:final key)) {
-      final typedKey = key is M ? key : null;
+      final typedKey = key is MessageKey ? key : null;
       if (widget.onCustomWarning != null) {
         widget.onCustomWarning!(typedKey);
       } else {
@@ -180,46 +221,50 @@ class _NanoScaffoldState<T extends NanoViewState, M extends NanoMessageKey>
     }
   }
 
+  Widget? _buildConnectivityWidget() {
+    final connectivity = _connectivity;
+    final builder = widget.connectivityBuilder;
+    if (connectivity != null && builder != null) {
+      return builder(context, connectivity.status);
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = widget.controller;
+    final connectivityWidget = _buildConnectivityWidget();
 
     if (controller == null) {
-      return NanoScaffoldBuilder<T, M>(
-        state: InitialState<T>(),
+      return NanoScaffoldBuilder<ViewState>(
+        state: InitialState<ViewState>(),
         builder: widget.builder,
         header: widget.header,
-        headerBuilder: widget.headerBuilder,
         headerHeight: widget.headerHeight,
         drawer: widget.drawer,
-        drawerBuilder: widget.drawerBuilder,
         footer: widget.footer,
-        footerBuilder: widget.footerBuilder,
         floatingActionButton: widget.floatingActionButton,
-        floatingActionButtonBuilder: widget.floatingActionButtonBuilder,
         backgroundColor: widget.backgroundColor,
         resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
         loadingWidget: widget.loadingWidget,
+        connectivityWidget: connectivityWidget,
       );
     }
 
     return ListenableBuilder(
       listenable: controller,
-      builder: (context, _) => NanoScaffoldBuilder<T, M>(
+      builder: (context, _) => NanoScaffoldBuilder<ViewState>(
         state: controller.state,
         builder: widget.builder,
         header: widget.header,
-        headerBuilder: widget.headerBuilder,
         headerHeight: widget.headerHeight,
         drawer: widget.drawer,
-        drawerBuilder: widget.drawerBuilder,
         footer: widget.footer,
-        footerBuilder: widget.footerBuilder,
         floatingActionButton: widget.floatingActionButton,
-        floatingActionButtonBuilder: widget.floatingActionButtonBuilder,
         backgroundColor: widget.backgroundColor,
         resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
         loadingWidget: widget.loadingWidget,
+        connectivityWidget: connectivityWidget,
       ),
     );
   }

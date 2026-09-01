@@ -4,29 +4,30 @@ import 'nano_route.dart';
 
 /// A specialized declarative route for details and sub-pages.
 ///
-/// Automatically extracts typed arguments of type [T] from route parameters,
-/// maps, or direct objects and provides them directly to [builder].
-class NanoDetailsRoute<T> extends NanoRoute {
+/// Automatically extracts typed arguments of type [Args] from route
+/// parameters, maps, or direct objects and provides them directly to
+/// [builder].
+class NanoDetailsRoute<Args> extends NanoRoute {
   /// Creates a [NanoDetailsRoute].
   NanoDetailsRoute({
-    required Widget Function(BuildContext context, T? data) builder,
+    required Widget Function(BuildContext context, Args? data) builder,
     super.path = '/detail',
     super.name,
     super.routes,
   }) : super(
          builder: (context, args) {
-           final extracted = _extractTypedData<T>(args);
+           final extracted = _extractTypedData<Args>(args);
            return builder(context, extracted);
          },
        );
 
-  static T? _extractTypedData<T>(NanoRouteArgs args) {
+  static TargetType? _extractTypedData<TargetType>(NanoRouteArgs args) {
     final raw = args.data;
-    if (raw is T) return raw;
+    if (raw is TargetType) return raw;
 
     if (raw is Map) {
       for (final value in raw.values) {
-        if (value is T) return value;
+        if (value is TargetType) return value;
       }
     }
     return null;
