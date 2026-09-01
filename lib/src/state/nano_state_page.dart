@@ -7,10 +7,13 @@ import '../injections/nano_injections.dart';
 /// [NanoController] and [NanoInjections].
 ///
 /// Generic type parameters:
-/// - [U]: Target [StatefulWidget].
-/// - [T]: Associated [NanoController].
-abstract class NanoStatePage<U extends StatefulWidget, T extends NanoController>
-    extends State<U> {
+/// - [PageWidget]: Target [StatefulWidget].
+/// - [Controller]: Associated [NanoController].
+abstract class NanoStatePage<
+  PageWidget extends StatefulWidget,
+  Controller extends NanoController
+>
+    extends State<PageWidget> {
   /// Creates a new [NanoStatePage] instance.
   NanoStatePage();
 
@@ -21,13 +24,13 @@ abstract class NanoStatePage<U extends StatefulWidget, T extends NanoController>
   String? get id => null;
 
   /// Controller instance managing page state.
-  late final T controller;
+  late final Controller controller;
 
   @override
   void initState() {
     super.initState();
     injections.initScope();
-    controller = GetIt.I.get<T>();
+    controller = GetIt.I.get<Controller>();
     controller.init(id);
   }
 

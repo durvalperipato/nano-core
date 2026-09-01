@@ -1,40 +1,42 @@
 /// A functional representation of either a successful outcome with data of
-/// type [S] or a failure with an error of type [F].
+/// type [Success] or a failure with an error of type [Failure].
 ///
 /// Implemented using Dart 3 sealed class hierarchy for compile-time
 /// exhaustive pattern matching.
-sealed class NanoResult<S, F> {
+sealed class NanoResult<Success, Failure> {
   const NanoResult();
 
   /// Creates a successful [NanoResult] containing [data].
-  const factory NanoResult.success(S data) = NanoSuccess<S, F>;
+  const factory NanoResult.success(Success data) =
+      NanoSuccess<Success, Failure>;
 
   /// Creates a failure [NanoResult] containing [error].
-  const factory NanoResult.failure(F error) = NanoFailure<S, F>;
+  const factory NanoResult.failure(Failure error) =
+      NanoFailure<Success, Failure>;
 
   /// Returns `true` if this result is a [NanoSuccess].
-  bool get isSuccess => this is NanoSuccess<S, F>;
+  bool get isSuccess => this is NanoSuccess<Success, Failure>;
 
   /// Returns `true` if this result is a [NanoFailure].
-  bool get isFailure => this is NanoFailure<S, F>;
+  bool get isFailure => this is NanoFailure<Success, Failure>;
 
   /// Returns the success data if available, or `null` otherwise.
-  S? get dataOrNull => switch (this) {
+  Success? get dataOrNull => switch (this) {
         NanoSuccess(:final data) => data,
         NanoFailure() => null,
       };
 
   /// Returns the failure error if available, or `null` otherwise.
-  F? get errorOrNull => switch (this) {
+  Failure? get errorOrNull => switch (this) {
         NanoSuccess() => null,
         NanoFailure(:final error) => error,
       };
 
   /// Executes [onSuccess] if this is a success or [onFailure] if this is a
-  /// failure, returning the resulting value of type [R].
-  R fold<R>({
-    required R Function(S data) onSuccess,
-    required R Function(F error) onFailure,
+  /// failure, returning the resulting value of type [ResultType].
+  ResultType fold<ResultType>({
+    required ResultType Function(Success data) onSuccess,
+    required ResultType Function(Failure error) onFailure,
   }) =>
       switch (this) {
         NanoSuccess(:final data) => onSuccess(data),
@@ -42,13 +44,19 @@ sealed class NanoResult<S, F> {
       };
 
   /// Transforms the success value [data] using [fn], preserving failures.
-  NanoResult<R, F> map<R>(R Function(S data) fn) => switch (this) {
+  NanoResult<NewSuccess, Failure> map<NewSuccess>(
+    NewSuccess Function(Success data) fn,
+  ) =>
+      switch (this) {
         NanoSuccess(:final data) => NanoResult.success(fn(data)),
         NanoFailure(:final error) => NanoResult.failure(error),
       };
 
   /// Transforms the failure value [error] using [fn], preserving successes.
-  NanoResult<S, R> mapError<R>(R Function(F error) fn) => switch (this) {
+  NanoResult<Success, NewFailure> mapError<NewFailure>(
+    NewFailure Function(Failure error) fn,
+  ) =>
+      switch (this) {
         NanoSuccess(:final data) => NanoResult.success(data),
         NanoFailure(:final error) => NanoResult.failure(fn(error)),
       };
@@ -80,18 +88,19 @@ sealed class NanoResult<S, F> {
   }
 }
 
-/// Represents a successful computation outcome holding [data] of type [S].
-final class NanoSuccess<S, F> extends NanoResult<S, F> {
+/// Represents a successful computation outcome holding [data] of type
+/// [Success].
+final class NanoSuccess<Success, Failure> extends NanoResult<Success, Failure> {
   /// Creates a [NanoSuccess] result.
   const NanoSuccess(this.data);
 
   /// The success payload data.
-  final S data;
+  final Success data;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is NanoSuccess<S, F> &&
+      other is NanoSuccess<Success, Failure> &&
           runtimeType == other.runtimeType &&
           data == other.data;
 
@@ -102,18 +111,18 @@ final class NanoSuccess<S, F> extends NanoResult<S, F> {
   String toString() => 'NanoSuccess($data)';
 }
 
-/// Represents a failed computation outcome holding [error] of type [F].
-final class NanoFailure<S, F> extends NanoResult<S, F> {
+/// Represents a failed computation outcome holding [error] of type [Failure].
+final class NanoFailure<Success, Failure> extends NanoResult<Success, Failure> {
   /// Creates a [NanoFailure] result.
   const NanoFailure(this.error);
 
   /// The failure error or exception payload.
-  final F error;
+  final Failure error;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is NanoFailure<S, F> &&
+      other is NanoFailure<Success, Failure> &&
           runtimeType == other.runtimeType &&
           error == other.error;
 

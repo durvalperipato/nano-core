@@ -4,7 +4,8 @@ import '../../state/nano_view_state.dart';
 
 /// A [PreferredSizeWidget] managing static or dynamic top navigation
 /// bar headers.
-class NanoScaffoldHeader<T extends NanoViewState> extends StatelessWidget
+class NanoScaffoldHeader<ViewState extends NanoViewState>
+    extends StatelessWidget
     implements PreferredSizeWidget {
   /// Creates a [NanoScaffoldHeader] widget.
   const NanoScaffoldHeader({
@@ -16,7 +17,7 @@ class NanoScaffoldHeader<T extends NanoViewState> extends StatelessWidget
   });
 
   /// The current state passed to the dynamic header builder.
-  final NanoState<T> state;
+  final NanoState<ViewState> state;
 
   /// Custom height for the header.
   final double headerHeight;
@@ -25,7 +26,7 @@ class NanoScaffoldHeader<T extends NanoViewState> extends StatelessWidget
   final Widget? header;
 
   /// Dynamic header builder.
-  final Widget? Function(BuildContext context, NanoState<T> state)?
+  final Widget? Function(BuildContext context, NanoState<ViewState> state)?
   headerBuilder;
 
   @override

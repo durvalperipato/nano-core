@@ -8,9 +8,14 @@ import 'nano_repository.dart';
 /// parameters.
 ///
 /// Extends [NanoRepository] by requiring a dedicated [NanoQueryAdapter] to
-/// serialize query/filter objects of type [Q] into URL query parameter maps.
-abstract class NanoSearchRepository<T extends NanoEntity<ID>, ID, Q>
-    extends NanoRepository<T, ID> {
+/// serialize query/filter objects of type [Query] into URL query parameter
+/// maps.
+abstract class NanoSearchRepository<
+  Entity extends NanoEntity<Id>,
+  Id,
+  Query
+>
+    extends NanoRepository<Entity, Id> {
   /// Creates a [NanoSearchRepository] instance.
   const NanoSearchRepository({
     required super.endpoint,
@@ -22,14 +27,14 @@ abstract class NanoSearchRepository<T extends NanoEntity<ID>, ID, Q>
     super.cacheTtl,
   });
 
-  /// The dedicated adapter used to serialize the query model [Q] into query
+  /// The dedicated adapter used to serialize the query model [Query] into query
   /// parameters.
-  final NanoQueryAdapter<Q> queryAdapter;
+  final NanoQueryAdapter<Query> queryAdapter;
 
   /// Searches and retrieves a list of entities using a strongly-typed query
-  /// model [Q], optionally applying [pagination] and [cachePolicy].
-  Future<List<T>> search(
-    Q query, {
+  /// model [Query], optionally applying [pagination] and [cachePolicy].
+  Future<List<Entity>> search(
+    Query query, {
     NanoPagination? pagination,
     NanoCachePolicy? cachePolicy,
     Duration? cacheTtl,
