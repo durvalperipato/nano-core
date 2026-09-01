@@ -18,12 +18,9 @@ class NanoCommandBuilder<Output> extends StatelessWidget {
   final Widget Function(BuildContext context, NanoState<Output> state) builder;
 
   @override
-  Widget build(BuildContext context) {
-    return ValueListenableBuilder<NanoState<Output>>(
-      valueListenable: command,
-      builder: (context, state, _) {
-        return builder(context, state);
-      },
-    );
-  }
+  Widget build(BuildContext context) =>
+      ValueListenableBuilder<NanoState<Output>>(
+        valueListenable: command,
+        builder: (context, state, _) => builder(context, state),
+      );
 }

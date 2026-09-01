@@ -39,9 +39,7 @@ class NanoMemoryCache implements NanoCache {
   }
 
   @override
-  void delete(String key) {
-    _storage.remove(key);
-  }
+  void delete(String key) => _storage.remove(key);
 
   @override
   void clear({String? prefix}) {

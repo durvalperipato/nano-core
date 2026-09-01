@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
 import '../cache/nano_cache.dart';
 import '../cache/nano_cache_policy.dart';
+import '../connectivity/nano_connectivity.dart';
 import '../http/nano_http_client.dart';
 import '../pagination/nano_pagination.dart';
 import 'nano_injections.dart';
@@ -11,7 +12,7 @@ typedef NanoCoreInjections = NanoDefaultInjections;
 /// Default dependency injection container for framework-level services.
 ///
 /// Registers essential framework singletons such as [NanoHttpClient],
-/// [NanoPagination] strategy, and [NanoCache] into [GetIt].
+/// [NanoPagination] strategy, [NanoCache], and [NanoConnectivity] into [GetIt].
 class NanoDefaultInjections extends NanoInjections {
   /// Creates a [NanoDefaultInjections] scope.
   const NanoDefaultInjections({
@@ -19,6 +20,7 @@ class NanoDefaultInjections extends NanoInjections {
     this.pagination,
     this.cache,
     this.cachePolicy,
+    this.connectivity,
     super.scope = 'nano_default_global',
   });
 
@@ -34,6 +36,9 @@ class NanoDefaultInjections extends NanoInjections {
   /// The optional default global [NanoCachePolicy].
   final NanoCachePolicy? cachePolicy;
 
+  /// The optional default global [NanoConnectivity] instance.
+  final NanoConnectivity? connectivity;
+
   @override
   void binds(GetIt i) {
     init(
@@ -42,6 +47,7 @@ class NanoDefaultInjections extends NanoInjections {
       pagination: pagination,
       cache: cache,
       cachePolicy: cachePolicy,
+      connectivity: connectivity,
     );
   }
 
@@ -53,6 +59,7 @@ class NanoDefaultInjections extends NanoInjections {
     NanoPagination? pagination,
     NanoCache? cache,
     NanoCachePolicy? cachePolicy,
+    NanoConnectivity? connectivity,
   }) {
     if (client != null && !i.isRegistered<NanoHttpClient>()) {
       i.registerLazySingleton<NanoHttpClient>(() => client);
@@ -66,6 +73,9 @@ class NanoDefaultInjections extends NanoInjections {
     if (cachePolicy != null && !i.isRegistered<NanoCachePolicy>()) {
       i.registerLazySingleton<NanoCachePolicy>(() => cachePolicy);
     }
+    if (connectivity != null && !i.isRegistered<NanoConnectivity>()) {
+      i.registerLazySingleton<NanoConnectivity>(() => connectivity);
+    }
   }
 
   /// Convenience static helper to register default dependencies into [GetIt.I]
@@ -75,6 +85,7 @@ class NanoDefaultInjections extends NanoInjections {
     NanoPagination? pagination,
     NanoCache? cache,
     NanoCachePolicy? cachePolicy,
+    NanoConnectivity? connectivity,
   }) {
     init(
       GetIt.I,
@@ -82,6 +93,7 @@ class NanoDefaultInjections extends NanoInjections {
       pagination: pagination,
       cache: cache,
       cachePolicy: cachePolicy,
+      connectivity: connectivity,
     );
   }
 }

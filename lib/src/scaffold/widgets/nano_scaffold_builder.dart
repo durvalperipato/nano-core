@@ -13,57 +13,45 @@ class NanoScaffoldBuilder<ViewState extends NanoViewState>
     required this.state,
     required this.builder,
     this.header,
-    this.headerBuilder,
     this.headerHeight = kToolbarHeight,
     this.drawer,
-    this.drawerBuilder,
     this.footer,
-    this.footerBuilder,
     this.floatingActionButton,
-    this.floatingActionButtonBuilder,
     this.backgroundColor,
     this.resizeToAvoidBottomInset,
     this.loadingWidget,
+    this.connectivityWidget,
     super.key,
   });
 
   /// The current reactive state.
   final NanoState<ViewState> state;
 
+  /// Optional connectivity overlay or banner widget.
+  final Widget? connectivityWidget;
+
   /// Main page builder.
   final Widget Function(BuildContext context, NanoState<ViewState> state)
   builder;
 
-  /// Static header.
-  final Widget? header;
-
-  /// Dynamic header builder.
+  /// Top navigation bar header builder.
   final Widget? Function(BuildContext context, NanoState<ViewState> state)?
-  headerBuilder;
+  header;
 
   /// Header height.
   final double headerHeight;
 
-  /// Static drawer.
-  final Widget? drawer;
-
-  /// Dynamic drawer builder.
+  /// Side navigation drawer builder.
   final Widget? Function(BuildContext context, NanoState<ViewState> state)?
-  drawerBuilder;
+  drawer;
 
-  /// Static footer.
-  final Widget? footer;
-
-  /// Dynamic footer builder.
+  /// Bottom navigation bar or footer builder.
   final Widget? Function(BuildContext context, NanoState<ViewState> state)?
-  footerBuilder;
+  footer;
 
-  /// Static floating action button.
-  final Widget? floatingActionButton;
-
-  /// Dynamic floating action button builder.
+  /// Floating action button builder.
   final Widget? Function(BuildContext context, NanoState<ViewState> state)?
-  floatingActionButtonBuilder;
+  floatingActionButton;
 
   /// Background color.
   final Color? backgroundColor;
@@ -76,29 +64,17 @@ class NanoScaffoldBuilder<ViewState extends NanoViewState>
 
   @override
   Widget build(BuildContext context) {
-    final effectiveHeader = (header != null || headerBuilder != null)
+    final effectiveHeader = header != null
         ? NanoScaffoldHeader<ViewState>(
             state: state,
             headerHeight: headerHeight,
             header: header,
-            headerBuilder: headerBuilder,
           )
         : null;
 
-    final customDrawer = drawerBuilder;
-    final effectiveDrawer = customDrawer != null
-        ? customDrawer(context, state)
-        : drawer;
-
-    final customFooter = footerBuilder;
-    final effectiveFooter = customFooter != null
-        ? customFooter(context, state)
-        : footer;
-
-    final customFab = floatingActionButtonBuilder;
-    final effectiveFab = customFab != null
-        ? customFab(context, state)
-        : floatingActionButton;
+    final effectiveDrawer = drawer?.call(context, state);
+    final effectiveFooter = footer?.call(context, state);
+    final effectiveFab = floatingActionButton?.call(context, state);
 
     return Scaffold(
       appBar: effectiveHeader,
@@ -110,6 +86,7 @@ class NanoScaffoldBuilder<ViewState extends NanoViewState>
       body: Stack(
         children: [
           builder(context, state),
+          ?connectivityWidget,
           if (state is LoadingState)
             loadingWidget ?? const NanoLoadingOverlay(),
         ],

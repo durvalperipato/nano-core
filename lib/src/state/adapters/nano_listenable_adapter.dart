@@ -20,9 +20,7 @@ class NanoListenableAdapter<ViewState extends NanoViewState>
   final Listenable _listenable;
   final NanoState<ViewState> Function() _stateGetter;
 
-  void _onListenableChanged() {
-    notifyListeners();
-  }
+  void _onListenableChanged() => notifyListeners();
 
   @override
   NanoState<ViewState> get state => _stateGetter();

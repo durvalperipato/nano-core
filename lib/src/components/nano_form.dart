@@ -34,14 +34,12 @@ class NanoForm extends StatelessWidget {
   final PopInvokedWithResultCallback<dynamic>? onPopInvokedWithResult;
 
   @override
-  Widget build(BuildContext context) {
-    return Form(
-      key: controller.formKey,
-      autovalidateMode: autovalidateMode,
-      onChanged: onChanged,
-      canPop: canPop,
-      onPopInvokedWithResult: onPopInvokedWithResult,
-      child: child,
-    );
-  }
+  Widget build(BuildContext context) => Form(
+        key: controller.formKey,
+        autovalidateMode: autovalidateMode,
+        onChanged: onChanged,
+        canPop: canPop,
+        onPopInvokedWithResult: onPopInvokedWithResult,
+        child: child,
+      );
 }
