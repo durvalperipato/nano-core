@@ -5,7 +5,18 @@ All notable changes to the `nano_core` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
----
+## 0.5.0 (2026-09-01)
+
+### Added
+- `NanoDebouncer`: Flexible async execution delay for search inputs, autocomplete, and live filters with native `NanoTextField(debounceDuration: ...)` integration.
+- `NanoConnectivity` & `NanoConnectivityStatus`: Zero-dependency cross-platform reactive network monitor supporting Wi-Fi, Cellular (4G/5G), Ethernet, Bluetooth, VPN, and Offline states.
+- `connectivity` registration support in `NanoDefaultInjections.init` and `NanoDefaultInjections.register`.
+
+### Changed
+- **Clean Code Generics Refactor**: Standardized descriptive and semantic generic type parameters across all classes and adapters (`ViewState`, `MessageKey`, `Entity`, `Id`, `Query`, `Success`, `Failure`, `FormEntity`, `Args`, `Output`, `PageWidget`).
+- Simplified `NanoScaffold` layout slots into unified builders (`header`, `drawer`, `footer`, `floatingActionButton`, `builder`).
+- Integrated `NanoConnectivity` observation and custom `connectivityBuilder` directly into `NanoScaffold`.
+- Enforced strict arrow function syntax (`=>`) for all single-line methods across the framework.
 
 ## 0.5.0 (2026-09-01)
 
@@ -21,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.4.0 (2026-08-31)
 
+### Added
 - `NanoDefaultInjections`: Central default dependency injection container with `NanoDefaultInjections.init(i, client: ..., pagination: ..., cache: ...)` and `register()` helpers for framework-level services.
 - `NanoCache`, `NanoCachePolicy` & `NanoMemoryCache`: Built-in zero-dependency caching layer with configurable policies (`cacheFirst`, `networkFirst`, `networkOnly`, `cacheOnly`), TTL expiration, and automatic cache invalidation on mutations.
 - `NanoResult`, `NanoSuccess` & `NanoFailure`: Functional result pattern using Dart 3 sealed class hierarchy with compile-time pattern matching, `fold`, `map`, `mapError`, and `runAsync` safe execution helpers.
@@ -32,10 +44,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `NanoPaginator`: Stateful pagination controller managing page progression, accumulated items, and async page lifecycle.
 - `NanoPaginatedListView`: Reactive component widget for automatic infinite scrolling, pull-to-refresh, bottom spinner loading, and empty/error state handling.
 - `NanoPaginationBar`: Reactive component navigation bar with next/previous page triggers, page indicators, and dynamic `pageSize` selector.
-- Integrated `pagination` parameter into `NanoRepository.getAll` and `NanoSearchRepository.search`.
-- Made `client` parameter optional in `NanoRepository` and `NanoSearchRepository` with automatic fallback to `GetIt.I<NanoHttpClient>()`.
 - `NanoQueryAdapter`: Dedicated abstract contract for serializing strongly-typed query and filter models into URL query parameters without forcing unused JSON deserialization.
 - `NanoSearchRepository`: Specialized generic repository requiring a `NanoQueryAdapter` to perform type-safe query searches via `search(Q query)`.
+
+### Changed
+- Integrated `pagination` parameter into `NanoRepository.getAll` and `NanoSearchRepository.search`.
+- Made `client` parameter optional in `NanoRepository` and `NanoSearchRepository` with automatic fallback to `GetIt.I<NanoHttpClient>()`.
 
 ## 0.3.0 (2026-08-31)
 
@@ -49,6 +63,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `NanoStateObservable`: Universal abstract state contract allowing `NanoScaffold` to observe any state management approach (BLoC, Cubit, MobX, Signals, or custom `ChangeNotifier` adapters).
 - `NanoStreamAdapter`: Generic adapter bridging any `Stream` (BLoC, Cubit, RxDart, WebSockets) into `NanoStateObservable`.
 - `NanoListenableAdapter`: Generic adapter bridging any `Listenable` (MobX, Signals, ValueNotifier, ChangeNotifier) into `NanoStateObservable`.
+
+### Changed
 - Decoupled `NanoScaffold`'s `controller` parameter to accept any `NanoStateObservable<T>`.
 - Implemented `NanoStateObservable<T>` on `NanoController<T>`.
 
@@ -73,7 +89,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`NanoController<T>`**: Now strictly enforces `T extends NanoViewState`. Primitive types (`String`, `int`, etc.) or arbitrary unbounded types are no longer permitted as state data models.
 - **`NanoScaffold<T, M>`**: Builder signature updated from `Widget Function(BuildContext, Widget?)` to `Widget Function(BuildContext, NanoState<T>)` allowing direct reactive state access. Added support for typed message keys `M extends NanoMessageKey` and dynamic builders (`headerBuilder`, `footerBuilder`, `drawerBuilder`, `floatingActionButtonBuilder`).
 - **`NanoStatePage<W, C>`**: Generic parameter for `NanoInjections` removed. `injections` is now an abstract getter `NanoInjections get injections;` with automatic GetIt scope initialization (`initScope`) and teardown (`dropScope`).
-- **`NanoStateContent` removed**: Replaced by the standardized `NanoViewState` base class.
 
 ### Added
 - `NanoHttpClient` interface defining standardized HTTP client contracts.
@@ -86,7 +101,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 - `NanoStateContent` in favor of the standardized `NanoViewState`.
-
 
 ## 0.0.5 (2026-08-27)
 
