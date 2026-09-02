@@ -54,7 +54,7 @@ Add `nano_core` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  nano_core: ^0.5.0
+  nano_core: ^0.6.0
 ```
 
 ## Quick Example
@@ -156,7 +156,7 @@ class MyController extends NanoController<UsersState> {
 
 // 3. Page Injections Scope
 class UsersInjections extends NanoInjections {
-  UsersInjections() : super(scope: 'users');
+  const UsersInjections() : super(scope: 'users');
 
   @override
   void binds(GetIt i) {
@@ -184,7 +184,7 @@ class UsersPage extends StatefulWidget {
 class _UsersPageState
     extends NanoStatePage<UsersPage, MyController> {
   @override
-  NanoInjections get injections => UsersInjections();
+  NanoInjections get injections => const UsersInjections();
 
   @override
   Widget build(BuildContext context) {
@@ -221,10 +221,10 @@ class _UsersPageState
 import 'package:dio/dio.dart';
 import 'package:nano_core/nano_core.dart';
 
-class DioHttpClient implements NanoHttpClient {
+class DioHttpClient extends NanoHttpClient {
   final Dio _dio;
 
-  DioHttpClient(this._dio);
+  DioHttpClient(this._dio, {super.interceptors});
 
   @override
   Future<NanoHttpResponse<T>> get<T>(
@@ -516,8 +516,125 @@ final users = await userRepository.getAll(cachePolicy: NanoCachePolicy.cacheFirs
 final freshUsers = await userRepository.getAll(cachePolicy: NanoCachePolicy.networkOnly);
 ```
 
+#### 5. Customizing Specific Endpoints (Overrides)
+
+By default, `NanoRepository` constructs standard REST paths (`$endpoint`, `$endpoint/$id`, `$endpoint/${entity.id}`). You can selectively override individual operation endpoints without repeating the base URL:
+
+```dart
+class UserRepository extends NanoRepository<User, String> {
+  UserRepository([super.client])
+      : super(
+          endpoint: '/users',
+          adapter: const UserAdapter(),
+        );
+
+  // Custom update path:
+  @override
+  String endpointUpdate(User entity) => '$endpoint/profile';
+
+  // Custom detail path:
+  @override
+  String endpointGetById(String id) => '$endpoint/details/$id';
+
+  // Custom creation path:
+  @override
+  String endpointCreate(User entity) => '$endpoint/register';
+}
+```
+
+#### 6. Authentication & Session Repository (NanoAuthRepository)
+
+Standardized base repository for authentication, non-volatile token persistence via `NanoStorage`, session lifecycle, and automatic `GetIt` client/storage resolution:
+
+```dart
+class AuthRepository extends NanoAuthRepository<UserSession> {
+  AuthRepository([super.client, super.storage])
+      : super(endpoint: '/auth');
+
+  Future<bool> signInWithEmail(String email, String password) async {
+    final response = await client.post<Map<String, dynamic>>(
+      '$endpoint/login',
+      data: {'email': email, 'password': password},
+    );
+    if (response.isSuccess && response.data != null) {
+      saveToken(response.data!['token']);
+      return true;
+    }
+    return false;
+  }
+
+  // Optional: override restoreSession if this repository hydrates full session objects
+  @override
+  Future<UserSession?> restoreSession() async {
+    if (!isAuthenticated) return null;
+    final response = await client.get<Map<String, dynamic>>('/users/me');
+    return response.data != null ? UserSession.fromJson(response.data!) : null;
+  }
+}
+```
+
+#### 7. Environment & Build Modes (NanoEnvironment)
+
+Query compile-time environment flags, automatically detect development vs production releases, and read `--dart-define` variables:
+
+```dart
+// Automatic compile-time environment detection:
+final isProduction = NanoEnvironment.isProduction; // true in release builds
+final isDevelopment = NanoEnvironment.isDevelopment; // true in debug/development builds
+
+// Read strongly-typed compile-time configuration:
+final apiUrl = NanoEnvironment.isProduction
+    ? 'https://api.example.com'
+    : 'https://dev.api.example.com';
+
+final customFlag = NanoEnvironment.getBool('FEATURE_ANALYTICS', defaultValue: true);
+```
+
+#### 8. Durable Storage vs Expiring Cache (NanoStorage & NanoCache)
+
+- **`NanoStorage`**: Ideal for permanent key-value persistence without TTL (e.g. auth tokens, user flags via `SharedPreferences` or `FlutterSecureStorage`).
+- **`NanoCache`**: Ideal for volatile HTTP response caching with TTL expiration policies (e.g. `Hive` or `NanoMemoryCache`).
+
 <details>
-<summary><b>💾 Custom Persistent Cache (e.g., SharedPreferences / LocalStorage)</b></summary>
+<summary><b>💾 Custom Storage Implementation (e.g., SharedPreferences)</b></summary>
+
+```dart
+import 'package:nano_core/nano_core.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class SharedPrefsStorage implements NanoStorage {
+  final SharedPreferences prefs;
+  const SharedPrefsStorage(this.prefs);
+
+  @override
+  T? get<T>(String key) => prefs.get(key) as T?;
+
+  @override
+  void set<T>(String key, T value) {
+    if (value is String) prefs.setString(key, value);
+    if (value is bool) prefs.setBool(key, value);
+    if (value is int) prefs.setInt(key, value);
+    if (value is double) prefs.setDouble(key, value);
+  }
+
+  @override
+  void delete(String key) => prefs.remove(key);
+
+  @override
+  void clear({String? prefix}) {
+    for (final k in prefs.getKeys()) {
+      if (prefix == null || k.startsWith(prefix)) prefs.remove(k);
+    }
+  }
+
+  @override
+  bool has(String key) => prefs.containsKey(key);
+}
+```
+</details>
+
+<details>
+<summary><b>⚡ Custom Persistent Cache (e.g., Hive / LocalStorage)</b></summary>
 
 You can persist cached data across app restarts simply by implementing `NanoCache`:
 
@@ -929,6 +1046,55 @@ NanoScaffold<ProductsState, ProductsMessages>(
     _ => null,
   },
   builder: (context, state) => ...,
+)
+```
+
+---
+
+### 11. Encapsulated Commands (NanoCommand & NanoCommandBuilder)
+
+Encapsulate individual user actions and async operations into reactive commands with granular button loading indicators:
+
+```dart
+// 1. Define commands inside your controller using nanoCommand0 / nanoCommand1:
+class LoginController extends NanoController<LoginViewState> {
+  LoginController(this.repository);
+
+  final AuthRepository repository;
+
+  // Parameterless command with auto-dispose:
+  late final refreshCommand = nanoCommand0<void>(
+    repository.fetchProfile,
+  );
+
+  // Single-argument command with declarative success callback & auto-dispose:
+  late final signInCommand = nanoCommand1<String, bool>(
+    repository.signIn,
+    onSuccess: (success) {
+      emit(SuccessState(state.data?.copyWith(isAuthenticated: success)));
+    },
+    onError: (error) {
+      // Custom error handling
+    },
+  );
+
+  @override
+  Future<void> init(String? id) async {}
+
+  void handleSignIn(String provider) => signInCommand.run(provider);
+}
+
+// 2. Reactively bind individual buttons in UI:
+NanoCommandBuilder<bool>(
+  command: controller.signInCommand,
+  builder: (context, cmdState) => ElevatedButton(
+    onPressed: cmdState is LoadingState
+        ? null
+        : () => controller.signInCommand.run('google'),
+    child: cmdState is LoadingState
+        ? const CircularProgressIndicator()
+        : const Text('Sign in with Google'),
+  ),
 )
 ```
 

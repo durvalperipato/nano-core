@@ -22,6 +22,9 @@ abstract class NanoFormController<
 
   final ViewState? _initialData;
 
+  @override
+  Future<void> init(String? id) async {}
+
   /// Global form key managing the surrounding [NanoForm] or [Form] state.
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 

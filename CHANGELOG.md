@@ -5,6 +5,33 @@ All notable changes to the `nano_core` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.6.0
+
+### Breaking Changes
+- `NanoAuthRepository`: Uses `NanoStorage` instead of `NanoCache` for non-volatile token persistence.
+- `NanoController`: `init(String? id)` is now an abstract method requiring explicit implementation across all controllers extending `NanoController`.
+- `NanoCommand`: `NanoCommand0.run()` is now parameterless and `NanoCommand1.run(arg)` accepts only the action argument; callbacks (`onSuccess`, `onError`) and `emitLoadingOnRequest` are now configured declaratively at creation time.
+- `NanoCommand`: Renamed `execute(...)` to `run(...)` for triggering encapsulated actions with automatic `toLoaded` transition.
+- `NanoState`: Added `LoadedState<T>` to the sealed class hierarchy (requires handling `LoadedState` in exhaustive pattern matching switch expressions).
+
+### Added
+- `NanoStorage`: Standardized contract for durable key-value persistence without TTL expiration.
+- `LoadedState<T>` and `toLoaded(data)` to `NanoState` hierarchy for regular data-ready states without triggering feedback toasts.
+- `onSuccess` and `onError` optional callbacks to `NanoController.execute`.
+- `emitLoadingOnRequest` parameter (defaults to `true`) to `NanoController.execute` for customizable loading emissions.
+- Generic `execute<T>` in `NanoController` returning typed results directly into `onSuccess(T result)`.
+- `NanoController`: Added `nanoCommand0` and `nanoCommand1` factory methods for creating encapsulated commands with declarative callbacks and automatic lifecycle disposal.
+- Granular customizable endpoint methods in `NanoRepository` (`endpointGetAll`, `endpointGetById`, `endpointCreate`, `endpointUpdate`, `endpointDelete`, `fetchList`) and `NanoSearchRepository` (`endpointSearch`).
+- `NanoAuthRepository<Session>`: Standardized base authentication repository for session restoration, token persistence (`saveToken`, `clearSession`, `isAuthenticated`), and lifecycle management.
+- `NanoAuthInterceptor`: Out-of-the-box HTTP interceptor for automatic Bearer token injection using `NanoAuthRepository` as the single source of truth, path exclusion, and automatic 401 handling.
+- `NanoInjections`: Added callable `call()` invocation allowing `await const AppInjections()()` and automatic `GetIt.allReady()` resolution without manual boilerplate.
+- `NanoDefaultInjections`: Added `storage` and `authRepository` parameters to `init`, `register`, and `binds` for automatic container registration.
+- `NanoEnvironment`: Utility with compile-time environment flags (`isProduction`, `isDevelopment`, `isProfile`), `--dart-define` variable getters, and automatic execution mode detection.
+- `NanoHttpClient`: Added constructor `interceptors` parameter for declarative pipeline registration at initialization.
+
+### Changed
+- `NanoScaffold`: Success state transitions no longer automatically display default text toasts from `ViewState` models.
+
 ## 0.5.0 (2026-09-01)
 
 ### Added
