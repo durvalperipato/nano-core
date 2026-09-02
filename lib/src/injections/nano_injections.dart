@@ -13,14 +13,18 @@ abstract class NanoInjections {
   /// This method should be overridden to provide the bindings.
   void binds(GetIt i);
 
-  /// Initializes the dependency injection scope.
-  ///
-  /// If the scope does not exist, it creates a new one and calls [binds].
-  void initScope() {
+  /// Initializes the dependency injection scope and waits for all async
+  /// singletons to become ready.
+  Future<void> initScope() async {
     if (!GetIt.I.hasScope(scope)) {
       GetIt.I.pushNewScope(scopeName: scope, init: (i) => binds(i));
+      await GetIt.I.allReady();
     }
   }
+
+  /// Callable invocation allowing `await const AppInjections()()` to
+  /// initialize the scope and resolve all async dependencies.
+  Future<void> call() => initScope();
 
   /// Drops the managed dependency injection scope.
   void dropScope() {

@@ -50,6 +50,21 @@ abstract class NanoRepository<Entity extends NanoEntity<Id>, Id> {
   /// The base endpoint URL path for this repository (e.g., `/users`).
   final String endpoint;
 
+  /// Builds the endpoint URL path used for [getAll]. Defaults to [endpoint].
+  String endpointGetAll() => endpoint;
+
+  /// Builds the endpoint URL path used for [getById]. Defaults to `$endpoint/$id`.
+  String endpointGetById(Id id) => '$endpoint/$id';
+
+  /// Builds the endpoint URL path used for [create]. Defaults to [endpoint].
+  String endpointCreate(Entity entity) => endpoint;
+
+  /// Builds the endpoint URL path used for [update]. Defaults to `$endpoint/${entity.id}`.
+  String endpointUpdate(Entity entity) => '$endpoint/${entity.id}';
+
+  /// Builds the endpoint URL path used for [delete]. Defaults to `$endpoint/$id`.
+  String endpointDelete(Id id) => '$endpoint/$id';
+
   /// The adapter used to serialize and deserialize [Entity].
   final NanoAdapter<Entity> adapter;
 
@@ -74,6 +89,25 @@ abstract class NanoRepository<Entity extends NanoEntity<Id>, Id> {
     Duration? cacheTtl,
     Map<String, dynamic>? queryParameters,
     Map<String, String>? headers,
+  }) =>
+      fetchList(
+        path: endpointGetAll(),
+        pagination: pagination,
+        cachePolicy: cachePolicy,
+        cacheTtl: cacheTtl,
+        queryParameters: queryParameters,
+        headers: headers,
+      );
+
+  /// Fetches a list of entities from a specific [path], applying
+  /// [pagination] and [cachePolicy].
+  Future<List<Entity>> fetchList({
+    required String path,
+    NanoPagination? pagination,
+    NanoCachePolicy? cachePolicy,
+    Duration? cacheTtl,
+    Map<String, dynamic>? queryParameters,
+    Map<String, String>? headers,
   }) async {
     final effectivePolicy = cachePolicy ?? this.cachePolicy;
     final effectiveTtl = cacheTtl ?? this.cacheTtl;
@@ -82,7 +116,7 @@ abstract class NanoRepository<Entity extends NanoEntity<Id>, Id> {
       ...?queryParameters,
     };
     final cacheKey = _buildCacheKey(
-      endpoint,
+      path,
       params.isNotEmpty ? params : null,
     );
 
@@ -108,7 +142,7 @@ abstract class NanoRepository<Entity extends NanoEntity<Id>, Id> {
     // 3. Network-First / Network-Only:
     try {
       final response = await client.get<List<dynamic>>(
-        endpoint,
+        path,
         queryParameters: params.isNotEmpty ? params : null,
         headers: headers,
       );
@@ -147,7 +181,7 @@ abstract class NanoRepository<Entity extends NanoEntity<Id>, Id> {
   }) async {
     final effectivePolicy = cachePolicy ?? this.cachePolicy;
     final effectiveTtl = cacheTtl ?? this.cacheTtl;
-    final path = '$endpoint/$id';
+    final path = endpointGetById(id);
     final cacheKey = _buildCacheKey(path, queryParameters);
 
     if (effectivePolicy == NanoCachePolicy.cacheOnly) {
@@ -192,8 +226,9 @@ abstract class NanoRepository<Entity extends NanoEntity<Id>, Id> {
     Map<String, dynamic>? queryParameters,
     Map<String, String>? headers,
   }) async {
+    final path = endpointCreate(entity);
     final response = await client.post<Map<String, dynamic>>(
-      endpoint,
+      path,
       data: adapter.toJson(entity),
       queryParameters: queryParameters,
       headers: headers,
@@ -213,8 +248,9 @@ abstract class NanoRepository<Entity extends NanoEntity<Id>, Id> {
     Map<String, dynamic>? queryParameters,
     Map<String, String>? headers,
   }) async {
+    final path = endpointUpdate(entity);
     final response = await client.put<Map<String, dynamic>>(
-      '$endpoint/${entity.id}',
+      path,
       data: adapter.toJson(entity),
       queryParameters: queryParameters,
       headers: headers,
@@ -235,8 +271,9 @@ abstract class NanoRepository<Entity extends NanoEntity<Id>, Id> {
     Map<String, dynamic>? queryParameters,
     Map<String, String>? headers,
   }) async {
+    final path = endpointDelete(id);
     final response = await client.delete<dynamic>(
-      '$endpoint/$id',
+      path,
       queryParameters: queryParameters,
       headers: headers,
     );
