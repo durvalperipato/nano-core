@@ -193,9 +193,8 @@ abstract final class NanoLogger {
 
     final buffer = StringBuffer()
       ..writeln()
-      ..writeln(header);
-
-    buffer.writeln('$levelColor│$resetColor Message: ${entry.message}');
+      ..writeln(header)
+      ..writeln('$levelColor│$resetColor Message: ${entry.message}');
 
     if (entry.httpMethod != null && entry.httpMethod!.isNotEmpty) {
       buffer.writeln(

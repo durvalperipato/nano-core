@@ -12,6 +12,9 @@ sealed class NanoState<T> {
   LoadingState<T> toLoading({T? data}) =>
       LoadingState<T>(data: data ?? this.data);
 
+  /// Transitions to a [LoadedState] with the new [data].
+  LoadedState<T> toLoaded(T data) => LoadedState<T>(data);
+
   /// Transitions to a [SuccessState] with the new [data].
   SuccessState<T> toSuccess(T data) => SuccessState<T>(data);
 
@@ -40,6 +43,16 @@ class LoadingState<T> extends NanoState<T> {
   /// The data payload associated with the state, if any.
   @override
   final T? data;
+}
+
+/// Loaded state after an operation finishes and data is ready.
+class LoadedState<T> extends NanoState<T> {
+  /// Creates a [LoadedState] instance with the given [data].
+  const LoadedState(this.data);
+
+  /// The data payload returned by the operation.
+  @override
+  final T data;
 }
 
 /// Success state after an operation completes successfully.

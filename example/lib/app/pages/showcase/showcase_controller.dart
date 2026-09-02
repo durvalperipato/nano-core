@@ -11,21 +11,16 @@ class ShowcaseController extends NanoController<ShowcaseState> {
   final MockUserRepository userRepository;
 
   /// Local Command to fetch a User.
-  late final NanoCommand0<MockUser?> fetchUserCommand;
+  late final fetchUserCommand = nanoCommand0<MockUser?>(() => userRepository.getById('1'));
 
   /// Local Command to fetch a list of Companies.
-  late final NanoCommand0<List<MockCompany>> fetchCompaniesCommand;
+  late final fetchCompaniesCommand = nanoCommand0<List<MockCompany>>(MockApi.fetchCompanies);
 
   /// Creates a new [ShowcaseController] instance.
-  ShowcaseController({required this.userRepository}) {
-    fetchUserCommand = NanoCommand0<MockUser?>(() async {
-      return userRepository.getById('1');
-    });
+  ShowcaseController({required this.userRepository});
 
-    fetchCompaniesCommand = NanoCommand0<List<MockCompany>>(() async {
-      return MockApi.fetchCompanies();
-    });
-  }
+  @override
+  Future<void> init(String? id) async {}
 
   /// Simulates an async operation returning success.
   Future<void> simulateSuccess() async {
