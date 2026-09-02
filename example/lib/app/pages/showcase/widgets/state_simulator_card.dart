@@ -125,6 +125,7 @@ class StateSimulatorCard extends StatelessWidget {
     return switch (state) {
       InitialState() => 'INITIAL',
       LoadingState() => 'LOADING',
+      LoadedState() => 'LOADED',
       SuccessState() => 'SUCCESS',
       WarningState() => 'WARNING',
       ErrorState() => 'ERROR',
@@ -132,6 +133,7 @@ class StateSimulatorCard extends StatelessWidget {
   }
 
   Color _getStateColor(NanoState state) {
+    if (state is LoadedState) return const Color(0xFF3B82F6);
     if (state is SuccessState) return const Color(0xFF10B981);
     if (state is WarningState) return const Color(0xFFF59E0B);
     if (state is ErrorState) return const Color(0xFFEF4444);
@@ -152,6 +154,9 @@ class _StateStatusIcon extends StatelessWidget {
         height: 24,
         child: CircularProgressIndicator(strokeWidth: 2.5),
       );
+    }
+    if (state is LoadedState) {
+      return const Icon(Icons.check_circle_outline, color: Color(0xFF3B82F6), size: 28);
     }
     if (state is SuccessState) {
       return const Icon(Icons.check_circle, color: Color(0xFF10B981), size: 28);

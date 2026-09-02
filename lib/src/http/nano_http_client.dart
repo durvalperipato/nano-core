@@ -6,11 +6,13 @@ import 'nano_http_response.dart';
 /// This allows swapping out the underlying HTTP implementation
 /// (e.g., Dio, Http) without affecting the rest of the application.
 abstract class NanoHttpClient {
-  /// Creates a [NanoHttpClient] instance.
-  const NanoHttpClient();
+  /// Creates a [NanoHttpClient] instance with optional initial [interceptors].
+  const NanoHttpClient({
+    this.interceptors = const [],
+  });
 
   /// The list of registered HTTP interceptors.
-  List<NanoHttpInterceptor> get interceptors => const [];
+  final List<NanoHttpInterceptor> interceptors;
 
   /// Registers an interceptor to the client pipeline.
   void addInterceptor(NanoHttpInterceptor interceptor) {}

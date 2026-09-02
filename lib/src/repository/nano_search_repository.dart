@@ -31,6 +31,10 @@ abstract class NanoSearchRepository<
   /// parameters.
   final NanoQueryAdapter<Query> queryAdapter;
 
+  /// Builds the endpoint URL path used for [search]. Defaults to
+  /// [endpointGetAll].
+  String endpointSearch(Query query) => endpointGetAll();
+
   /// Searches and retrieves a list of entities using a strongly-typed query
   /// model [Query], optionally applying [pagination] and [cachePolicy].
   Future<List<Entity>> search(
@@ -39,13 +43,13 @@ abstract class NanoSearchRepository<
     NanoCachePolicy? cachePolicy,
     Duration? cacheTtl,
     Map<String, String>? headers,
-  }) async {
-    return getAll(
-      pagination: pagination,
-      cachePolicy: cachePolicy,
-      cacheTtl: cacheTtl,
-      queryParameters: queryAdapter.toQueryParams(query),
-      headers: headers,
-    );
-  }
+  }) =>
+      fetchList(
+        path: endpointSearch(query),
+        pagination: pagination,
+        cachePolicy: cachePolicy,
+        cacheTtl: cacheTtl,
+        queryParameters: queryAdapter.toQueryParams(query),
+        headers: headers,
+      );
 }

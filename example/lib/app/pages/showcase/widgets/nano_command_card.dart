@@ -63,7 +63,7 @@ class _UserCommandSection extends StatelessWidget {
             ElevatedButton.icon(
               onPressed: isLoading
                   ? null
-                  : () => controller.fetchUserCommand.execute(),
+                  : () => controller.fetchUserCommand.run(),
               icon: isLoading
                   ? const SizedBox(
                       width: 18,
@@ -126,7 +126,7 @@ class _CompaniesCommandSection extends StatelessWidget {
             ElevatedButton.icon(
               onPressed: isLoading
                   ? null
-                  : () => controller.fetchCompaniesCommand.execute(),
+                  : () => controller.fetchCompaniesCommand.run(),
               icon: isLoading
                   ? const SizedBox(
                       width: 18,
