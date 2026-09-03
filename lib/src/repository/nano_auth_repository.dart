@@ -68,6 +68,12 @@ abstract class NanoAuthRepository<Session extends NanoEntity<dynamic>> {
     storage?.delete(refreshTokenKey);
   }
 
+  /// Refreshes the active session using the stored [refreshToken].
+  ///
+  /// Subclasses should override this method to perform token renewal
+  /// against their backend OAuth/JWT refresh endpoint. Defaults to returning `false`.
+  Future<bool> refreshSession() async => false;
+
   /// Restores and validates the current active user session.
   ///
   /// Subclasses can optionally override this method to perform profile

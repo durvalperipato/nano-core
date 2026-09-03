@@ -81,7 +81,7 @@ class UserDetailPage extends StatelessWidget {
                           const Divider(height: 24),
                           _DetailRow(
                             label: 'User ID',
-                            value: user!.id,
+                            value: user!.id ?? '',
                             icon: Icons.tag,
                           ),
                           const SizedBox(height: 12),

@@ -17,7 +17,10 @@ class ShowcaseController extends NanoController<ShowcaseState> {
   late final fetchCompaniesCommand = nanoCommand0<List<MockCompany>>(MockApi.fetchCompanies);
 
   /// Creates a new [ShowcaseController] instance.
-  ShowcaseController({required this.userRepository});
+  ShowcaseController({
+    required this.userRepository,
+    super.initialState = const ShowcaseState(),
+  });
 
   @override
   Future<void> init(String? id) async {}
@@ -53,11 +56,11 @@ class ShowcaseController extends NanoController<ShowcaseState> {
   Future<void> simulateGlobalFetch() async {
     unawaited(
       execute(() async {
-        final users = await userRepository.getAll();
+        final result = await userRepository.getAll();
         return ShowcaseState(
-          users: users,
+          users: result.items,
           message:
-              'Global Data Fetched: ${users.length} users from NanoRepository',
+              'Global Data Fetched: ${result.length} users from NanoRepository',
         );
       }),
     );

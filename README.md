@@ -14,7 +14,7 @@ A lightweight reactive architecture framework and design system toolkit for Flut
 
 - 🔭 **NanoRouteObserver**: Granular navigation observer for screen tracking, Firebase Analytics, Datadog, breadcrumbs, and route lifecycle telemetry.
 
-- 🚀 **NanoScaffold & NanoStateObservable**: Decoupled reactive base page scaffold supporting Web/Desktop headers, mobile AppBars, loading overlays, toasts, and universal state observation (`NanoController`, BLoC, Cubit, MobX adapters).
+- 🚀 **NanoScaffold & NanoStateObservable**: Decoupled reactive base page scaffold supporting Web/Desktop headers, mobile AppBars, loading overlays, toasts, fallback messages (`defaultErrorMessage`, `defaultWarningMessage`), and universal state observation (`NanoController`, BLoC, Cubit, MobX adapters).
 
 - ⚡ **NanoController & NanoState**: Clean, reactive state management built on `ChangeNotifier` and `ListenableBuilder`.
 
@@ -54,7 +54,7 @@ Add `nano_core` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  nano_core: ^0.6.0
+  nano_core: ^0.7.0
 ```
 
 ## Quick Example
@@ -72,24 +72,24 @@ class UserAdapter implements NanoAdapter<User> {
   const UserAdapter();
 
   @override
-  User fromJson(Map<String, dynamic> json) => User(
-    id: json['id'] as String,
-    name: json['name'] as String,
+  User fromMap(Map<String, dynamic> map) => User(
+    id: map['id'] as String,
+    name: map['name'] as String,
   );
 
   @override
-  Map<String, dynamic> toJson(User user) => {
+  Map<String, dynamic> toMap(User user) => {
     'id': user.id,
     'name': user.name,
   };
 }
 
 class UserRepository extends NanoRepository<User, String> {
-  UserRepository([super.client])
-      : super(
-          endpoint: '/users',
-          adapter: const UserAdapter(),
-        );
+  UserRepository({
+    super.endpoint = '/users',
+    super.adapter = const UserAdapter(),
+    super.client,
+  });
 }
 
 // Type-Safe Search with NanoSearchRepository:
@@ -99,25 +99,29 @@ class UserFilter {
   const UserFilter({this.role, this.page = 1});
 }
 
-class UserFilterAdapter extends NanoQueryAdapter<UserFilter> {
+class UserFilterAdapter extends NanoWriteAdapter<UserFilter> {
   const UserFilterAdapter();
 
   @override
-  Map<String, dynamic> toQueryParams(UserFilter query) => {
-    'page': query.page,
-    if (query.role != null) 'role': query.role,
-  };
+  Map<String, dynamic> toMap(UserFilter query) {
+    return <String, dynamic>{}
+        .add('page', query.page)
+        .addIf('role', query.role);
+  }
 }
 
 class UserSearchRepository
     extends NanoSearchRepository<User, String, UserFilter> {
-  UserSearchRepository([super.client])
-      : super(
-          endpoint: '/users',
-          adapter: const UserAdapter(),
-          queryAdapter: const UserFilterAdapter(),
-        );
+  UserSearchRepository({
+    super.endpoint = '/users',
+    super.adapter = const UserAdapter(),
+    super.queryAdapter = const UserFilterAdapter(),
+    super.client,
+  });
 }
+
+// Search with type-safe query parameters:
+// final results = await userSearchRepository.searchAll(const UserFilter(role: 'admin'));
 ```
 
 ### 2. View State, Controller & Injections
@@ -139,7 +143,10 @@ class UsersState extends NanoViewState {
 class MyController extends NanoController<UsersState> {
   final UserRepository repository;
 
-  MyController({required this.repository});
+  MyController({
+    required this.repository,
+    super.initialState = const UsersState(),
+  });
 
   @override
   Future<void> init(String? id) async {
@@ -147,11 +154,19 @@ class MyController extends NanoController<UsersState> {
   }
 
   Future<void> loadUsers() async {
-    execute(() async {
+    emitLoading(); // Style 1: Direct convenience method
+    try {
       final users = await repository.getAll();
-      return UsersState(users: users);
-    });
+      emitLoaded(UsersState(users: users));
+    } catch (_) {
+      emitError();
+    }
   }
+
+  // 💡 3 Flexible Ways to Emit State in NanoController:
+  // 1. Direct Helper:  emitLoaded(myState), emitLoading(), emitSuccess(key: ...), emitError(key: ...), emitCustom(myPayload)
+  // 2. Fluent State:   emit(state.toLoaded(myState)), emit(state.toLoading()), emit(state.toCustom(myPayload))
+  // 3. Explicit Class: emit(LoadedState(myState)), emit(const LoadingState()), emit(CustomState(myPayload))
 }
 
 // 3. Page Injections Scope
@@ -190,6 +205,7 @@ class _UsersPageState
   Widget build(BuildContext context) {
     return NanoScaffold<UsersState, NanoMessageKey>(
       controller: controller,
+      defaultErrorMessage: 'An unexpected error occurred',
       header: (context, state) => AppBar(
         title: Text(
           state.data?.users.isNotEmpty == true
@@ -454,30 +470,67 @@ class UserFilter {
   const UserFilter({this.name, this.role});
 }
 
-class UserFilterAdapter implements NanoQueryAdapter<UserFilter> {
+class UserFilterAdapter extends NanoWriteAdapter<UserFilter> {
   const UserFilterAdapter();
 
   @override
-  Map<String, dynamic> toQueryParams(UserFilter query) => {
-    if (query.name != null && query.name!.isNotEmpty) 'name': query.name,
-    if (query.role != null && query.role != 'all') 'role': query.role,
-  };
+  Map<String, dynamic> toMap(UserFilter query) {
+    return <String, dynamic>{}
+        .addIf('name', query.name)
+        .addIf('role', query.role, condition: query.role != 'all');
+  }
 }
 ```
 
-#### 2. Create Search Repository
+#### 2. Create Search Repository with Response Strategy
 ```dart
-class UserRepository extends NanoSearchRepository<User, String, UserFilter> {
-  UserRepository([super.client])
-      : super(
-          endpoint: '/users',
-          adapter: const UserAdapter(),
-          queryAdapter: const UserFilterAdapter(),
-        );
+class UserSearchRepository extends NanoSearchRepository<User, String, UserFilter> {
+  UserSearchRepository({
+    super.endpoint = '/users',
+    super.adapter = const UserAdapter(),
+    super.queryAdapter = const UserFilterAdapter(),
+    super.dataStrategy = const NanoDataStrategy.data(), // JSON:API 'data' envelope
+    super.client,
+  });
 }
+
+// Fetch all with filters & pagination (returns NanoPaginatedResult<User>):
+// final result = await searchRepository.searchAll(const UserFilter(name: 'Alex'));
+// print(result.items);       // List<User>
+// print(result.totalCount);  // 150 (if reported by API)
+// print(result.currentPage); // 1
+// print(result.hasNext);     // true
 ```
 
-#### 3. Automatic Infinite Scroll (Mobile) or Page Navigation Bar (Web)
+#### 3. Response Extraction Strategies (NanoDataStrategy)
+Adapt to any backend REST standard with dedicated extraction strategies:
+
+```dart
+// 1. Un-enveloped Raw Arrays (GitHub, FastAPI, Go):
+const NanoDataStrategy.raw()
+
+// 2. JSON:API / Laravel / JSend Envelope {"data": [...], "meta": {...}}:
+const NanoDataStrategy.data()
+
+// 3. Django REST Framework {"results": [...], "count": 100, "next": "..."}:
+const NanoDataStrategy.results()
+
+// 4. Google Cloud APIs {"items": [...], "totalResults": 100}:
+const NanoDataStrategy.items()
+
+// 5. Custom Envelope Key {"events": [...]}:
+const NanoDataStrategy.key('events')
+
+// 6. Custom Transformation:
+NanoDataStrategy.custom(
+  listExtractor: (json) => json['payload']['records'],
+  metaExtractor: (json, headers) => NanoPaginationMeta(
+    totalCount: json['payload']['total'],
+  ),
+)
+```
+
+#### 4. Automatic Infinite Scroll (Mobile) or Page Navigation Bar (Web)
 ```dart
 // In Controller:
 late final paginator = NanoPaginator<User>(
@@ -558,6 +611,21 @@ class AuthRepository extends NanoAuthRepository<UserSession> {
     );
     if (response.isSuccess && response.data != null) {
       saveToken(response.data!['token']);
+      return true;
+    }
+    return false;
+  }
+
+  // Optional: override refreshSession to renew access tokens using refreshToken
+  @override
+  Future<bool> refreshSession() async {
+    if (refreshToken == null) return false;
+    final response = await client.post<Map<String, dynamic>>(
+      '$endpoint/refresh',
+      data: {'refresh_token': refreshToken},
+    );
+    if (response.isSuccess && response.data != null) {
+      saveToken(response.data!['token'], refreshToken: response.data!['refresh_token']);
       return true;
     }
     return false;
@@ -871,12 +939,26 @@ final storeController = NanoListenableAdapter<UserState>(
       : SuccessState(data: userStore.user),
 );
 
-// Use directly in NanoScaffold:
+// Use directly in NanoScaffold with reactive listener, toasts & fallback messages:
 NanoScaffold(
   controller: blocController,
+  defaultErrorMessage: 'An unexpected error occurred', // Fallback for ErrorState(key: null)
+  defaultWarningMessage: 'Please review your input',   // Fallback for WarningState(key: null)
+  listener: (context, state) {
+    if (state is SuccessState) {
+      // Execute one-time side-effects (navigation, dialogs, analytics)
+    }
+  },
   builder: (context, state) => Text('User: ${state.data?.name}'),
 );
 ```
+
+> [!NOTE]
+> **Notification & Feedback Priority Order (`ErrorState` / `WarningState`):**
+> 1. **Custom Hook**: If `onCustomError` or `onCustomWarning` is provided, it is invoked and bypasses automatic toasts.
+> 2. **Typed Key Message**: If `key?.message(context)` produces a non-empty string, it is displayed via `NanoToast`.
+> 3. **Fallback Default**: If `key` is `null` or produces an empty string, `defaultErrorMessage` or `defaultWarningMessage` is displayed if non-empty.
+> 4. **Silent (No-op)**: If no message is found, no empty toast is displayed, ensuring zero visual bugs.
 
 #### 🛠️ Option B: Custom Class Implementation
 
@@ -1096,6 +1178,119 @@ NanoCommandBuilder<bool>(
         : const Text('Sign in with Google'),
   ),
 )
+```
+
+---
+
+### 12. Model Adapters (NanoReadAdapter, NanoWriteAdapter & NanoAdapter)
+
+Segregated serialization and deserialization contracts following the Interface Segregation Principle, complete with built-in safe list handling (`fromList` and `toList`):
+
+```dart
+// 1. Read-Only Adapter (API responses):
+class ProductAdapter extends NanoReadAdapter<Product> {
+  const ProductAdapter();
+
+  @override
+  Product fromJson(Map<String, dynamic> json) => Product(
+    id: json['id'] as String,
+    name: json['name'] as String,
+  );
+}
+
+// Safely parse nested lists from API JSON with zero manual casting:
+final products = const ProductAdapter().fromList(json['products']);
+
+// 2. Write-Only / Query Adapter (POST/PUT request payloads & URL query parameters):
+class CreateOrderAdapter extends NanoWriteAdapter<OrderDraft> {
+  const CreateOrderAdapter();
+
+  static const _itemAdapter = OrderItemAdapter();
+
+  @override
+  Map<String, dynamic> toMap(OrderDraft draft) => {
+    'customerId': draft.customerId,
+    // Safely serialize nested list of entities to List<Map<String, dynamic>>:
+    'items': _itemAdapter.toList(draft.items),
+  };
+}
+
+// 3. Bidirectional Adapter (Full CRUD entities):
+class UserAdapter extends NanoAdapter<User> {
+  const UserAdapter();
+
+  @override
+  User fromMap(Map<String, dynamic> map) => User(
+    id: map['id'] as String,
+    name: map['name'] as String,
+  );
+
+  @override
+  Map<String, dynamic> toMap(User user) => {
+    'id': user.id,
+    'name': user.name,
+  };
+}
+```
+
+---
+
+### 13. Dependency Injection (NanoInjections, Async Binds & NanoDefaultInjections)
+
+Manage scoped dependency lifecycles with `GetIt` supporting both synchronous and asynchronous bindings without manual scope management:
+
+```dart
+// 1. Root Application Injections (Supports async bindings with `Future<void> binds`):
+class AppInjections extends NanoInjections {
+  const AppInjections({super.scope = 'app_global'});
+
+  @override
+  Future<void> binds(GetIt i) async {
+    final prefs = await SharedPreferences.getInstance();
+    final cache = await AppHiveCache.init();
+    final storage = AppSharedPreferencesStorage(prefs);
+
+    final config = AppEnvironments.current;
+    i.registerSingleton<AppConfig>(config);
+
+    final client = AppDioHttpClient(
+      baseUrl: config.apiBaseUrl,
+      interceptors: [
+        const NanoAuthInterceptor(),
+        if (config.logEnabled) const NanoHttpLogInterceptor(),
+      ],
+    );
+
+    // Initialize default framework services:
+    NanoDefaultInjections.init(
+      i,
+      client: client,
+      storage: storage,
+      cache: cache,
+    );
+  }
+}
+
+// 2. Minimalist Main Bootstrap:
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await const AppInjections()();
+  runApp(const App());
+}
+
+// 3. Feature/Module Injections (Synchronous bindings):
+class LoginInjections extends NanoInjections {
+  const LoginInjections({super.scope = 'login'});
+
+  @override
+  void binds(GetIt i) {
+    i
+      ..registerLazySingleton<AuthRepository>(() => AuthRepository())
+      ..registerFactory<LoginController>(
+        () => LoginController(i<AuthRepository>()),
+      );
+  }
+}
 ```
 
 ---

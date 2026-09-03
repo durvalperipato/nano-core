@@ -29,6 +29,13 @@ import 'widgets/nano_scaffold_builder.dart';
 ///   custom callbacks.
 /// - Passes the current [NanoState] directly to [builder], [header],
 ///   [footer], [drawer], and [floatingActionButton].
+/// - Notification & feedback priority order on `ErrorState` / `WarningState`:
+///   1. `onCustomError` / `onCustomWarning` callback (if provided).
+///   2. `key.message(context)` from strongly typed [NanoMessageKey]
+///      (if non-empty).
+///   3. `defaultErrorMessage` / `defaultWarningMessage` fallback
+///      (if non-empty).
+///   4. Silent no-op if no message is resolved (prevents blank toast cards).
 /// - Strongly-typed message callbacks [onCustomError] and [onCustomWarning]
 ///   using [MessageKey].
 /// - Customizable [loadingWidget] overlay when the state is [LoadingState].
@@ -57,6 +64,9 @@ class NanoScaffold<
     this.onCustomError,
     this.onCustomWarning,
     this.onCustomSuccess,
+    this.defaultErrorMessage,
+    this.defaultWarningMessage,
+    this.listener,
     super.key,
   });
 
@@ -117,7 +127,20 @@ class NanoScaffold<
 
   /// Optional custom success callback. If null, displays default
   /// [NanoToast.showSuccess].
-  final void Function(String message)? onCustomSuccess;
+  final void Function(MessageKey? success)? onCustomSuccess;
+
+  /// Optional fallback error message displayed when state error key is null
+  /// or empty.
+  final String? defaultErrorMessage;
+
+  /// Optional fallback warning message displayed when state warning key is null
+  /// or empty.
+  final String? defaultWarningMessage;
+
+  /// Optional side-effect listener invoked whenever the controller state
+  /// changes (useful for navigation, dialogs, and analytics).
+  final void Function(BuildContext context, NanoState<ViewState> state)?
+  listener;
 
   /// Main page content builder, receiving current context and [NanoState].
   final Widget Function(BuildContext context, NanoState<ViewState> state)
@@ -195,27 +218,38 @@ class _NanoScaffoldState<
 
     final state = controller.state;
 
+    widget.listener?.call(context, state);
+
     if (state case ErrorState(:final key)) {
       final typedKey = key is MessageKey ? key : null;
       if (widget.onCustomError != null) {
         widget.onCustomError!(typedKey);
       } else {
-        NanoToast.showError(context, key?.message(context) ?? '');
+        final message =
+            key?.message(context) ?? widget.defaultErrorMessage ?? '';
+        if (message.trim().isNotEmpty) {
+          NanoToast.showError(context, message);
+        }
       }
     } else if (state case WarningState(:final key)) {
       final typedKey = key is MessageKey ? key : null;
       if (widget.onCustomWarning != null) {
         widget.onCustomWarning!(typedKey);
       } else {
-        NanoToast.showWarning(context, key?.message(context) ?? '');
+        final message =
+            key?.message(context) ?? widget.defaultWarningMessage ?? '';
+        if (message.trim().isNotEmpty) {
+          NanoToast.showWarning(context, message);
+        }
       }
-    } else if (state case SuccessState(:final data)) {
-      final successMsg = data.toString();
-      if (successMsg.isNotEmpty) {
-        if (widget.onCustomSuccess != null) {
-          widget.onCustomSuccess!(successMsg);
-        } else {
-          NanoToast.showSuccess(context, successMsg);
+    } else if (state case SuccessState(:final key)) {
+      final typedKey = key is MessageKey ? key : null;
+      if (widget.onCustomSuccess != null) {
+        widget.onCustomSuccess!(typedKey);
+      } else {
+        final message = key?.message(context) ?? '';
+        if (message.trim().isNotEmpty) {
+          NanoToast.showSuccess(context, message);
         }
       }
     }
@@ -232,40 +266,19 @@ class _NanoScaffoldState<
 
   @override
   Widget build(BuildContext context) {
-    final controller = widget.controller;
-    final connectivityWidget = _buildConnectivityWidget();
-
-    if (controller == null) {
-      return NanoScaffoldBuilder<ViewState>(
-        state: InitialState<ViewState>(),
-        builder: widget.builder,
-        header: widget.header,
-        headerHeight: widget.headerHeight,
-        drawer: widget.drawer,
-        footer: widget.footer,
-        floatingActionButton: widget.floatingActionButton,
-        backgroundColor: widget.backgroundColor,
-        resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
-        loadingWidget: widget.loadingWidget,
-        connectivityWidget: connectivityWidget,
-      );
-    }
-
-    return ListenableBuilder(
-      listenable: controller,
-      builder: (context, _) => NanoScaffoldBuilder<ViewState>(
-        state: controller.state,
-        builder: widget.builder,
-        header: widget.header,
-        headerHeight: widget.headerHeight,
-        drawer: widget.drawer,
-        footer: widget.footer,
-        floatingActionButton: widget.floatingActionButton,
-        backgroundColor: widget.backgroundColor,
-        resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
-        loadingWidget: widget.loadingWidget,
-        connectivityWidget: connectivityWidget,
-      ),
+    final state = widget.controller?.state ?? InitialState<ViewState>();
+    return NanoScaffoldBuilder<ViewState>(
+      state: state,
+      header: widget.header,
+      headerHeight: widget.headerHeight,
+      drawer: widget.drawer,
+      footer: widget.footer,
+      floatingActionButton: widget.floatingActionButton,
+      backgroundColor: widget.backgroundColor,
+      resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
+      loadingWidget: widget.loadingWidget,
+      connectivityWidget: _buildConnectivityWidget(),
+      builder: widget.builder,
     );
   }
 }

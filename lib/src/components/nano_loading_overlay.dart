@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class NanoLoadingOverlay extends StatelessWidget {
   /// Creates a [NanoLoadingOverlay] widget.
   const NanoLoadingOverlay({
-    this.backgroundColor = Colors.black26,
+    this.backgroundColor = Colors.black54,
     this.indicatorColor,
     this.child,
     super.key,
@@ -18,18 +18,20 @@ class NanoLoadingOverlay extends StatelessWidget {
   final Color? indicatorColor;
 
   /// Optional custom widget to display inside the loading overlay instead of
-  /// the default [CircularProgressIndicator].
+  /// the default [CircularProgressIndicator.adaptive].
   final Widget? child;
 
   @override
   Widget build(BuildContext context) {
-    return Positioned.fill(
-      child: ColoredBox(
-        color: backgroundColor,
-        child: Center(
-          child:
-              child ?? CircularProgressIndicator(color: indicatorColor),
-        ),
+    return ColoredBox(
+      color: backgroundColor,
+      child: Center(
+        child: child ??
+            CircularProgressIndicator.adaptive(
+              valueColor: indicatorColor != null
+                  ? AlwaysStoppedAnimation<Color>(indicatorColor!)
+                  : null,
+            ),
       ),
     );
   }

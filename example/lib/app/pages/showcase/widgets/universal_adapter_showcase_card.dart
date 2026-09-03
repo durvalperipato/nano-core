@@ -49,13 +49,13 @@ class _UniversalAdapterShowcaseCardState
       mapper: (event) {
         if (event == 'loading') return const LoadingState<AdapterDemoState>();
         if (event == 'error') return const ErrorState<AdapterDemoState>(null);
-        return SuccessState(AdapterDemoState(label: event, counter: 1));
+        return LoadedState(AdapterDemoState(label: event, counter: 1));
       },
     );
 
     _listenableAdapter = NanoListenableAdapter<AdapterDemoState>(
       listenable: _notifier,
-      stateGetter: () => SuccessState(
+      stateGetter: () => LoadedState(
         AdapterDemoState(
           label: 'ValueNotifier / MobX',
           counter: _notifier.value,

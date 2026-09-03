@@ -1,13 +1,12 @@
-/// An abstract contract to serialize and deserialize data models.
+import 'nano_read_adapter.dart';
+import 'nano_write_adapter.dart';
+
+/// A bidirectional contract combining [NanoReadAdapter] and [NanoWriteAdapter].
 ///
-/// Implement this adapter to convert between JSON maps and typed domain models.
-abstract class NanoAdapter<Entity> {
+/// Implement or extend this adapter for entities that require both
+/// serialization and deserialization.
+abstract class NanoAdapter<Entity> extends NanoReadAdapter<Entity>
+    with NanoWriteAdapter<Entity> {
   /// Const constructor allowing subclasses to be const.
   const NanoAdapter();
-
-  /// Converts a JSON [Map] into an instance of [Entity].
-  Entity fromJson(Map<String, dynamic> json);
-
-  /// Converts an instance of [Entity] into a JSON [Map].
-  Map<String, dynamic> toJson(Entity model);
 }

@@ -5,6 +5,46 @@ All notable changes to the `nano_core` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.7.0 (2026-09-03)
+
+### Breaking Changes
+- `NanoReadAdapter`: Subclasses now implement abstract `fromMap(Map<String, dynamic> map)` for pure dictionary mapping. The framework provides safe dynamic `fromMapOrNull(dynamic map)` (returning `Entity?`) and `fromList(dynamic jsonList)`.
+- `NanoWriteAdapter`: Subclasses now implement abstract `toMap(Entity entity)` for dictionary serialization, with built-in `toList(List<Entity>? list)`.
+- `NanoAdapter`: Refactored to combine `NanoReadAdapter` (`fromMap`) and `NanoWriteAdapter` (`toMap`).
+- `NanoRepository`: `getAll(...)` now returns `Future<NanoPaginatedResult<Entity>>` instead of `Future<List<Entity>>`. Entities can be accessed via `result.items` or direct indexing (`result[0]`, `result.length`, `result.isEmpty`).
+- `NanoSearchRepository`: `searchAll(...)` now returns `Future<NanoPaginatedResult<Entity>>` instead of `Future<List<Entity>>`.
+- `NanoController`: `initialState` is now a `required` named parameter (`NanoController({required ViewState initialState})`), ensuring controllers never operate with uninitialized null states and powering the type-safe native `viewState` getter. Subclasses should pass `super.initialState = const MyViewState()`.
+- `NanoFormController`: `initialState` is now a `required` named parameter (`NanoFormController({required super.initialState})`), replacing the previous `initialData`.
+- `SuccessState`: Changed constructor from positional `SuccessState(data)` to named parameters `SuccessState({this.key, this.data})` and transition `toSuccess({key, data})`. Use `LoadedState(data)` for general loaded data without triggering feedback toasts.
+- `NanoScaffold`: `onCustomSuccess` callback signature changed from `void Function(String message)?` to strongly typed `void Function(MessageKey? success)?` for consistency with `onCustomError` and `onCustomWarning`.
+- `NanoQueryAdapter`: Removed in favor of `NanoWriteAdapter` with `toMap(query)` to unify all Dart-to-Map / serialization operations.
+- `NanoSearchRepository`: `queryAdapter` now accepts a `NanoWriteAdapter<Query>` calling `toMap(query)` for query parameters serialization.
+- `NanoViewState`: Made `List<Object?> get props` an abstract member, enforcing explicit property declarations across all `NanoViewState` implementations for value equality.
+- `NanoRepository`: Removed redundant `fetchList` method in favor of the unified `getAll(...)` method.
+- `NanoSearchRepository`: Renamed `search(...)` to `searchAll(...)` for naming consistency with `getAll(...)`.
+
+### Added
+- `NanoPaginatedResult`: Encapsulates strongly typed entity lists alongside pagination metadata (`totalCount`, `currentPage`, `totalPages`, `hasNext`, `nextCursor`, and `meta`).
+- `NanoDataStrategy`: Configurable response extraction strategy supporting un-enveloped raw arrays (`.raw()`), JSON:API / Laravel envelopes (`.data()`), Django REST (`.results()`), Google Cloud APIs (`.items()`), custom keys (`.key('custom')`), and custom extractors (`.custom(...)`).
+- `NanoPaginationMeta`: Public model for extracted pagination metadata from JSON payloads or HTTP headers.
+- `NanoDefaultInjections`: Added `dataStrategy` parameter for application-wide response strategy configuration.
+- `CustomState`: Added `CustomState<T, Payload>` and `toCustom<Payload>(payload)` transition to allow arbitrary domain events, statuses, or semantic state extensions.
+- `NanoController`: Added `emitCustom<Payload>(payload, {data})` helper method for triggering custom domain states and side-effects.
+- `NanoController`: Added native `viewState` getter to access current strongly typed view state without requiring local mutable variables.
+- `InitialState`: Added optional `data` parameter to initialize and preserve initial view state models, along with `toInitial({data})` transition.
+- `NanoController`: Added convenience state emitting methods `emitInitial({data})`, `emitLoaded(data)`, `emitLoading({data})`, `emitSuccess({key, data})`, `emitError({key, data})`, `emitWarning({key, data})`, and `emitCustom(payload)`.
+- `NanoScaffold`: Added `listener` callback (`void Function(BuildContext, NanoState<ViewState>)`) for side-effects such as navigation, dialogs, and analytics.
+- `NanoAuthRepository`: Added `refreshSession()` method to standardize token renewals using stored `refreshToken`.
+- `NanoScaffold`: Added `defaultErrorMessage` and `defaultWarningMessage` parameters for fallback notification messages, and ensured empty messages never display blank toast cards.
+- `NanoState`: Subclasses now extend `NanoEquatable` with value equality on `data` and `key` payloads.
+- `NanoEntity`: Made `id` optional (`final ID? id;` with `const NanoEntity({this.id});`) for enhanced flexibility with nested sub-entities, drafts, and value models.
+- `NanoInjections`: Added support for asynchronous dependency bindings (`FutureOr<void> binds(GetIt i)`) with automatic scope and singleton resolution.
+- `NanoMapExtension`: Added `.add(key, value)` and `.addIf(key, value, {condition, skipEmpty})` extensions on `Map<String, dynamic>` for fluent, conditional, and null/empty-safe map construction.
+- `NanoReadAdapter`: Interface for read-only deserialization (`fromMap`) with built-in safe dynamic parser (`fromMapOrNull(dynamic map)`) and list deserialization (`fromList(dynamic jsonList)`).
+- `NanoWriteAdapter`: Interface for write-only serialization (`toMap`) with built-in list serialization (`toList(List<Entity>? list)`).
+- `NanoAdapter`: Refactored to implement both `NanoReadAdapter` and `NanoWriteAdapter` for bidirectional models.
+- `NanoRepository`: Accepts `NanoReadAdapter` for read-only endpoints without requiring unused `toMap`, with optional `NanoWriteAdapter` for write operations; automatically unwraps both raw lists and nested data maps (`{"data": [...]}`).
+
 ## 0.6.0 (2026-09-02)
 
 ### Breaking Changes

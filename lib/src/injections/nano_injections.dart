@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:get_it/get_it.dart';
 
 /// An abstract class to manage dependency injection scopes using [GetIt].
@@ -10,14 +11,26 @@ abstract class NanoInjections {
 
   /// Method to register dependencies within the specified scope.
   ///
-  /// This method should be overridden to provide the bindings.
-  void binds(GetIt i);
+  /// Supports both synchronous and asynchronous registrations.
+  FutureOr<void> binds(GetIt i);
 
   /// Initializes the dependency injection scope and waits for all async
   /// singletons to become ready.
   Future<void> initScope() async {
     if (!GetIt.I.hasScope(scope)) {
-      GetIt.I.pushNewScope(scopeName: scope, init: (i) => binds(i));
+      final completer = Completer<void>();
+      GetIt.I.pushNewScope(
+        scopeName: scope,
+        init: (i) {
+          final result = binds(i);
+          if (result is Future) {
+            result.then((_) => completer.complete());
+          } else {
+            completer.complete();
+          }
+        },
+      );
+      await completer.future;
       await GetIt.I.allReady();
     }
   }

@@ -8,7 +8,10 @@ class UsersController extends NanoController<UsersState> {
   final MockUserSearchRepository userRepository;
 
   /// Creates a new [UsersController] instance.
-  UsersController({required this.userRepository});
+  UsersController({
+    required this.userRepository,
+    super.initialState = const UsersState(),
+  });
 
   @override
   Future<void> init(String? id) async {
@@ -18,8 +21,8 @@ class UsersController extends NanoController<UsersState> {
   /// Fetches all users from the repository.
   Future<void> fetchUsers() async {
     execute(() async {
-      final users = await userRepository.getAll();
-      return UsersState(users: users);
+      final result = await userRepository.getAll();
+      return UsersState(users: result.items);
     });
   }
 
@@ -29,8 +32,8 @@ class UsersController extends NanoController<UsersState> {
       final filter = MockUserFilter(
         name: query.trim().isNotEmpty ? query.trim() : null,
       );
-      final users = await userRepository.search(filter);
-      return UsersState(users: users);
+      final result = await userRepository.searchAll(filter);
+      return UsersState(users: result.items);
     });
   }
 }

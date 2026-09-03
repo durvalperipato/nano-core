@@ -1,16 +1,19 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'nano_cursor_pagination.dart';
 import 'nano_offset_pagination.dart';
+import 'nano_paginated_result.dart';
 import 'nano_pagination.dart';
 
-/// Signature for asynchronous page fetching functions.
-typedef NanoPageFetcher<T> = Future<List<T>> Function(
+/// Signature for asynchronous page fetching functions returning either a
+/// [NanoPaginatedResult] or a raw [List].
+typedef NanoPageFetcher<T> = FutureOr<dynamic> Function(
   NanoPagination pagination,
 );
 
 /// A stateful pagination controller that manages page loading, accumulated
-/// items, next-page progression, and loading/error states.
+/// items, next-page progression, total counts, and loading/error states.
 class NanoPaginator<T> extends ChangeNotifier {
   /// Creates a [NanoPaginator] instance.
   NanoPaginator({
@@ -33,6 +36,16 @@ class NanoPaginator<T> extends ChangeNotifier {
 
   /// The accumulated list of fetched items.
   List<T> get items => List.unmodifiable(_items);
+
+  int? _totalCount;
+
+  /// Total count of items reported by the server, if available.
+  int? get totalCount => _totalCount;
+
+  int? _totalPages;
+
+  /// Total number of pages reported by the server, if available.
+  int? get totalPages => _totalPages;
 
   bool _isLoading = false;
 
@@ -100,9 +113,8 @@ class NanoPaginator<T> extends ChangeNotifier {
     }
 
     try {
-      final newItems = await fetcher(_currentPagination);
-      _items = List.from(newItems);
-      _checkHasNext(newItems);
+      final response = await fetcher(_currentPagination);
+      _handleResponse(response, isNextPage: false);
     } catch (e) {
       _error = e;
     } finally {
@@ -125,9 +137,8 @@ class NanoPaginator<T> extends ChangeNotifier {
     }
 
     try {
-      final newItems = await fetcher(_currentPagination);
-      _items = [..._items, ...newItems];
-      _checkHasNext(newItems);
+      final response = await fetcher(_currentPagination);
+      _handleResponse(response, isNextPage: true);
     } catch (e) {
       _error = e;
     } finally {
@@ -150,9 +161,8 @@ class NanoPaginator<T> extends ChangeNotifier {
     }
 
     try {
-      final newItems = await fetcher(_currentPagination);
-      _items = List.from(newItems);
-      _checkHasNext(newItems);
+      final response = await fetcher(_currentPagination);
+      _handleResponse(response, isNextPage: false);
     } catch (e) {
       _error = e;
     } finally {
@@ -170,12 +180,51 @@ class NanoPaginator<T> extends ChangeNotifier {
   /// Navigates to the next page.
   Future<void> nextPage() => loadNextPage();
 
-  void _checkHasNext(List<T> newItems) {
-    final p = _currentPagination;
-    if (p is NanoOffsetPagination) {
-      _hasNext = newItems.length >= p.pageSize;
-    } else if (p is NanoCursorPagination) {
-      _hasNext = newItems.length >= p.limit;
+  void _handleResponse(dynamic response, {required bool isNextPage}) {
+    List<T> newItems;
+    bool? explicitHasNext;
+    String? nextCursor;
+
+    if (response is NanoPaginatedResult<T>) {
+      newItems = response.items;
+      _totalCount = response.totalCount ?? _totalCount;
+      _totalPages = response.totalPages ?? _totalPages;
+      explicitHasNext = response.hasNext;
+      nextCursor = response.nextCursor;
+    } else if (response is NanoPaginatedResult<dynamic>) {
+      newItems = response.items.cast<T>();
+      _totalCount = response.totalCount ?? _totalCount;
+      _totalPages = response.totalPages ?? _totalPages;
+      explicitHasNext = response.hasNext;
+      nextCursor = response.nextCursor;
+    } else if (response is List<T>) {
+      newItems = response;
+    } else if (response is List) {
+      newItems = response.cast<T>();
+    } else {
+      newItems = const [];
+    }
+
+    if (isNextPage) {
+      _items = [..._items, ...newItems];
+    } else {
+      _items = List.from(newItems);
+    }
+
+    if (explicitHasNext != null) {
+      _hasNext = explicitHasNext;
+    } else {
+      final p = _currentPagination;
+      if (p is NanoOffsetPagination) {
+        _hasNext = newItems.length >= p.pageSize;
+      } else if (p is NanoCursorPagination) {
+        _hasNext = newItems.length >= p.limit;
+      }
+    }
+
+    if (nextCursor != null && _currentPagination is NanoCursorPagination) {
+      final cursor = _currentPagination as NanoCursorPagination;
+      _currentPagination = cursor.copyWith(cursor: nextCursor);
     }
   }
 
@@ -185,6 +234,8 @@ class NanoPaginator<T> extends ChangeNotifier {
   /// Clears all items and resets pagination state.
   void clear() {
     _items = const [];
+    _totalCount = null;
+    _totalPages = null;
     _hasNext = true;
     _error = null;
     notifyListeners();
