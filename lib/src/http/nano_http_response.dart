@@ -7,6 +7,7 @@ class NanoHttpResponse<T> {
     this.data,
     this.statusCode,
     this.statusMessage,
+    this.headers,
     this.request,
   });
 
@@ -19,6 +20,9 @@ class NanoHttpResponse<T> {
   /// A descriptive message representing the status of the response.
   final String? statusMessage;
 
+  /// The HTTP response headers.
+  final Map<String, dynamic>? headers;
+
   /// The original [NanoHttpRequest] associated with this response.
   final NanoHttpRequest? request;
 
@@ -27,12 +31,14 @@ class NanoHttpResponse<T> {
     T? data,
     int? statusCode,
     String? statusMessage,
+    Map<String, dynamic>? headers,
     NanoHttpRequest? request,
   }) {
     return NanoHttpResponse<T>(
       data: data ?? this.data,
       statusCode: statusCode ?? this.statusCode,
       statusMessage: statusMessage ?? this.statusMessage,
+      headers: headers ?? this.headers,
       request: request ?? this.request,
     );
   }

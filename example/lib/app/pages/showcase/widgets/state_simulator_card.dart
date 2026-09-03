@@ -129,6 +129,7 @@ class StateSimulatorCard extends StatelessWidget {
       SuccessState() => 'SUCCESS',
       WarningState() => 'WARNING',
       ErrorState() => 'ERROR',
+      CustomState() => 'CUSTOM',
     };
   }
 

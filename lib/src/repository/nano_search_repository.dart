@@ -1,15 +1,17 @@
-import '../adapter/nano_query_adapter.dart';
+import '../adapter/nano_write_adapter.dart';
 import '../cache/nano_cache_policy.dart';
 import '../entity/nano_entity.dart';
+import '../pagination/nano_paginated_result.dart';
 import '../pagination/nano_pagination.dart';
+import '../strategy/nano_data_strategy.dart';
 import 'nano_repository.dart';
 
 /// A specialized generic repository supporting strongly-typed query and filter
 /// parameters.
 ///
-/// Extends [NanoRepository] by requiring a dedicated [NanoQueryAdapter] to
+/// Extends [NanoRepository] by using a dedicated [NanoWriteAdapter] to
 /// serialize query/filter objects of type [Query] into URL query parameter
-/// maps.
+/// maps via [NanoWriteAdapter.toMap].
 abstract class NanoSearchRepository<
   Entity extends NanoEntity<Id>,
   Id,
@@ -21,6 +23,8 @@ abstract class NanoSearchRepository<
     required super.endpoint,
     required super.adapter,
     required this.queryAdapter,
+    super.writeAdapter,
+    super.dataStrategy,
     super.client,
     super.cache,
     super.cachePolicy,
@@ -29,27 +33,26 @@ abstract class NanoSearchRepository<
 
   /// The dedicated adapter used to serialize the query model [Query] into query
   /// parameters.
-  final NanoQueryAdapter<Query> queryAdapter;
+  final NanoWriteAdapter<Query> queryAdapter;
 
-  /// Builds the endpoint URL path used for [search]. Defaults to
-  /// [endpointGetAll].
-  String endpointSearch(Query query) => endpointGetAll();
-
-  /// Searches and retrieves a list of entities using a strongly-typed query
-  /// model [Query], optionally applying [pagination] and [cachePolicy].
-  Future<List<Entity>> search(
+  /// Searches and retrieves a [NanoPaginatedResult] of entities using a
+  /// strongly-typed query model [Query], optionally applying [pagination],
+  /// [cachePolicy], and [dataStrategy].
+  Future<NanoPaginatedResult<Entity>> searchAll(
     Query query, {
     NanoPagination? pagination,
     NanoCachePolicy? cachePolicy,
     Duration? cacheTtl,
     Map<String, String>? headers,
-  }) =>
-      fetchList(
-        path: endpointSearch(query),
-        pagination: pagination,
-        cachePolicy: cachePolicy,
-        cacheTtl: cacheTtl,
-        queryParameters: queryAdapter.toQueryParams(query),
-        headers: headers,
-      );
+    NanoDataStrategy? dataStrategy,
+  }) {
+    return getAll(
+      pagination: pagination,
+      cachePolicy: cachePolicy,
+      cacheTtl: cacheTtl,
+      queryParameters: queryAdapter.toMap(query),
+      headers: headers,
+      dataStrategy: dataStrategy,
+    );
+  }
 }

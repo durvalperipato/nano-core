@@ -38,7 +38,7 @@ class _RepositoryShowcaseCardState extends State<RepositoryShowcaseCard> {
           role: _selectedRole != 'all' ? _selectedRole : null,
         );
 
-        final queryParams = const MockUserFilterAdapter().toQueryParams(filter);
+        final queryParams = const MockUserFilterAdapter().toMap(filter);
         final paginationParams = pagination.toQueryParams();
 
         final allParams = {...queryParams, ...paginationParams};
@@ -47,7 +47,7 @@ class _RepositoryShowcaseCardState extends State<RepositoryShowcaseCard> {
             .join('&');
 
         final stopwatch = Stopwatch()..start();
-        final users = await _searchRepository.search(
+        final users = await _searchRepository.searchAll(
           filter,
           pagination: pagination,
           cachePolicy: _selectedPolicy,

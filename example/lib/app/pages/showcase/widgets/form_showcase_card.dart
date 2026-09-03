@@ -38,7 +38,7 @@ class RegisterFormState extends NanoFormState<UserFormEntity> {
 /// Controller managing the [RegisterFormState].
 class RegisterFormController
     extends NanoFormController<RegisterFormState, UserFormEntity> {
-  RegisterFormController() : super(initialData: const RegisterFormState());
+  RegisterFormController() : super(initialState: const RegisterFormState());
 }
 
 /// Card showcasing [NanoFormEntity], [NanoFormState], [NanoFormController], and [NanoTextField].

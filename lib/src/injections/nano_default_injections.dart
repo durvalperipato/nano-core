@@ -6,6 +6,7 @@ import '../http/nano_http_client.dart';
 import '../pagination/nano_pagination.dart';
 import '../repository/nano_auth_repository.dart';
 import '../storage/nano_storage.dart';
+import '../strategy/nano_data_strategy.dart';
 import 'nano_injections.dart';
 
 /// Convenient type alias for [NanoDefaultInjections].
@@ -15,7 +16,7 @@ typedef NanoCoreInjections = NanoDefaultInjections;
 ///
 /// Registers essential framework singletons such as [NanoHttpClient],
 /// [NanoPagination] strategy, [NanoStorage], [NanoCache], [NanoConnectivity],
-/// and [NanoAuthRepository] into [GetIt].
+/// [NanoDataStrategy], and [NanoAuthRepository] into [GetIt].
 class NanoDefaultInjections extends NanoInjections {
   /// Creates a [NanoDefaultInjections] scope.
   const NanoDefaultInjections({
@@ -26,6 +27,7 @@ class NanoDefaultInjections extends NanoInjections {
     this.cachePolicy,
     this.connectivity,
     this.authRepository,
+    this.dataStrategy,
     super.scope = 'nano_default_global',
   });
 
@@ -50,6 +52,9 @@ class NanoDefaultInjections extends NanoInjections {
   /// The optional default global [NanoAuthRepository] session instance.
   final NanoAuthRepository<dynamic>? authRepository;
 
+  /// The optional default global [NanoDataStrategy].
+  final NanoDataStrategy? dataStrategy;
+
   @override
   void binds(GetIt i) {
     init(
@@ -61,6 +66,7 @@ class NanoDefaultInjections extends NanoInjections {
       cachePolicy: cachePolicy,
       connectivity: connectivity,
       authRepository: authRepository,
+      dataStrategy: dataStrategy,
     );
   }
 
@@ -75,6 +81,7 @@ class NanoDefaultInjections extends NanoInjections {
     NanoCachePolicy? cachePolicy,
     NanoConnectivity? connectivity,
     NanoAuthRepository<dynamic>? authRepository,
+    NanoDataStrategy? dataStrategy,
   }) {
     if (client != null && !i.isRegistered<NanoHttpClient>()) {
       i.registerLazySingleton<NanoHttpClient>(() => client);
@@ -100,6 +107,9 @@ class NanoDefaultInjections extends NanoInjections {
         () => authRepository,
       );
     }
+    if (dataStrategy != null && !i.isRegistered<NanoDataStrategy>()) {
+      i.registerLazySingleton<NanoDataStrategy>(() => dataStrategy);
+    }
   }
 
   /// Convenience static helper to register default dependencies into [GetIt.I]
@@ -112,6 +122,7 @@ class NanoDefaultInjections extends NanoInjections {
     NanoCachePolicy? cachePolicy,
     NanoConnectivity? connectivity,
     NanoAuthRepository<dynamic>? authRepository,
+    NanoDataStrategy? dataStrategy,
   }) {
     init(
       GetIt.I,
@@ -122,6 +133,7 @@ class NanoDefaultInjections extends NanoInjections {
       cachePolicy: cachePolicy,
       connectivity: connectivity,
       authRepository: authRepository,
+      dataStrategy: dataStrategy,
     );
   }
 }
