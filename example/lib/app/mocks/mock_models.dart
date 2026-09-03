@@ -19,21 +19,21 @@ class MockUser extends NanoEntity<String> {
   String toString() => 'User(id: $id, name: $name, email: $email, role: $role)';
 }
 
-class MockUserAdapter implements NanoAdapter<MockUser> {
+class MockUserAdapter extends NanoAdapter<MockUser> {
   const MockUserAdapter();
 
   @override
-  MockUser fromJson(Map<String, dynamic> json) {
+  MockUser fromMap(Map<String, dynamic> map) {
     return MockUser(
-      id: json['id'] as String? ?? '',
-      name: json['name'] as String? ?? '',
-      email: json['email'] as String? ?? '',
-      role: json['role'] as String? ?? 'user',
+      id: map['id'] as String? ?? '',
+      name: map['name'] as String? ?? '',
+      email: map['email'] as String? ?? '',
+      role: map['role'] as String? ?? 'user',
     );
   }
 
   @override
-  Map<String, dynamic> toJson(MockUser model) {
+  Map<String, dynamic> toMap(MockUser model) {
     return {
       'id': model.id,
       'name': model.name,
@@ -59,15 +59,14 @@ class MockUserFilter {
   const MockUserFilter({this.name, this.role});
 }
 
-class MockUserFilterAdapter extends NanoQueryAdapter<MockUserFilter> {
+class MockUserFilterAdapter extends NanoWriteAdapter<MockUserFilter> {
   const MockUserFilterAdapter();
 
   @override
-  Map<String, dynamic> toQueryParams(MockUserFilter query) {
-    return {
-      if (query.name != null) 'name': query.name,
-      if (query.role != null) 'role': query.role,
-    };
+  Map<String, dynamic> toMap(MockUserFilter query) {
+    return <String, dynamic>{}
+        .addIf('name', query.name)
+        .addIf('role', query.role, condition: query.role != 'all');
   }
 }
 

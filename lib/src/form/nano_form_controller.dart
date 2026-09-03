@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../controller/nano_controller.dart';
-import '../state/nano_state.dart';
 import 'nano_form_entity.dart';
 import 'nano_form_state.dart';
 
@@ -13,14 +12,11 @@ abstract class NanoFormController<
   FormEntity extends NanoFormEntity
 >
     extends NanoController<ViewState> {
-  /// Creates a [NanoFormController] with optional initial view state.
-  NanoFormController({ViewState? initialData}) : _initialData = initialData {
-    if (initialData != null) {
-      state = SuccessState<ViewState>(initialData);
-    }
-  }
+  /// Creates a [NanoFormController] with required initial view state.
+  NanoFormController({required super.initialState})
+      : _initialState = initialState;
 
-  final ViewState? _initialData;
+  final ViewState _initialState;
 
   @override
   Future<void> init(String? id) async {}
@@ -29,7 +25,7 @@ abstract class NanoFormController<
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   /// Convenience getter for the active form entity in state.
-  FormEntity? get currentForm => state.data?.form;
+  FormEntity? get currentForm => viewState.form;
 
   /// Validates all form fields associated with [formKey].
   ///
@@ -56,16 +52,11 @@ abstract class NanoFormController<
   /// Resets the form state and visual validation errors back to initial values.
   void reset() {
     formKey.currentState?.reset();
-    if (_initialData != null) {
-      emit(SuccessState<ViewState>(_initialData));
-    }
+    emitLoaded(_initialState);
   }
 
   /// Updates the form view state and emits the new state.
   void updateForm(ViewState Function(ViewState currentState) stateUpdater) {
-    final current = state.data;
-    if (current != null) {
-      emit(SuccessState<ViewState>(stateUpdater(current)));
-    }
+    emitLoaded(stateUpdater(viewState));
   }
 }
