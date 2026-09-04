@@ -55,6 +55,7 @@ class NanoScaffold<
     this.drawer,
     this.footer,
     this.floatingActionButton,
+    this.floatingActionButtonLocation,
     this.backgroundColor,
     this.resizeToAvoidBottomInset,
     this.loadingWidget,
@@ -105,6 +106,9 @@ class NanoScaffold<
   /// Floating action button builder.
   final Widget? Function(BuildContext context, NanoState<ViewState> state)?
   floatingActionButton;
+
+  /// Optional location for the [floatingActionButton].
+  final FloatingActionButtonLocation? floatingActionButtonLocation;
 
   /// Page background color.
   final Color? backgroundColor;
@@ -276,6 +280,7 @@ class _NanoScaffoldState<
       drawer: widget.drawer,
       footer: widget.footer,
       floatingActionButton: widget.floatingActionButton,
+      floatingActionButtonLocation: widget.floatingActionButtonLocation,
       backgroundColor: widget.backgroundColor,
       resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
       loadingWidget: widget.loadingWidget,

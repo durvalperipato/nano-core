@@ -5,6 +5,13 @@ All notable changes to the `nano_core` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.9.0 (2026-09-04)
+
+### Added
+- `NanoShellScaffold`, `NanoShellTab`, and `NanoShellSubView`: Zero-dependency persistent navigation shell scaffold managing primary tabs with keep-alive (`maintainState`), optional contextual sub-views (e.g. notifications/search overlays), persistent floating action buttons, drawers, headers, and automatic back-gesture handling (`enablePopScope`).
+- `NanoShellController`, `NanoShell.of(context)`, and `NanoNavigationExtension` helpers (`context.toTab(...)`, `context.toSubView(...)`, `context.closeSubView()`, `context.currentTab<T>()`): Fluid BuildContext navigation extension to seamlessly switch shell tabs and open/close sub-views without requiring `StatefulWidget` or manual `setState`.
+- `NanoScaffold` & `NanoScaffoldBuilder`: `floatingActionButtonLocation` parameter to customize the positioning of the floating action button (e.g. `FloatingActionButtonLocation.centerFloat`).
+
 ## 0.8.0 (2026-09-04)
 
 ### Breaking Changes

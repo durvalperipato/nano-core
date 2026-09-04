@@ -15,7 +15,9 @@ A lightweight reactive architecture framework and design system toolkit for Flut
 
 - 🔭 **NanoRouteObserver**: Granular navigation observer for screen tracking, Firebase Analytics, Datadog, breadcrumbs, and route lifecycle telemetry.
 
-- 🚀 **NanoScaffold & NanoStateObservable**: Decoupled reactive base page scaffold supporting Web/Desktop headers, mobile AppBars, loading overlays, toasts, fallback messages (`defaultErrorMessage`, `defaultWarningMessage`), and universal state observation (`NanoController`, BLoC, Cubit, MobX adapters).
+- 🚀 **NanoScaffold & NanoStateObservable**: Decoupled reactive base page scaffold supporting Web/Desktop headers, mobile AppBars, drawers, footers, customizable floating action buttons with positioning (`floatingActionButtonLocation`), loading overlays, toasts, fallback messages (`defaultErrorMessage`, `defaultWarningMessage`), and universal state observation (`NanoController`, BLoC, Cubit, MobX adapters).
+
+- 🐚 **NanoShellScaffold, NanoShellTab & NanoShellSubView**: Persistent navigation shell scaffold managing primary tabs with keep-alive (`maintainState`), optional contextual sub-views (e.g. notifications, search overlays), persistent floating action buttons, drawers, and automatic back-gesture handling (`enablePopScope`).
 
 - ⚡ **NanoController & NanoState**: Clean, reactive state management built on `ChangeNotifier` and `ListenableBuilder`.
 
@@ -59,7 +61,9 @@ Add `nano_core` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  nano_core: ^0.8.0
+  flutter:
+    sdk: flutter
+  nano_core: ^0.9.0
 ```
 
 ## Quick Example
@@ -463,7 +467,64 @@ context.toReplacementNamed('login');
 context.back();
 ```
 
-### 5. Type-Safe Search, Query Adapters & Pagination with NanoPaginator
+### 5. Persistent Multi-Tab Navigation with NanoShellScaffold
+
+Zero-dependency persistent shell scaffold managing multi-tab apps with state preservation (`maintainState`), contextual sub-views (e.g. notifications/search overlays), dynamic floating action bars, and system back gesture interception (`enablePopScope`):
+
+```dart
+enum AppTab { home, favorites, profile, settings }
+
+enum AppSubView { searchOverlay }
+
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return NanoShellScaffold<AppTab, AppSubView>(
+      initialTab: AppTab.home,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: (context, controller) {
+        if (controller.isShowingSubView) return null;
+
+        return MyFloatingNavBar(
+          activeTab: controller.currentTab,
+          onTabSelected: controller.selectTab,
+        );
+      },
+      tabs: [
+        NanoShellTab(value: AppTab.home, builder: (_) => const FeedPage()),
+        NanoShellTab(value: AppTab.favorites, builder: (_) => const FavoritesPage()),
+        NanoShellTab(value: AppTab.profile, builder: (_) => const ProfilePage()),
+        NanoShellTab(value: AppTab.settings, builder: (_) => const SettingsPage()),
+      ],
+      subViews: [
+        NanoShellSubView(
+          id: AppSubView.searchOverlay,
+          builder: (_) => const SearchOverlayPage(),
+        ),
+      ],
+    );
+  }
+}
+```
+
+#### Fluid Shell Navigation anywhere via `BuildContext`:
+```dart
+// Switch primary tab fluidly:
+context.toTab(AppTab.favorites);
+
+// Open contextual sub-view:
+context.toSubView(AppSubView.searchOverlay);
+
+// Close active sub-view:
+context.closeSubView();
+
+// Read active tab:
+final currentTab = context.currentTab<AppTab>();
+```
+
+### 6. Type-Safe Search, Query Adapters & Pagination with NanoPaginator
 
 Handle URL query parameter serialization, pagination strategies, and infinite scroll lists with zero boilerplate:
 

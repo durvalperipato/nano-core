@@ -14,4 +14,7 @@ abstract final class AppRouteNames {
 
   /// Login authentication route name.
   static const String login = 'login';
+
+  /// Shell scaffold demo route name.
+  static const String shellDemo = 'shell_demo';
 }
