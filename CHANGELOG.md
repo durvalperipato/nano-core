@@ -26,6 +26,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `NanoOAuthCallback`: Safe OAuth redirect and deep link parser with anti-CSRF state validation (`.fromUri()`, `.fromUrl()`, `isSuccess`, `isValidState()`).
 - `NanoOAuth`: Central utility to construct standardized authorization URLs and token exchange request payloads across all OAuth grant types with zero external dependencies.
 
+### Fixed
+- `NanoScaffold`: Fixed reactive state observation by triggering `setState(() {})` in `_onStateChanged` with `mounted` check, ensuring layouts properly rebuild and dismiss loading overlays when the controller emits new states.
+
 ## 0.7.0 (2026-09-03)
 
 ### Breaking Changes
