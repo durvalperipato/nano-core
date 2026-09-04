@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+
 import '../entity/nano_entity.dart';
 import '../http/nano_http_client.dart';
 import '../storage/nano_storage.dart';
@@ -11,31 +12,27 @@ abstract class NanoAuthRepository<Session extends NanoEntity<dynamic>> {
   /// If [client] or [storage] are omitted, they automatically resolve from
   /// [GetIt].
   const NanoAuthRepository({
-    required this.endpoint,
-    this.tokenKey = defaultTokenKey,
-    this.refreshTokenKey = defaultRefreshTokenKey,
+    this.tokenStorageKey = defaultTokenStorageKey,
+    this.refreshTokenStorageKey = defaultRefreshTokenStorageKey,
     NanoHttpClient? client,
     NanoStorage? storage,
-  }) : _client = client,
-       _storage = storage;
+  })  : _client = client,
+        _storage = storage;
 
   /// Default storage key for authentication access tokens.
-  static const String defaultTokenKey = 'auth_token';
+  static const String defaultTokenStorageKey = 'auth.access_token';
 
   /// Default storage key for refresh tokens.
-  static const String defaultRefreshTokenKey = 'refresh_token';
+  static const String defaultRefreshTokenStorageKey = 'auth.refresh_token';
 
   final NanoHttpClient? _client;
   final NanoStorage? _storage;
 
-  /// The base endpoint URL path for authentication operations (e.g., `/auth`).
-  final String endpoint;
-
   /// Key used to store/retrieve the authentication access token in [storage].
-  final String tokenKey;
+  final String tokenStorageKey;
 
   /// Key used to store/retrieve the refresh token in [storage].
-  final String refreshTokenKey;
+  final String refreshTokenStorageKey;
 
   /// The HTTP client used to perform requests.
   NanoHttpClient get client => _client ?? GetIt.I<NanoHttpClient>();
@@ -46,32 +43,33 @@ abstract class NanoAuthRepository<Session extends NanoEntity<dynamic>> {
       (GetIt.I.isRegistered<NanoStorage>() ? GetIt.I<NanoStorage>() : null);
 
   /// Retrieves the current stored access token.
-  String? get token => storage?.get<String>(tokenKey);
+  String? get token => storage?.get<String>(tokenStorageKey);
 
   /// Retrieves the current stored refresh token.
-  String? get refreshToken => storage?.get<String>(refreshTokenKey);
+  String? get refreshToken => storage?.get<String>(refreshTokenStorageKey);
 
   /// Checks if a non-empty access token is present in [storage].
   bool get isAuthenticated => token != null && token!.isNotEmpty;
 
   /// Saves the access token (and optionally [refreshToken]) to [storage].
   void saveToken(String token, {String? refreshToken}) {
-    storage?.set(tokenKey, token);
+    storage?.set(tokenStorageKey, token);
     if (refreshToken != null && refreshToken.isNotEmpty) {
-      storage?.set(refreshTokenKey, refreshToken);
+      storage?.set(refreshTokenStorageKey, refreshToken);
     }
   }
 
   /// Clears stored authentication and refresh tokens from [storage].
   void clearSession() {
-    storage?.delete(tokenKey);
-    storage?.delete(refreshTokenKey);
+    storage?.delete(tokenStorageKey);
+    storage?.delete(refreshTokenStorageKey);
   }
 
   /// Refreshes the active session using the stored [refreshToken].
   ///
   /// Subclasses should override this method to perform token renewal
-  /// against their backend OAuth/JWT refresh endpoint. Defaults to returning `false`.
+  /// against their backend OAuth/JWT refresh endpoint. Defaults to returning
+  /// `false`.
   Future<bool> refreshSession() async => false;
 
   /// Restores and validates the current active user session.

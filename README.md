@@ -2,6 +2,7 @@
 
 [![Pub Version](https://img.shields.io/pub/v/nano_core)](https://pub.dev/packages/nano_core)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Donate-orange.svg?logo=buy-me-a-coffee)](https://buymeacoffee.com/nanodevs)
 [![Status: Stable](https://img.shields.io/badge/Status-Stable-green.svg)](#)
 
 A lightweight reactive architecture framework and design system toolkit for Flutter multiplatform applications.
@@ -36,7 +37,11 @@ A lightweight reactive architecture framework and design system toolkit for Flut
 
 - 🏷️ **NanoEntity & NanoEquatable**: Base domain entity with unique identification and value-based equality.
 
-- 🪵 **NanoLogger**: Central structured console logger with ANSI styling, severity levels (`debug`, `info`, `success`, `warning`, `error`, `http`), method context tracking, data payloads, and telemetry hooks.
+- 🔐 **NanoOAuth & NanoPkce**: Zero-dependency OAuth 2.0 PKCE toolkit (RFC 7636) with built-in pure-Dart SHA-256 for secure authorization URLs, code challenge generation, token exchange payloads, and anti-CSRF callback parsing.
+
+- 🔑 **NanoAuthRepository**: Pure token and session lifecycle management with symmetrical storage keys, automatic token storage, and session contracts.
+
+- 🪵 **NanoLogger & NanoLogFilter**: Granular structured console logger with type-safe level filtering (`NanoLogFilter`), ANSI styling, method context tracking, and telemetry hooks.
 
 - 💉 **NanoInjections, NanoDefaultInjections & NanoStatePage**: Dependency injection scoping with `GetIt`, default framework services registration (`NanoDefaultInjections.init`), modular composition, and page lifecycle binding.
 
@@ -54,7 +59,7 @@ Add `nano_core` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  nano_core: ^0.7.0
+  nano_core: ^0.8.0
 ```
 
 ## Quick Example
@@ -601,12 +606,11 @@ Standardized base repository for authentication, non-volatile token persistence 
 
 ```dart
 class AuthRepository extends NanoAuthRepository<UserSession> {
-  AuthRepository([super.client, super.storage])
-      : super(endpoint: '/auth');
+  AuthRepository({super.client, super.storage});
 
   Future<bool> signInWithEmail(String email, String password) async {
     final response = await client.post<Map<String, dynamic>>(
-      '$endpoint/login',
+      '/api/v4/auth/login',
       data: {'email': email, 'password': password},
     );
     if (response.isSuccess && response.data != null) {
@@ -621,8 +625,8 @@ class AuthRepository extends NanoAuthRepository<UserSession> {
   Future<bool> refreshSession() async {
     if (refreshToken == null) return false;
     final response = await client.post<Map<String, dynamic>>(
-      '$endpoint/refresh',
-      data: {'refresh_token': refreshToken},
+      '/api/v4/auth/token',
+      data: NanoOAuth.buildRefreshTokenBody(refreshToken: refreshToken!),
     );
     if (response.isSuccess && response.data != null) {
       saveToken(response.data!['token'], refreshToken: response.data!['refresh_token']);
@@ -635,13 +639,57 @@ class AuthRepository extends NanoAuthRepository<UserSession> {
   @override
   Future<UserSession?> restoreSession() async {
     if (!isAuthenticated) return null;
-    final response = await client.get<Map<String, dynamic>>('/users/me');
+    final response = await client.get<Map<String, dynamic>>('/api/v4/user/me');
     return response.data != null ? UserSession.fromJson(response.data!) : null;
   }
 }
 ```
 
-#### 7. Environment & Build Modes (NanoEnvironment)
+#### 7. Modern OAuth 2.0 & PKCE (NanoOAuth & NanoPkce)
+
+Execute cryptographically secure OAuth 2.0 and OpenID Connect authorization flows (Discord, Google, Apple, GitHub, Auth0, Supabase) with built-in RFC 7636 PKCE, anti-CSRF state, and zero external dependencies:
+
+```dart
+// 1. Generate a secure PKCE challenge pair + CSRF state token:
+final pkce = NanoPkce.generate(
+  method: NanoPkceMethod.s256,
+  includeNonce: true, // For OIDC ID Tokens (Apple, Google)
+);
+
+// 2. Build the provider's authorization URI:
+final authorizationUri = NanoOAuth.buildAuthorizationUri(
+  authorizationEndpoint: 'https://discord.com/api/oauth2/authorize',
+  clientId: '123456789',
+  redirectUri: 'myapp://oauth/callback',
+  scopes: ['identify', 'email'],
+  pkce: pkce,
+);
+
+// 3. Open browser/WebAuth and parse the callback redirect:
+final callbackUrl = await FlutterWebAuth2.authenticate(
+  url: authorizationUri.toString(),
+  callbackUrlScheme: 'myapp',
+);
+
+final callback = NanoOAuthCallback.fromUrl(callbackUrl);
+if (!callback.isSuccess || !callback.isValidState(pkce.state)) {
+  throw Exception('OAuth verification failed or CSRF state mismatch.');
+}
+
+// 4. Exchange authorization code for access/refresh tokens:
+final tokenResponse = await dio.post(
+  'https://discord.com/api/oauth2/token',
+  data: NanoOAuth.buildAuthorizationCodeBody(
+    clientId: '123456789',
+    code: callback.code!,
+    redirectUri: 'myapp://oauth/callback',
+    codeVerifier: pkce.codeVerifier,
+  ),
+  options: Options(headers: {'Content-Type': 'application/x-www-form-urlencoded'}),
+);
+```
+
+#### 8. Environment & Build Modes (NanoEnvironment / NanoEnv)
 
 Query compile-time environment flags, automatically detect development vs production releases, and read `--dart-define` variables:
 
@@ -651,11 +699,13 @@ final isProduction = NanoEnvironment.isProduction; // true in release builds
 final isDevelopment = NanoEnvironment.isDevelopment; // true in debug/development builds
 
 // Read strongly-typed compile-time configuration:
-final apiUrl = NanoEnvironment.isProduction
-    ? 'https://api.example.com'
-    : 'https://dev.api.example.com';
-
+final apiUrl = NanoEnvironment.getString('API_URL', defaultValue: 'https://api.example.com');
 final customFlag = NanoEnvironment.getBool('FEATURE_ANALYTICS', defaultValue: true);
+final timeoutSec = NanoEnvironment.getInt('TIMEOUT_SECONDS', defaultValue: 30);
+final threshold = NanoEnvironment.getDouble('THRESHOLD', defaultValue: 1.5);
+
+// Concise alias:
+final sameFlag = NanoEnv.getBool('FEATURE_ANALYTICS');
 ```
 
 #### 8. Durable Storage vs Expiring Cache (NanoStorage & NanoCache)
@@ -859,7 +909,51 @@ NanoForm(
 )
 ```
 
-### 8. Structured Logging with NanoLogger
+### 8. Structured Logging with NanoLogger & NanoLogFilter
+
+Nano Core provides an enterprise-grade structured console logger with ANSI colors, method tracing, execution timestamps, and granular category filtering via `NanoLogFilter`.
+
+#### 🛠️ Initialization & Granular Filtering
+
+Configure logger presets, telemetry hooks, and filters centrally in your `main()` function:
+
+```dart
+void main() {
+  // Central bootstrap configuration:
+  NanoLogger.init(
+    // Choose a preset or custom level list:
+    filter: NanoEnvironment.isDevelopment
+        ? const NanoLogFilter.all()
+        : const NanoLogFilter.onlyErrors(),
+    showTimestamp: true,
+    showColors: true,
+    maxStackTraceLines: 10,
+    onError: (entry) {
+      // Hook errors directly into Firebase Crashlytics, Sentry, or Datadog:
+      FirebaseCrashlytics.instance.recordError(
+        entry.error,
+        entry.stackTrace,
+        reason: entry.message,
+      );
+    },
+  );
+
+  runApp(const MyApp());
+}
+```
+
+#### 🎯 NanoLogFilter Presets
+
+| Filter Preset | Active Levels | Typical Use Case |
+| :--- | :--- | :--- |
+| `NanoLogFilter.all()` | `debug`, `info`, `success`, `warning`, `error`, `http` | Local Development |
+| `NanoLogFilter.onlyErrors()` | `error` | Production / Release Builds |
+| `NanoLogFilter.errorsAndWarnings()` | `warning`, `error` | Staging / QA Builds |
+| `NanoLogFilter.onlyHttp()` | `http` | Network & API Traffic Debugging |
+| `NanoLogFilter.none()` | *None (completely silent)* | Integration & Benchmark Tests |
+| `NanoLogFilter.only([...])` | Custom selection | Custom debugging workflows |
+
+#### 🪵 Logging Events
 
 Log formatted, color-coded, and tagged events with method tracking and data inspection:
 
@@ -898,20 +992,14 @@ NanoLog.error(
   error: exception,
   stackTrace: stackTrace,
 );
+
+// Dynamic runtime filter controls:
+NanoLogger.setFilter(const NanoLogFilter.onlyHttp());
+NanoLogger.disable(); // or NanoLogger.mute()
+NanoLogger.enable();  // or NanoLogger.unmute()
 ```
 
 > **Tip:** You can use `NanoLogger`, `NanoLog`, or `NLog` interchangeably as concise aliases.
-
-Hook errors directly into Crashlytics or Sentry:
-```dart
-NanoLogger.onError = (entry) {
-  FirebaseCrashlytics.instance.recordError(
-    entry.error,
-    entry.stackTrace,
-    reason: entry.message,
-  );
-};
-```
 
 ### 6. Universal State Management (BLoC, Cubit, MobX, GetX, Signals)
 
@@ -1292,6 +1380,26 @@ class LoginInjections extends NanoInjections {
   }
 }
 ```
+
+---
+
+## 💖 Supporting & Sponsoring
+
+`nano_core` is an open-source framework created to elevate architecture, performance, and developer experience in Flutter multiplatform applications. If this framework saved you time or is helping your team, consider supporting its continuous development:
+
+- ⭐ **Star the Project**: Give us a star on [GitHub](https://github.com/durvalperipato/nano-core) to help more developers discover the project!
+- ☕ **Buy Me a Coffee**: Support development via [Buy Me a Coffee](https://buymeacoffee.com/nanodevs)
+- 🔑 **PIX (Brazil)**: `durvalperipatoneto@gmail.com`
+
+---
+
+## 💬 Community, Support & Feedback
+
+- 🐛 **Issue Tracker**: [GitHub Issues](https://github.com/durvalperipato/nano-core/issues)
+- 💡 **Discussions**: [GitHub Discussions](https://github.com/durvalperipato/nano-core/discussions)
+- ✉️ **Direct Contact**: [durvalana8893@gmail.com](mailto:durvalana8893@gmail.com)
+- 🌐 **Website**: [nanodevs.com.br](https://nanodevs.com.br)
+- 💼 **Author**: [Durval Peripato Neto](https://github.com/durvalperipato)
 
 ---
 

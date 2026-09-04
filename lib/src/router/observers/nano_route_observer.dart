@@ -15,8 +15,8 @@ class NanoRouteObserver extends NavigatorObserver {
 
   /// Called whenever the active route changes (push, pop, or replace).
   ///
-  /// Provides the previous route path [from], the new route path [to], and
-  /// any route arguments [args] associated with the destination route.
+  /// Provides the previous route path `from`, the new route path `to`, and
+  /// any route arguments `args` associated with the destination route.
   final void Function(String? from, String? to, NanoRouteArgs args)?
   onRouteChange;
 
