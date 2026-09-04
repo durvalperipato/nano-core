@@ -1,5 +1,7 @@
 import 'package:flutter/widgets.dart';
 
+import '../scaffold/nano_shell.dart';
+
 /// Navigation convenience extensions on [BuildContext].
 extension NanoNavigationExtension on BuildContext {
   /// Navigates to a named route.
@@ -37,6 +39,34 @@ extension NanoNavigationExtension on BuildContext {
 
   /// Retrieves the arguments passed to the current route.
   Object? get routeArgs => ModalRoute.of(this)?.settings.arguments;
+
+  /// Switches the active primary tab in the nearest [NanoShellScaffold].
+  void toTab<TTab extends Enum>(TTab tab) {
+    NanoShell.maybeOf<TTab, Object>(this, listen: false)?.selectTab(tab);
+  }
+
+  /// Opens a contextual sub-view in the nearest [NanoShellScaffold].
+  void toSubView<TSubView>(TSubView subView) {
+    NanoShell.maybeOf<Enum, TSubView>(this, listen: false)?.openSubView(
+      subView,
+    );
+  }
+
+  /// Closes the active contextual sub-view in the nearest [NanoShellScaffold].
+  void closeSubView() {
+    NanoShell.maybeOf<Enum, Object>(this, listen: false)?.closeSubView();
+  }
+
+  /// Retrieves the currently active tab in the nearest [NanoShellScaffold],
+  /// or `null` if none is active or when a sub-view is open.
+  TTab? currentTab<TTab extends Enum>() {
+    final tab =
+        NanoShell.maybeOf<TTab, Object>(
+          this,
+          listen: true,
+        )?.effectiveActiveTab;
+    return tab is TTab ? tab : null;
+  }
 
   /// Internal shortcut to retrieve the [NavigatorState] for this context.
   NavigatorState get _navigator => Navigator.of(this);

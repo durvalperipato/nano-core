@@ -17,6 +17,7 @@ class NanoScaffoldBuilder<ViewState extends NanoViewState>
     this.drawer,
     this.footer,
     this.floatingActionButton,
+    this.floatingActionButtonLocation,
     this.backgroundColor,
     this.resizeToAvoidBottomInset,
     this.loadingWidget,
@@ -53,6 +54,9 @@ class NanoScaffoldBuilder<ViewState extends NanoViewState>
   final Widget? Function(BuildContext context, NanoState<ViewState> state)?
   floatingActionButton;
 
+  /// Optional location for the [floatingActionButton].
+  final FloatingActionButtonLocation? floatingActionButtonLocation;
+
   /// Background color.
   final Color? backgroundColor;
 
@@ -81,6 +85,7 @@ class NanoScaffoldBuilder<ViewState extends NanoViewState>
       drawer: effectiveDrawer,
       bottomNavigationBar: effectiveFooter,
       floatingActionButton: effectiveFab,
+      floatingActionButtonLocation: floatingActionButtonLocation,
       backgroundColor: backgroundColor,
       resizeToAvoidBottomInset: resizeToAvoidBottomInset,
       body: Stack(

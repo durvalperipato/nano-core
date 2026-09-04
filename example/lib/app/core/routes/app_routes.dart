@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nano_core/nano_core.dart';
 import '../../mocks/mock_models.dart';
 import '../../pages/login/login_page.dart';
+import '../../pages/shell_demo/shell_demo_page.dart';
 import '../../pages/showcase/showcase_page.dart';
 import '../../pages/users/subpages/user_detail/user_detail_page.dart';
 import '../../pages/users/users_page.dart';
@@ -65,6 +66,13 @@ final appRouter = NanoRouter(
           ],
         ),
       ],
+    ),
+
+    // Shell scaffold demo interactive page:
+    NanoRoute(
+      name: AppRouteNames.shellDemo,
+      path: AppPaths.shellDemo,
+      builder: (context, args) => const ShellDemoPage(),
     ),
 
     // Alias redirect route:

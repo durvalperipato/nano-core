@@ -22,4 +22,7 @@ abstract final class AppPaths {
 
   /// Authentication page path ('/login').
   static const String login = '/login';
+
+  /// Shell scaffold demo path ('/shell-demo').
+  static const String shellDemo = '/shell-demo';
 }
