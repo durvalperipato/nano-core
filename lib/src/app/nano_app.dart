@@ -4,7 +4,7 @@ import '../router/nano_router.dart';
 /// The root application widget for apps using the nano-core framework.
 ///
 /// Wraps [MaterialApp] and automatically configures [NanoRouter] navigation,
-/// including [navigatorKey], [initialRoute], and [onGenerateRoute].
+/// including navigatorKey, initialRoute, and onGenerateRoute handlers.
 class NanoApp extends StatelessWidget {
   /// Creates a [NanoApp] instance.
   const NanoApp({

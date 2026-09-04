@@ -13,6 +13,13 @@ import 'app/core/routes/app_routes.dart';
 import 'app/core/theme/app_theme.dart';
 
 void main() {
+  // Global structured logging & telemetry configuration
+  NanoLogger.init(
+    filter: NanoEnvironment.isDevelopment
+        ? const NanoLogFilter.all()
+        : const NanoLogFilter.onlyErrors(),
+  );
+
   // Initialize global core injections (HTTP client, global services, etc.)
   AppInjections().initScope();
 

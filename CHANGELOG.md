@@ -5,6 +5,27 @@ All notable changes to the `nano_core` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.8.0-dev
+
+### Breaking Changes
+- `NanoAuthRepository`: Removed required `endpoint` parameter from the constructor to allow provider-specific and action-specific URLs. Renamed `tokenKey` and `refreshTokenKey` to `tokenStorageKey` and `refreshTokenStorageKey` (along with `defaultTokenStorageKey = 'auth.access_token'` and `defaultRefreshTokenStorageKey = 'auth.refresh_token'`) for clear semantic distinction between local storage keys and API payload keys.
+- `NanoLogLevel`: Removed legacy numeric `priority` field in favor of declarative set-based level filtering via `NanoLogFilter`.
+
+### Added
+- `NanoLogFilter`: Granular, type-safe log level filtering with built-in presets (`.all()`, `.none()`, `.onlyErrors()`, `.errorsAndWarnings()`, `.onlyHttp()`, and `.only(...)`).
+- `NanoLogger.init(...)`: Centralized initialization method with named parameters for `filter`, `enabled`, `showTimestamp`, `showColors`, `maxStackTraceLines`, `customPrinter`, and `onError` telemetry hooks.
+- `NanoLogger.setFilter(...)`: Dynamic runtime log filter switcher.
+- `NanoLogger.enable()` / `NanoLogger.disable()`: Expressive helpers to activate/deactivate logger output.
+- `NanoLogger.mute()` / `NanoLogger.unmute()`: Semantic aliases for `disable()` and `enable()`.
+- `NanoLogger.reset()`: Resets all global logger configurations back to their default state.
+- `NanoEnvironment.getDouble(key, {defaultValue})`: Strongly-typed compile-time double parser from `--dart-define` with fallback.
+- `NanoEnv`: Ultra-concise typedef alias for `NanoEnvironment`.
+- `NanoPkce`: Cryptographically secure OAuth 2.0 PKCE generator conforming to RFC 7636 (`codeVerifier`, `codeChallenge`, `state`, `nonce`, `.generate()`, `.createChallenge()`, and `.randomString()`).
+- `NanoPkceMethod`: Supported PKCE code challenge algorithm methods (`.s256` and `.plain`).
+- `NanoOAuthGrantType`: Enumeration of the 5 industry-standard OAuth 2.0 grant types (`authorizationCode`, `refreshToken`, `password`, `clientCredentials`, `deviceCode`).
+- `NanoOAuthCallback`: Safe OAuth redirect and deep link parser with anti-CSRF state validation (`.fromUri()`, `.fromUrl()`, `isSuccess`, `isValidState()`).
+- `NanoOAuth`: Central utility to construct standardized authorization URLs and token exchange request payloads across all OAuth grant types with zero external dependencies.
+
 ## 0.7.0 (2026-09-03)
 
 ### Breaking Changes
