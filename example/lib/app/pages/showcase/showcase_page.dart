@@ -12,6 +12,7 @@ import 'widgets/nano_command_card.dart';
 import 'widgets/navigation_showcase_card.dart';
 import 'widgets/repository_showcase_card.dart';
 import 'widgets/result_showcase_card.dart';
+import 'widgets/shell_scaffold_showcase_card.dart';
 import 'widgets/state_simulator_card.dart';
 import 'widgets/toast_showcase_card.dart';
 import 'widgets/universal_adapter_showcase_card.dart';
@@ -86,6 +87,8 @@ class _ShowcasePageState
               const ToastShowcaseCard(),
               const SizedBox(height: 20),
               const NavigationShowcaseCard(),
+              const SizedBox(height: 20),
+              const ShellScaffoldShowcaseCard(),
               const SizedBox(height: 20),
               const LoggerShowcaseCard(),
               const SizedBox(height: 20),
