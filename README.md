@@ -37,7 +37,11 @@ A lightweight reactive architecture framework and design system toolkit for Flut
 
 - 🏷️ **NanoEntity & NanoEquatable**: Base domain entity with unique identification and value-based equality.
 
-- 🪵 **NanoLogger**: Central structured console logger with ANSI styling, severity levels (`debug`, `info`, `success`, `warning`, `error`, `http`), method context tracking, data payloads, and telemetry hooks.
+- 🔐 **NanoOAuth & NanoPkce**: Zero-dependency OAuth 2.0 PKCE toolkit (RFC 7636) with built-in pure-Dart SHA-256 for secure authorization URLs, code challenge generation, token exchange payloads, and anti-CSRF callback parsing.
+
+- 🔑 **NanoAuthRepository**: Pure token and session lifecycle management with symmetrical storage keys, automatic token storage, and session contracts.
+
+- 🪵 **NanoLogger & NanoLogFilter**: Granular structured console logger with type-safe level filtering (`NanoLogFilter`), ANSI styling, method context tracking, and telemetry hooks.
 
 - 💉 **NanoInjections, NanoDefaultInjections & NanoStatePage**: Dependency injection scoping with `GetIt`, default framework services registration (`NanoDefaultInjections.init`), modular composition, and page lifecycle binding.
 
