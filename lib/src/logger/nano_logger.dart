@@ -1,6 +1,7 @@
 import 'dart:developer' as developer;
 import 'package:flutter/foundation.dart';
 import 'nano_log_entry.dart';
+import 'nano_log_filter.dart';
 import 'nano_log_level.dart';
 
 /// Central structured logger for the nano-core ecosystem.
@@ -11,8 +12,8 @@ abstract final class NanoLogger {
   /// Global master switch for logging. Defaults to [kDebugMode].
   static bool enabled = kDebugMode;
 
-  /// Minimum severity level required for an entry to be logged.
-  static NanoLogLevel minLevel = NanoLogLevel.debug;
+  /// Active log filter determining which levels are emitted.
+  static NanoLogFilter filter = const NanoLogFilter.all();
 
   /// Whether to include timestamps in the formatted output.
   static bool showTimestamp = true;
@@ -31,6 +32,66 @@ abstract final class NanoLogger {
   /// Useful for streaming exceptions to Sentry, Firebase Crashlytics,
   /// or Datadog.
   static void Function(NanoLogEntry entry)? onError;
+
+  /// Initializes and configures global [NanoLogger] settings in a single call.
+  ///
+  /// - [filter]: Granular filter selecting which [NanoLogLevel] entries
+  ///   are emitted.
+  /// - [enabled]: Master switch to enable or disable all logs.
+  ///   Defaults to [kDebugMode].
+  /// - [showTimestamp]: Whether to append timestamp to console outputs.
+  /// - [showColors]: Whether to render ANSI colors in terminal outputs.
+  /// - [maxStackTraceLines]: Maximum stack trace frames to render on errors.
+  ///   Defaults to 10.
+  /// - [customPrinter]: Optional custom printer callback overriding default
+  ///   console output.
+  /// - [onError]: Telemetry hook for warnings and errors (e.g., Sentry,
+  ///   Firebase Crashlytics).
+  static void init({
+    NanoLogFilter? filter,
+    bool? enabled,
+    bool? showTimestamp,
+    bool? showColors,
+    int? maxStackTraceLines,
+    void Function(String formattedMessage)? customPrinter,
+    void Function(NanoLogEntry entry)? onError,
+  }) {
+    if (filter != null) NanoLogger.filter = filter;
+    if (enabled != null) NanoLogger.enabled = enabled;
+    if (showTimestamp != null) NanoLogger.showTimestamp = showTimestamp;
+    if (showColors != null) NanoLogger.showColors = showColors;
+    if (maxStackTraceLines != null) {
+      NanoLogger.maxStackTraceLines = maxStackTraceLines;
+    }
+    if (customPrinter != null) NanoLogger.customPrinter = customPrinter;
+    if (onError != null) NanoLogger.onError = onError;
+  }
+
+  /// Sets the active [NanoLogFilter].
+  static void setFilter(NanoLogFilter newFilter) => filter = newFilter;
+
+  /// Enables all logging outputs.
+  static void enable() => enabled = true;
+
+  /// Disables all logging outputs.
+  static void disable() => enabled = false;
+
+  /// Mutes logging (alias for [disable]).
+  static void mute() => disable();
+
+  /// Unmutes logging (alias for [enable]).
+  static void unmute() => enable();
+
+  /// Resets all [NanoLogger] configurations back to their default values.
+  static void reset() {
+    enabled = kDebugMode;
+    filter = const NanoLogFilter.all();
+    showTimestamp = true;
+    showColors = true;
+    maxStackTraceLines = 10;
+    customPrinter = null;
+    onError = null;
+  }
 
   /// Logs a [NanoLogLevel.debug] diagnostic message.
   static void debug(
@@ -159,8 +220,7 @@ abstract final class NanoLogger {
   }
 
   static void _log(NanoLogEntry entry) {
-    if (!enabled) return;
-    if (entry.level.priority < minLevel.priority) return;
+    if (!enabled || !filter.shouldLog(entry.level)) return;
 
     if (entry.level == NanoLogLevel.error ||
         entry.level == NanoLogLevel.warning) {

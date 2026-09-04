@@ -218,6 +218,8 @@ class _NanoScaffoldState<
 
     final state = controller.state;
 
+    setState(() {});
+
     widget.listener?.call(context, state);
 
     if (state case ErrorState(:final key)) {
