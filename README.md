@@ -11,7 +11,7 @@ A lightweight reactive architecture framework and design system toolkit for Flut
 
 - 📱 **NanoApp**: Zero-boilerplate root application widget automatically configuring `NanoRouter`, `MaterialApp`, themes, and localizations.
 
-- 🧭 **NanoRouter & Declarative Routes**: Intuitive zero-dependency declarative router supporting public routes (`NanoRoute`), custom animated transitions (`NanoAnimatedRoute`), route groups (`NanoGroupRoute`), typed sub-routes (`NanoDetailsRoute<Args>`), access-guarded routes (`NanoProtectedRoute`), and redirects (`NanoRedirectRoute`).
+- 🧭 **NanoRouter & Declarative Routes (NanoRouteBase)**: Intuitive zero-dependency declarative router supporting polymorphic route hierarchies (`NanoRouteBase`), standard routes (`NanoRoute`), persistent tab shells (`NanoShellRoute`), animated transitions (`NanoAnimatedRoute`), route groups (`NanoGroupRoute`), typed sub-routes (`NanoDetailsRoute<Args>`), access-guarded routes (`NanoProtectedRoute`), and redirects (`NanoRedirectRoute`).
 
 - 🔭 **NanoRouteObserver**: Granular navigation observer for screen tracking, Firebase Analytics, Datadog, breadcrumbs, and route lifecycle telemetry.
 
@@ -588,6 +588,37 @@ if (context.shell.isSubViewOpen()) { ... }
 
 // Read active tab:
 final currentTab = context.shell.currentTab<AppTab>();
+```
+
+#### Guarding Shell Routes with `NanoProtectedRoute`:
+Because `NanoRoute` and `NanoShellRoute` extend `NanoRouteBase`, you can guard entire multi-tab shells directly with `NanoProtectedRoute`:
+
+```dart
+final appRouter = NanoRouter(
+  initialRoute: '/home',
+  routes: [
+    NanoRoute(path: '/login', builder: (_, __) => const LoginPage()),
+
+    // Guards the persistent shell and all its tabs:
+    NanoProtectedRoute(
+      hasAccess: (context, args) => AuthService.isAuthenticated,
+      redirectTo: '/login',
+      routes: [
+        NanoShellRoute<AppTab, AppSubView>(
+          path: '/home',
+          builder: (context, controller, body) => HomePage(
+            body: body,
+            controller: controller,
+          ),
+          tabs: [
+            NanoShellTab(value: AppTab.home, builder: (_) => const FeedPage()),
+            NanoShellTab(value: AppTab.profile, builder: (_) => const ProfilePage()),
+          ],
+        ),
+      ],
+    ),
+  ],
+);
 ```
 
 ### 6. Type-Safe Search, Query Adapters & Pagination with NanoPaginator

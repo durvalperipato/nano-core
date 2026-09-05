@@ -28,14 +28,16 @@ void main() {
 
       expect(shellRoute.path, '/dashboard');
 
+      final router = NanoRouter(
+        initialRoute: '/dashboard',
+        shells: [shellRoute],
+      );
+
       await tester.pumpWidget(
         MaterialApp(
-          home: Builder(
-            builder: (context) => shellRoute.builder(
-              context,
-              const NanoRouteArgs(data: '/dashboard'),
-            ),
-          ),
+          navigatorKey: NanoRouter.navigatorKey,
+          onGenerateRoute: router.onGenerateRoute,
+          initialRoute: router.initialRoute,
         ),
       );
 
@@ -66,14 +68,16 @@ void main() {
         ],
       );
 
+      final router = NanoRouter(
+        initialRoute: '/dashboard',
+        shells: [shellRoute],
+      );
+
       await tester.pumpWidget(
         MaterialApp(
-          home: Builder(
-            builder: (context) => shellRoute.builder(
-              context,
-              const NanoRouteArgs(),
-            ),
-          ),
+          navigatorKey: NanoRouter.navigatorKey,
+          onGenerateRoute: router.onGenerateRoute,
+          initialRoute: router.initialRoute,
         ),
       );
 

@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import '../models/nano_route_args.dart';
 import 'nano_route.dart';
+import 'nano_route_base.dart';
 
 /// A declarative route that uses a custom animation transition when
 /// navigated to.
@@ -26,7 +27,7 @@ class NanoAnimatedRoute extends NanoRoute {
     required String path,
     required Widget Function(BuildContext context, NanoRouteArgs args) builder,
     String? name,
-    List<NanoRoute> routes = const [],
+    List<NanoRouteBase> routes = const [],
     Duration duration = const Duration(milliseconds: 300),
     Curve curve = Curves.easeInOut,
   }) {
@@ -52,7 +53,7 @@ class NanoAnimatedRoute extends NanoRoute {
     required String path,
     required Widget Function(BuildContext context, NanoRouteArgs args) builder,
     String? name,
-    List<NanoRoute> routes = const [],
+    List<NanoRouteBase> routes = const [],
     Duration duration = const Duration(milliseconds: 350),
     Curve curve = Curves.easeOutCubic,
   }) {
@@ -79,7 +80,7 @@ class NanoAnimatedRoute extends NanoRoute {
     required String path,
     required Widget Function(BuildContext context, NanoRouteArgs args) builder,
     String? name,
-    List<NanoRoute> routes = const [],
+    List<NanoRouteBase> routes = const [],
     Duration duration = const Duration(milliseconds: 350),
     Curve curve = Curves.easeOutCubic,
   }) {
@@ -106,7 +107,7 @@ class NanoAnimatedRoute extends NanoRoute {
     required String path,
     required Widget Function(BuildContext context, NanoRouteArgs args) builder,
     String? name,
-    List<NanoRoute> routes = const [],
+    List<NanoRouteBase> routes = const [],
     Duration duration = const Duration(milliseconds: 300),
     Curve curve = Curves.easeOutBack,
   }) {

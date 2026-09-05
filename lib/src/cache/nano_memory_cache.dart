@@ -1,5 +1,5 @@
-import 'nano_cache.dart';
 import 'internal/nano_cache_entry.dart';
+import 'nano_cache.dart';
 
 /// An in-memory, thread-safe [NanoCache] implementation with TTL expiration.
 class NanoMemoryCache implements NanoCache {

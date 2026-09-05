@@ -4,37 +4,55 @@ import '../../scaffold/nano_shell_controller.dart';
 import '../../scaffold/nano_shell_scaffold.dart';
 import '../../scaffold/widgets/nano_shell_sub_view.dart';
 import '../../scaffold/widgets/nano_shell_tab.dart';
-import 'nano_route.dart';
+import 'nano_route_base.dart';
 
 /// A declarative shell route for [NanoRouter] that manages persistent primary
 /// tabs and contextual sub-views.
 ///
 /// Use [builder] to wrap the active tab [body] and manage custom navigation
 /// bars, drawers, or layout wrappers (such as sidebars or bottom navs).
-class NanoShellRoute<TTab extends Enum, TSubView> extends NanoRoute {
+class NanoShellRoute<TTab extends Enum, TSubView> extends NanoRouteBase {
   /// Creates a [NanoShellRoute] instance.
   NanoShellRoute({
     required super.path,
-    required List<NanoShellTab<TTab>> tabs,
+    required this.tabs,
     super.name,
-    super.routes,
-    TTab? initialTab,
-    List<NanoShellSubView<TSubView>> subViews = const [],
-    Widget Function(
-      BuildContext context,
-      NanoShellController<TTab, TSubView> controller,
-      Widget body,
-    )?
-    builder,
-    bool enablePopScope = true,
-  }) : super(
-         builder: (context, _) => NanoShellScaffold<TTab, TSubView>(
-           tabs: tabs,
-           initialTab: initialTab,
-           subViews: subViews,
-           builder: builder,
-           enablePopScope: enablePopScope,
-         ),
-       );
+    super.routes = const <NanoRouteBase>[],
+    this.initialTab,
+    this.subViews = const [],
+    this.builder,
+    this.enablePopScope = true,
+  });
+
+  /// The list of primary tabs.
+  final List<NanoShellTab<TTab>> tabs;
+
+  /// The initial tab to select.
+  final TTab? initialTab;
+
+  /// The list of optional contextual sub-views.
+  final List<NanoShellSubView<TSubView>> subViews;
+
+  /// Custom layout wrapper builder.
+  final Widget Function(
+    BuildContext context,
+    NanoShellController<TTab, TSubView> controller,
+    Widget body,
+  )?
+  builder;
+
+  /// Whether to intercept the system back-gesture when a sub-view is open.
+  final bool enablePopScope;
+
+  /// Builds the persistent [NanoShellScaffold] widget for this route.
+  Widget buildWidget(BuildContext context) => NanoShellScaffold<TTab, TSubView>(
+    tabs: tabs,
+    initialTab: initialTab,
+    subViews: subViews,
+    builder: builder,
+    enablePopScope: enablePopScope,
+  );
 }
+
+
 

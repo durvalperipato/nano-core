@@ -7,7 +7,7 @@ import 'routes/nano_animated_route.dart';
 import 'routes/nano_group_route.dart';
 import 'routes/nano_protected_route.dart';
 import 'routes/nano_redirect_route.dart';
-import 'routes/nano_route.dart';
+import 'routes/nano_route_base.dart';
 import 'routes/nano_shell_route.dart';
 import 'widgets/nano_error_page.dart';
 import 'widgets/nano_guarded_page.dart';
@@ -16,8 +16,8 @@ import 'widgets/nano_guarded_page.dart';
 class NanoRouter {
   /// Creates a [NanoRouter] instance.
   NanoRouter({
-    this.routes = const [],
-    this.shells = const [],
+    this.routes = const <NanoRouteBase>[],
+    this.shells = const <NanoShellRoute<dynamic, dynamic>>[],
     this.initialRoute = NanoPaths.root,
     this.errorBuilder,
     this.observers = const [],
@@ -41,7 +41,7 @@ class NanoRouter {
   final String initialRoute;
 
   /// The list of registered top-level routes.
-  final List<NanoRoute> routes;
+  final List<NanoRouteBase> routes;
 
   /// The list of registered persistent shell routes.
   final List<NanoShellRoute<dynamic, dynamic>> shells;
@@ -50,12 +50,12 @@ class NanoRouter {
   final Widget Function(BuildContext context, NanoRouteError error)?
   errorBuilder;
 
-  final Map<String, NanoRoute> _routeMap = {};
+  final Map<String, NanoRouteBase> _routeMap = {};
   final Map<String, String> _nameToPathMap = {};
   final Map<String, List<NanoProtectedRoute>> _routeGuardsMap = {};
 
   void _registerRoute(
-    NanoRoute route,
+    NanoRouteBase route,
     String parentPath,
     List<NanoProtectedRoute> activeGuards,
   ) {

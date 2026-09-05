@@ -78,5 +78,51 @@ void main() {
 
       expect(find.text('Feed Screen'), findsOneWidget);
     });
+
+    testWidgets(
+      'NanoProtectedRoute wraps and guards NanoShellRoute via NanoRouteBase',
+      (tester) async {
+        const hasAccess = false;
+
+        final router = NanoRouter(
+          initialRoute: '/app',
+          routes: [
+            NanoRoute(
+              path: '/login',
+              builder: (context, _) => const Text('Login Screen'),
+            ),
+            NanoProtectedRoute(
+              hasAccess: (context, args) => hasAccess,
+              redirectTo: '/login',
+              routes: [
+                NanoShellRoute<RouterTab, RouterSubView>(
+                  path: '/app',
+                  initialTab: RouterTab.feed,
+                  tabs: [
+                    NanoShellTab(
+                      value: RouterTab.feed,
+                      builder: (context) => const Text('Protected Feed'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        );
+
+        await tester.pumpWidget(
+          MaterialApp(
+            navigatorKey: NanoRouter.navigatorKey,
+            onGenerateRoute: router.onGenerateRoute,
+            initialRoute: router.initialRoute,
+          ),
+        );
+
+        // Access denied -> redirects to /login
+        await tester.pumpAndSettle();
+        expect(find.text('Login Screen'), findsOneWidget);
+        expect(find.text('Protected Feed'), findsNothing);
+      },
+    );
   });
 }
