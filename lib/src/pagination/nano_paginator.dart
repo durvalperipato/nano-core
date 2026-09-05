@@ -8,21 +8,19 @@ import 'nano_pagination.dart';
 
 /// Signature for asynchronous page fetching functions returning either a
 /// [NanoPaginatedResult] or a raw [List].
-typedef NanoPageFetcher<T> = FutureOr<dynamic> Function(
-  NanoPagination pagination,
-);
+typedef NanoPageFetcher<T> =
+    FutureOr<dynamic> Function(NanoPagination pagination);
 
 /// A stateful pagination controller that manages page loading, accumulated
 /// items, next-page progression, total counts, and loading/error states.
 class NanoPaginator<T> extends ChangeNotifier {
   /// Creates a [NanoPaginator] instance.
-  NanoPaginator({
-    required this.fetcher,
-    NanoPagination? initialPagination,
-  }) : _currentPagination = initialPagination ??
-            (GetIt.I.isRegistered<NanoPagination>()
-                ? GetIt.I<NanoPagination>()
-                : const NanoOffsetPagination());
+  NanoPaginator({required this.fetcher, NanoPagination? initialPagination})
+    : _currentPagination =
+          initialPagination ??
+          (GetIt.I.isRegistered<NanoPagination>()
+              ? GetIt.I<NanoPagination>()
+              : const NanoOffsetPagination());
 
   /// The delegate function called to retrieve each page of data.
   final NanoPageFetcher<T> fetcher;

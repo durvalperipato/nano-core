@@ -165,6 +165,5 @@ abstract final class NanoValidator {
   /// Custom inline validator function.
   static NanoValidatorFunction<Value> custom<Value>(
     dynamic Function(Value? value) validatorFn,
-  ) =>
-      validatorFn;
+  ) => validatorFn;
 }

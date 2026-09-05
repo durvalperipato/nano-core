@@ -5,10 +5,6 @@ import 'nano_route.dart';
 /// [routes] without rendering a standalone page of its own.
 class NanoGroupRoute extends NanoRoute {
   /// Creates a [NanoGroupRoute].
-  NanoGroupRoute({
-    required super.path,
-    required super.routes,
-  }) : super(
-         builder: (context, args) => const SizedBox.shrink(),
-       );
+  NanoGroupRoute({required super.path, required super.routes})
+    : super(builder: (context, args) => const SizedBox.shrink());
 }

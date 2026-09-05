@@ -39,7 +39,7 @@ class NanoCursorPagination implements NanoPagination {
 
   @override
   Map<String, dynamic> toQueryParams() => {
-        if (cursor != null && cursor!.isNotEmpty) cursorKey: cursor,
-        limitKey: limit,
-      };
+    if (cursor != null && cursor!.isNotEmpty) cursorKey: cursor,
+    limitKey: limit,
+  };
 }

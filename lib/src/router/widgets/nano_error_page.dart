@@ -4,11 +4,7 @@ import '../models/nano_route_error.dart';
 /// The default error and not-found page displayed by [NanoRouter].
 class NanoErrorPage extends StatelessWidget {
   /// Creates a [NanoErrorPage] widget.
-  const NanoErrorPage({
-    required this.error,
-    this.errorBuilder,
-    super.key,
-  });
+  const NanoErrorPage({required this.error, this.errorBuilder, super.key});
 
   /// The route error payload.
   final NanoRouteError error;

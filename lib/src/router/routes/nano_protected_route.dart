@@ -13,9 +13,7 @@ class NanoProtectedRoute extends NanoRoute {
     required this.redirectTo,
     required super.routes,
     super.path = '',
-  }) : super(
-         builder: (context, args) => const SizedBox.shrink(),
-       );
+  }) : super(builder: (context, args) => const SizedBox.shrink());
 
   /// Evaluates whether the user has access to view routes wrapped by this
   /// guard.

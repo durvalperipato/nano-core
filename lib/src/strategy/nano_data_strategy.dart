@@ -35,10 +35,7 @@ abstract class NanoDataStrategy {
   /// Custom strategy delegating to a custom extractor function.
   const factory NanoDataStrategy.custom({
     required dynamic Function(dynamic rawData) listExtractor,
-    NanoPaginationMeta Function(
-      dynamic rawData,
-      Map<String, dynamic>? headers,
-    )?
+    NanoPaginationMeta Function(dynamic rawData, Map<String, dynamic>? headers)?
     metaExtractor,
   }) = CustomDataStrategy;
 

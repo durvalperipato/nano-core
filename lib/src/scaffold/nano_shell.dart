@@ -7,10 +7,10 @@ import 'nano_shell_controller.dart';
 abstract final class NanoShell {
   /// Obtains the [NanoShellController] from the nearest [NanoShellScaffold]
   /// ancestor.
-  static NanoShellController<TTab, TSubView> of<
-    TTab extends Enum,
-    TSubView
-  >(BuildContext context, {bool listen = true}) {
+  static NanoShellController<TTab, TSubView> of<TTab extends Enum, TSubView>(
+    BuildContext context, {
+    bool listen = true,
+  }) {
     final controller = maybeOf<TTab, TSubView>(context, listen: listen);
     assert(
       controller != null,

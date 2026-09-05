@@ -467,15 +467,79 @@ context.toReplacementNamed('login');
 context.back();
 ```
 
-### 5. Persistent Multi-Tab Navigation with NanoShellScaffold
+### 5. Persistent Multi-Tab Navigation (NanoShellRoute & NanoShellScaffold)
 
-Zero-dependency persistent shell scaffold managing multi-tab apps with state preservation (`maintainState`), contextual sub-views (e.g. notifications/search overlays), dynamic floating action bars, and system back gesture interception (`enablePopScope`):
+Zero-dependency persistent shell scaffold managing multi-tab apps with state preservation (`maintainState`), contextual sub-views (e.g. notifications/search overlays), dynamic floating action bars, and system back gesture interception (`enablePopScope`).
+
+`nano_core` gives you the flexibility to choose between two elegant approaches:
+
+#### Approach A: Declarative Shell in `NanoRouter` via `NanoShellRoute` (Recommended)
+Register persistent shells cleanly in `NanoRouter` via `shells:` (or `routes:`), delegating layout to your page widget without leaking UI scaffolding into router tables:
 
 ```dart
 enum AppTab { home, favorites, profile, settings }
-
 enum AppSubView { searchOverlay }
 
+final appRouter = NanoRouter(
+  initialRoute: '/home',
+  routes: [
+    NanoRoute(path: '/login', builder: (_, __) => const LoginPage()),
+  ],
+  shells: [
+    NanoShellRoute<AppTab, AppSubView>(
+      path: '/home',
+      name: 'home',
+      initialTab: AppTab.home,
+      builder: (context, controller, body) => HomePage(
+        body: body,
+        controller: controller,
+      ),
+      tabs: [
+        NanoShellTab(value: AppTab.home, builder: (_) => const FeedPage()),
+        NanoShellTab(value: AppTab.favorites, builder: (_) => const FavoritesPage()),
+        NanoShellTab(value: AppTab.profile, builder: (_) => const ProfilePage()),
+        NanoShellTab(value: AppTab.settings, builder: (_) => const SettingsPage()),
+      ],
+      subViews: [
+        NanoShellSubView(
+          id: AppSubView.searchOverlay,
+          builder: (_) => const SearchOverlayPage(),
+        ),
+      ],
+    ),
+  ],
+);
+```
+
+Where your `HomePage` is a clean, encapsulated widget:
+
+```dart
+class HomePage extends StatelessWidget {
+  final Widget body;
+  final NanoShellController<AppTab, AppSubView> controller;
+
+  const HomePage({required this.body, required this.controller, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: controller.isShowingSubView
+          ? null
+          : MyFloatingNavBar(
+              activeTab: controller.currentTab,
+              onTabSelected: controller.selectTab,
+            ),
+      body: body,
+    );
+  }
+}
+```
+
+#### Approach B: Modular Page Widget via `NanoShellScaffold`
+Prefer building a standalone widget page? Use `NanoShellScaffold` directly:
+
+```dart
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
@@ -486,7 +550,6 @@ class HomePage extends StatelessWidget {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: (context, controller) {
         if (controller.isShowingSubView) return null;
-
         return MyFloatingNavBar(
           activeTab: controller.currentTab,
           onTabSelected: controller.selectTab,
@@ -512,16 +575,19 @@ class HomePage extends StatelessWidget {
 #### Fluid Shell Navigation anywhere via `BuildContext`:
 ```dart
 // Switch primary tab fluidly:
-context.toTab(AppTab.favorites);
+context.shell.selectTab(AppTab.favorites);
 
 // Open contextual sub-view:
-context.toSubView(AppSubView.searchOverlay);
+context.shell.openSubView(AppSubView.searchOverlay);
 
 // Close active sub-view:
-context.closeSubView();
+context.shell.closeSubView();
+
+// Check if a sub-view is open:
+if (context.shell.isSubViewOpen()) { ... }
 
 // Read active tab:
-final currentTab = context.currentTab<AppTab>();
+final currentTab = context.shell.currentTab<AppTab>();
 ```
 
 ### 6. Type-Safe Search, Query Adapters & Pagination with NanoPaginator

@@ -30,7 +30,7 @@ class ShellDemoPage extends StatelessWidget {
             icon: const Icon(Icons.notifications_outlined),
             tooltip: 'Open Sub-View (Notifications)',
             onPressed: () {
-              context.toSubView(ShellDemoSubView.notifications);
+              context.shell.openSubView(ShellDemoSubView.notifications);
             },
           ),
         ],
@@ -192,7 +192,7 @@ class _DemoAnalyticsView extends StatelessWidget {
             const SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: () {
-                context.toSubView(ShellDemoSubView.notifications);
+                context.shell.openSubView(ShellDemoSubView.notifications);
               },
               icon: const Icon(Icons.notifications),
               label: const Text('Open Contextual Sub-View'),
@@ -257,7 +257,7 @@ class _DemoNotificationsSubView extends StatelessWidget {
               const SizedBox(height: 24),
               ElevatedButton.icon(
                 onPressed: () {
-                  context.closeSubView();
+                  context.shell.closeSubView();
                 },
                 icon: const Icon(Icons.close),
                 label: const Text('Close Sub-View'),

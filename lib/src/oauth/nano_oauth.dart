@@ -58,9 +58,9 @@ abstract final class NanoOAuth {
       queryParams.addAll(extraParameters);
     }
 
-    return Uri.parse(authorizationEndpoint).replace(
-      queryParameters: queryParams,
-    );
+    return Uri.parse(
+      authorizationEndpoint,
+    ).replace(queryParameters: queryParams);
   }
 
   /// Builds a standard `application/x-www-form-urlencoded` payload to exchange

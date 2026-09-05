@@ -10,8 +10,9 @@ import 'widgets/nano_shell_tab.dart';
 ///
 /// Manages persistent primary tabs ([tabs]), optional contextual sub-views
 /// ([subViews]), persistent floating action buttons ([floatingActionButton]),
-/// drawers, and headers without tearing down or rebuilding routes during tab
-/// switches.
+/// bottom navigation bars ([bottomNavigationBar]), custom layout wrappers
+/// ([builder]), drawers, and headers without tearing down or rebuilding
+/// routes during tab switches.
 ///
 /// Can be used in self-managed mode with [initialTab] (zero `setState`
 /// required), or controlled externally via [controller] / [currentTab].
@@ -28,6 +29,8 @@ class NanoShellScaffold<TTab extends Enum, TSubView> extends StatefulWidget {
     this.onSubViewChanged,
     this.floatingActionButton,
     this.floatingActionButtonLocation,
+    this.bottomNavigationBar,
+    this.builder,
     this.drawer,
     this.endDrawer,
     this.header,
@@ -71,6 +74,22 @@ class NanoShellScaffold<TTab extends Enum, TSubView> extends StatefulWidget {
 
   /// The location of the floating action button.
   final FloatingActionButtonLocation? floatingActionButtonLocation;
+
+  /// Custom builder for the persistent bottom navigation bar.
+  final Widget? Function(
+    BuildContext context,
+    NanoShellController<TTab, TSubView> controller,
+  )?
+  bottomNavigationBar;
+
+  /// Optional custom layout wrapper builder receiving the [context],
+  /// [controller], and the [body] widget (containing tabs and sub-views).
+  final Widget Function(
+    BuildContext context,
+    NanoShellController<TTab, TSubView> controller,
+    Widget body,
+  )?
+  builder;
 
   /// Optional side drawer.
   final WidgetBuilder? drawer;
@@ -119,11 +138,29 @@ class _NanoShellScaffoldState<TTab extends Enum, TSubView>
       _controller = widget.controller!;
       _createdInternalController = false;
     } else {
+      final resolvedInitialTab =
+          widget.currentTab ??
+          widget.initialTab ??
+          widget.tabs.firstOrNull?.value;
+
+      if (resolvedInitialTab != null) {
+        assert(
+          widget.tabs.any((t) => t.value == resolvedInitialTab),
+          'NanoShellScaffold: The initial tab "$resolvedInitialTab" '
+          'was not registered in "tabs".',
+        );
+      }
+
+      if (widget.activeSubView != null) {
+        assert(
+          widget.subViews.any((s) => s.id == widget.activeSubView),
+          'NanoShellScaffold: The initial activeSubView '
+          '"${widget.activeSubView}" was not registered in "subViews".',
+        );
+      }
+
       _controller = NanoShellController<TTab, TSubView>(
-        initialTab:
-            widget.currentTab ??
-            widget.initialTab ??
-            widget.tabs.firstOrNull?.value,
+        initialTab: resolvedInitialTab,
         initialSubView: widget.activeSubView,
       );
       _createdInternalController = true;
@@ -177,6 +214,11 @@ class _NanoShellScaffoldState<TTab extends Enum, TSubView>
       final subIndex = widget.subViews.indexWhere(
         (s) => s.id == controller.activeSubView,
       );
+      assert(
+        subIndex != -1,
+        'NanoShellScaffold: The requested sub-view '
+        '"${controller.activeSubView}" was not registered in "subViews".',
+      );
       if (subIndex != -1) {
         return widget.tabs.length + subIndex;
       }
@@ -185,6 +227,11 @@ class _NanoShellScaffoldState<TTab extends Enum, TSubView>
     if (controller.currentTab != null) {
       final tabIndex = widget.tabs.indexWhere(
         (t) => t.value == controller.currentTab,
+      );
+      assert(
+        tabIndex != -1,
+        'NanoShellScaffold: The requested tab "${controller.currentTab}" '
+        'was not registered in "tabs".',
       );
       if (tabIndex != -1) return tabIndex;
     }
@@ -226,6 +273,10 @@ class _NanoShellScaffoldState<TTab extends Enum, TSubView>
             );
           }
 
+          if (widget.builder != null) {
+            return widget.builder!(context, _controller, bodyContent);
+          }
+
           return Scaffold(
             backgroundColor: widget.backgroundColor,
             resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
@@ -238,6 +289,10 @@ class _NanoShellScaffoldState<TTab extends Enum, TSubView>
                 : null,
             floatingActionButtonLocation: widget.floatingActionButtonLocation,
             floatingActionButton: widget.floatingActionButton?.call(
+              context,
+              _controller,
+            ),
+            bottomNavigationBar: widget.bottomNavigationBar?.call(
               context,
               _controller,
             ),

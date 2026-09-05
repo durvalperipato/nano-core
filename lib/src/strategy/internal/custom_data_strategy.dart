@@ -4,10 +4,7 @@ import '../nano_data_strategy.dart';
 /// functions.
 class CustomDataStrategy extends NanoDataStrategy {
   /// Creates a [CustomDataStrategy] instance.
-  const CustomDataStrategy({
-    required this.listExtractor,
-    this.metaExtractor,
-  });
+  const CustomDataStrategy({required this.listExtractor, this.metaExtractor});
 
   /// Custom list extractor function.
   final dynamic Function(dynamic rawData) listExtractor;
@@ -26,8 +23,7 @@ class CustomDataStrategy extends NanoDataStrategy {
   NanoPaginationMeta extractMeta(
     dynamic rawData,
     Map<String, dynamic>? headers,
-  ) =>
-      metaExtractor != null
-          ? metaExtractor!(rawData, headers)
-          : const NanoPaginationMeta();
+  ) => metaExtractor != null
+      ? metaExtractor!(rawData, headers)
+      : const NanoPaginationMeta();
 }

@@ -152,8 +152,7 @@ class _NanoTextFieldState extends State<NanoTextField> {
         AutovalidateMode.onUserInteraction,
       NanoAutoValidateMode.onSubmit ||
       NanoAutoValidateMode.onFocusLost ||
-      NanoAutoValidateMode.disabled =>
-        AutovalidateMode.disabled,
+      NanoAutoValidateMode.disabled => AutovalidateMode.disabled,
     };
   }
 
@@ -194,9 +193,7 @@ class _NanoTextFieldState extends State<NanoTextField> {
           prefixIcon: widget.prefixIcon,
           suffixIcon: effectiveSuffixIcon,
           filled: true,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         );
 
         return TextField(

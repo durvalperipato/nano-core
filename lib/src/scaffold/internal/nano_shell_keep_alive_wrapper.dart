@@ -21,8 +21,7 @@ class NanoShellKeepAliveWrapper extends StatefulWidget {
       _NanoShellKeepAliveWrapperState();
 }
 
-class _NanoShellKeepAliveWrapperState
-    extends State<NanoShellKeepAliveWrapper>
+class _NanoShellKeepAliveWrapperState extends State<NanoShellKeepAliveWrapper>
     with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => widget.maintainState;

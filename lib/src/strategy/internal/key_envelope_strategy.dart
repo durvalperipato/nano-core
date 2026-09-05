@@ -34,9 +34,7 @@ class KeyEnvelopeStrategy extends NanoDataStrategy {
 
     final meta = rawData[metaKey];
     if (meta is Map) {
-      return NanoPaginationMeta(
-        meta: Map<String, dynamic>.from(meta),
-      );
+      return NanoPaginationMeta(meta: Map<String, dynamic>.from(meta));
     }
     return const NanoPaginationMeta();
   }

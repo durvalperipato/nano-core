@@ -68,10 +68,7 @@ class NanoAnimatedRoute extends NanoRoute {
           end: Offset.zero,
         ).chain(CurveTween(curve: curve));
 
-        return SlideTransition(
-          position: animation.drive(tween),
-          child: child,
-        );
+        return SlideTransition(position: animation.drive(tween), child: child);
       },
       builder: builder,
     );
@@ -98,10 +95,7 @@ class NanoAnimatedRoute extends NanoRoute {
           end: Offset.zero,
         ).chain(CurveTween(curve: curve));
 
-        return SlideTransition(
-          position: animation.drive(tween),
-          child: child,
-        );
+        return SlideTransition(position: animation.drive(tween), child: child);
       },
       builder: builder,
     );
@@ -128,10 +122,7 @@ class NanoAnimatedRoute extends NanoRoute {
           end: 1.0,
         ).animate(CurvedAnimation(parent: animation, curve: curve));
 
-        return ScaleTransition(
-          scale: scaleAnimation,
-          child: child,
-        );
+        return ScaleTransition(scale: scaleAnimation, child: child);
       },
       builder: builder,
     );
