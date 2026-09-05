@@ -14,7 +14,7 @@ abstract class NanoFormController<
     extends NanoController<ViewState> {
   /// Creates a [NanoFormController] with required initial view state.
   NanoFormController({required super.initialState})
-      : _initialState = initialState;
+    : _initialState = initialState;
 
   final ViewState _initialState;
 

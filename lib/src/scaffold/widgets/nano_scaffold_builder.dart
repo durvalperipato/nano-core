@@ -93,9 +93,7 @@ class NanoScaffoldBuilder<ViewState extends NanoViewState>
           builder(context, state),
           ?connectivityWidget,
           if (state is LoadingState)
-            Positioned.fill(
-              child: loadingWidget ?? const NanoLoadingOverlay(),
-            ),
+            Positioned.fill(child: loadingWidget ?? const NanoLoadingOverlay()),
         ],
       ),
     );

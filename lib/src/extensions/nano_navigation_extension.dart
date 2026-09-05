@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-import '../scaffold/nano_shell.dart';
+import '../scaffold/nano_shell_context.dart';
 
 /// Navigation convenience extensions on [BuildContext].
 extension NanoNavigationExtension on BuildContext {
@@ -40,33 +40,37 @@ extension NanoNavigationExtension on BuildContext {
   /// Retrieves the arguments passed to the current route.
   Object? get routeArgs => ModalRoute.of(this)?.settings.arguments;
 
+  /// Accesses actions and state of the nearest [NanoShellScaffold].
+  NanoShellContext get shell => NanoShellContext(this);
+
   /// Switches the active primary tab in the nearest [NanoShellScaffold].
-  void toTab<TTab extends Enum>(TTab tab) {
-    NanoShell.maybeOf<TTab, Object>(this, listen: false)?.selectTab(tab);
-  }
+  // TODO(cleanup): Remove in version 1.2.0
+  @Deprecated(
+    'Use context.shell.selectTab(tab) instead. Will be removed in 1.2.0.',
+  )
+  void toTab<TTab extends Enum>(TTab tab) => shell.selectTab(tab);
 
   /// Opens a contextual sub-view in the nearest [NanoShellScaffold].
-  void toSubView<TSubView>(TSubView subView) {
-    NanoShell.maybeOf<Enum, TSubView>(this, listen: false)?.openSubView(
-      subView,
-    );
-  }
+  // TODO(cleanup): Remove in version 1.2.0
+  @Deprecated(
+    'Use context.shell.openSubView(subView) instead. Will be removed in 1.2.0.',
+  )
+  void toSubView<TSubView>(TSubView subView) => shell.openSubView(subView);
 
   /// Closes the active contextual sub-view in the nearest [NanoShellScaffold].
-  void closeSubView() {
-    NanoShell.maybeOf<Enum, Object>(this, listen: false)?.closeSubView();
-  }
+  // TODO(cleanup): Remove in version 1.2.0
+  @Deprecated(
+    'Use context.shell.closeSubView() instead. Will be removed in 1.2.0.',
+  )
+  void closeSubView() => shell.closeSubView();
 
   /// Retrieves the currently active tab in the nearest [NanoShellScaffold],
   /// or `null` if none is active or when a sub-view is open.
-  TTab? currentTab<TTab extends Enum>() {
-    final tab =
-        NanoShell.maybeOf<TTab, Object>(
-          this,
-          listen: true,
-        )?.effectiveActiveTab;
-    return tab is TTab ? tab : null;
-  }
+  // TODO(cleanup): Remove in version 1.2.0
+  @Deprecated(
+    'Use context.shell.currentTab<T>() instead. Will be removed in 1.2.0.',
+  )
+  TTab? currentTab<TTab extends Enum>() => shell.currentTab<TTab>();
 
   /// Internal shortcut to retrieve the [NavigatorState] for this context.
   NavigatorState get _navigator => Navigator.of(this);

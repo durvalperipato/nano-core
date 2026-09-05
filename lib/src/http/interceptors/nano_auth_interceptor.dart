@@ -60,8 +60,9 @@ class NanoAuthInterceptor implements NanoHttpInterceptor {
 
     if (token != null && token.isNotEmpty) {
       final updatedHeaders = Map<String, dynamic>.from(request.headers);
-      updatedHeaders[headerName] =
-          headerPrefix.isNotEmpty ? '$headerPrefix $token' : token;
+      updatedHeaders[headerName] = headerPrefix.isNotEmpty
+          ? '$headerPrefix $token'
+          : token;
       return request.copyWith(headers: updatedHeaders);
     }
 

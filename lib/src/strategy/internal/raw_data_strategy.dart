@@ -19,12 +19,15 @@ class RawDataStrategy extends NanoDataStrategy {
     final pageStr = headers['x-page'] ?? headers['x-current-page'];
     final pagesStr = headers['x-total-pages'];
 
-    final totalCount =
-        totalStr != null ? int.tryParse(totalStr.toString()) : null;
-    final currentPage =
-        pageStr != null ? int.tryParse(pageStr.toString()) : null;
-    final totalPages =
-        pagesStr != null ? int.tryParse(pagesStr.toString()) : null;
+    final totalCount = totalStr != null
+        ? int.tryParse(totalStr.toString())
+        : null;
+    final currentPage = pageStr != null
+        ? int.tryParse(pageStr.toString())
+        : null;
+    final totalPages = pagesStr != null
+        ? int.tryParse(pagesStr.toString())
+        : null;
 
     final hasNext = (currentPage != null && totalPages != null)
         ? currentPage < totalPages

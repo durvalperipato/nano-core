@@ -6,10 +6,7 @@ import '../nano_view_state.dart';
 
 /// A generic reactive adapter bridging any [Stream] (such as BLoC, Cubit,
 /// RxDart, or WebSocket streams) into a [NanoStateObservable].
-class NanoStreamAdapter<
-  ViewState extends NanoViewState,
-  StreamEvent
->
+class NanoStreamAdapter<ViewState extends NanoViewState, StreamEvent>
     extends ChangeNotifier
     implements NanoStateObservable<ViewState> {
   /// Creates a [NanoStreamAdapter] instance.
@@ -17,8 +14,8 @@ class NanoStreamAdapter<
     required Stream<StreamEvent> stream,
     required NanoState<ViewState> initialState,
     NanoState<ViewState> Function(StreamEvent event)? mapper,
-  })  : _state = initialState,
-        _mapper = mapper {
+  }) : _state = initialState,
+       _mapper = mapper {
     _subscription = stream.listen(
       (event) {
         if (_mapper != null) {

@@ -7,9 +7,7 @@ import 'nano_http_response.dart';
 /// (e.g., Dio, Http) without affecting the rest of the application.
 abstract class NanoHttpClient {
   /// Creates a [NanoHttpClient] instance with optional initial [interceptors].
-  const NanoHttpClient({
-    this.interceptors = const [],
-  });
+  const NanoHttpClient({this.interceptors = const []});
 
   /// The list of registered HTTP interceptors.
   final List<NanoHttpInterceptor> interceptors;

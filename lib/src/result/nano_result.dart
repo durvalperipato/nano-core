@@ -22,44 +22,41 @@ sealed class NanoResult<Success, Failure> {
 
   /// Returns the success data if available, or `null` otherwise.
   Success? get dataOrNull => switch (this) {
-        NanoSuccess(:final data) => data,
-        NanoFailure() => null,
-      };
+    NanoSuccess(:final data) => data,
+    NanoFailure() => null,
+  };
 
   /// Returns the failure error if available, or `null` otherwise.
   Failure? get errorOrNull => switch (this) {
-        NanoSuccess() => null,
-        NanoFailure(:final error) => error,
-      };
+    NanoSuccess() => null,
+    NanoFailure(:final error) => error,
+  };
 
   /// Executes [onSuccess] if this is a success or [onFailure] if this is a
   /// failure, returning the resulting value of type [ResultType].
   ResultType fold<ResultType>({
     required ResultType Function(Success data) onSuccess,
     required ResultType Function(Failure error) onFailure,
-  }) =>
-      switch (this) {
-        NanoSuccess(:final data) => onSuccess(data),
-        NanoFailure(:final error) => onFailure(error),
-      };
+  }) => switch (this) {
+    NanoSuccess(:final data) => onSuccess(data),
+    NanoFailure(:final error) => onFailure(error),
+  };
 
   /// Transforms the success value [data] using [fn], preserving failures.
   NanoResult<NewSuccess, Failure> map<NewSuccess>(
     NewSuccess Function(Success data) fn,
-  ) =>
-      switch (this) {
-        NanoSuccess(:final data) => NanoResult.success(fn(data)),
-        NanoFailure(:final error) => NanoResult.failure(error),
-      };
+  ) => switch (this) {
+    NanoSuccess(:final data) => NanoResult.success(fn(data)),
+    NanoFailure(:final error) => NanoResult.failure(error),
+  };
 
   /// Transforms the failure value [error] using [fn], preserving successes.
   NanoResult<Success, NewFailure> mapError<NewFailure>(
     NewFailure Function(Failure error) fn,
-  ) =>
-      switch (this) {
-        NanoSuccess(:final data) => NanoResult.success(data),
-        NanoFailure(:final error) => NanoResult.failure(fn(error)),
-      };
+  ) => switch (this) {
+    NanoSuccess(:final data) => NanoResult.success(data),
+    NanoFailure(:final error) => NanoResult.failure(fn(error)),
+  };
 
   /// Safely executes an asynchronous [computation], returning [NanoSuccess]
   /// with the result or [NanoFailure] with the caught [Object] exception.
@@ -76,9 +73,7 @@ sealed class NanoResult<Success, Failure> {
 
   /// Safely executes a synchronous [computation], returning [NanoSuccess]
   /// with the result or [NanoFailure] with the caught [Object] exception.
-  static NanoResult<T, Object> run<T>(
-    T Function() computation,
-  ) {
+  static NanoResult<T, Object> run<T>(T Function() computation) {
     try {
       final data = computation();
       return NanoResult.success(data);

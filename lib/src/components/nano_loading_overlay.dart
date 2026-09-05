@@ -26,7 +26,8 @@ class NanoLoadingOverlay extends StatelessWidget {
     return ColoredBox(
       color: backgroundColor,
       child: Center(
-        child: child ??
+        child:
+            child ??
             CircularProgressIndicator.adaptive(
               valueColor: indicatorColor != null
                   ? AlwaysStoppedAnimation<Color>(indicatorColor!)

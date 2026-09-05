@@ -2,10 +2,7 @@
 /// expiration timestamp.
 class NanoCacheEntry {
   /// Creates a [NanoCacheEntry] instance.
-  const NanoCacheEntry({
-    required this.value,
-    this.expiresAt,
-  });
+  const NanoCacheEntry({required this.value, this.expiresAt});
 
   /// The cached data payload.
   final dynamic value;

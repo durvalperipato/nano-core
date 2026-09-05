@@ -12,11 +12,7 @@ import 'nano_repository.dart';
 /// Extends [NanoRepository] by using a dedicated [NanoWriteAdapter] to
 /// serialize query/filter objects of type [Query] into URL query parameter
 /// maps via [NanoWriteAdapter.toMap].
-abstract class NanoSearchRepository<
-  Entity extends NanoEntity<Id>,
-  Id,
-  Query
->
+abstract class NanoSearchRepository<Entity extends NanoEntity<Id>, Id, Query>
     extends NanoRepository<Entity, Id> {
   /// Creates a [NanoSearchRepository] instance.
   const NanoSearchRepository({
