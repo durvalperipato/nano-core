@@ -63,7 +63,7 @@ Add `nano_core` to your `pubspec.yaml`:
 dependencies:
   flutter:
     sdk: flutter
-  nano_core: ^0.9.0
+  nano_core: ^0.9.1
 ```
 
 ## Quick Example
