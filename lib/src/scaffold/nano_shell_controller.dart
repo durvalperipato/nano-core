@@ -5,11 +5,9 @@ import 'internal/nano_shell_controller_base.dart';
 class NanoShellController<TTab extends Enum, TSubView>
     extends NanoShellControllerBase {
   /// Creates a [NanoShellController] instance.
-  NanoShellController({
-    TTab? initialTab,
-    TSubView? initialSubView,
-  })  : _currentTab = initialTab,
-        _activeSubView = initialSubView;
+  NanoShellController({TTab? initialTab, TSubView? initialSubView})
+    : _currentTab = initialTab,
+      _activeSubView = initialSubView;
 
   TTab? _currentTab;
   TSubView? _activeSubView;

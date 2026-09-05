@@ -169,10 +169,7 @@ class _NanoPaginatedListViewState<T> extends State<NanoPaginatedListView<T>> {
         );
 
         if (widget.enablePullToRefresh) {
-          list = RefreshIndicator(
-            onRefresh: paginator.refresh,
-            child: list,
-          );
+          list = RefreshIndicator(onRefresh: paginator.refresh, child: list);
         }
 
         return list;

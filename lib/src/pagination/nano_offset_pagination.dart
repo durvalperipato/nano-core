@@ -38,8 +38,5 @@ class NanoOffsetPagination implements NanoPagination {
   }
 
   @override
-  Map<String, dynamic> toQueryParams() => {
-        pageKey: page,
-        sizeKey: pageSize,
-      };
+  Map<String, dynamic> toQueryParams() => {pageKey: page, sizeKey: pageSize};
 }

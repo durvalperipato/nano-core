@@ -12,8 +12,8 @@ class NanoListenableAdapter<ViewState extends NanoViewState>
   NanoListenableAdapter({
     required Listenable listenable,
     required NanoState<ViewState> Function() stateGetter,
-  })  : _listenable = listenable,
-        _stateGetter = stateGetter {
+  }) : _listenable = listenable,
+       _stateGetter = stateGetter {
     _listenable.addListener(_onListenableChanged);
   }
 

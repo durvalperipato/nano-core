@@ -18,19 +18,15 @@ class NanoShellScope extends InheritedNotifier<NanoShellControllerBase> {
   static NanoShellController<TTab, TSubView>? maybeOf<
     TTab extends Enum,
     TSubView
-  >(
-    BuildContext context, {
-    bool listen = true,
-  }) {
+  >(BuildContext context, {bool listen = true}) {
     if (listen) {
-      final scope =
-          context.dependOnInheritedWidgetOfExactType<NanoShellScope>();
+      final scope = context
+          .dependOnInheritedWidgetOfExactType<NanoShellScope>();
       return scope?.notifier as NanoShellController<TTab, TSubView>?;
     }
-    final widget =
-        context
-            .getElementForInheritedWidgetOfExactType<NanoShellScope>()
-            ?.widget;
+    final widget = context
+        .getElementForInheritedWidgetOfExactType<NanoShellScope>()
+        ?.widget;
     return (widget as NanoShellScope?)?.notifier
         as NanoShellController<TTab, TSubView>?;
   }

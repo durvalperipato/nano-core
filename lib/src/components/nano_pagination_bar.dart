@@ -30,25 +30,28 @@ class NanoPaginationBar<T> extends StatelessWidget {
     BuildContext context,
     VoidCallback? onPrevious,
     bool hasPrevious,
-  )? previousBuilder;
+  )?
+  previousBuilder;
 
   /// Custom builder for the "Next" button.
   final Widget Function(
     BuildContext context,
     VoidCallback? onNext,
     bool hasNext,
-  )? nextBuilder;
+  )?
+  nextBuilder;
 
   /// Custom builder for the page indicator label.
   final Widget Function(BuildContext context, int currentPage)?
-      pageLabelBuilder;
+  pageLabelBuilder;
 
   /// Custom builder for the page size selector.
   final Widget Function(
     BuildContext context,
     int currentSize,
     ValueChanged<int> onSizeChanged,
-  )? pageSizeSelectorBuilder;
+  )?
+  pageSizeSelectorBuilder;
 
   /// Available options for page size (defaults to `[5, 10, 20, 50]`).
   final List<int> availablePageSizes;
@@ -58,7 +61,7 @@ class NanoPaginationBar<T> extends StatelessWidget {
 
   /// Optional full custom builder taking the [NanoPaginator] instance directly.
   final Widget Function(BuildContext context, NanoPaginator<T> paginator)?
-      builder;
+  builder;
 
   /// Optional callback invoked when the previous page is requested.
   final VoidCallback? onPrevious;
@@ -91,13 +94,14 @@ class NanoPaginationBar<T> extends StatelessWidget {
           return builder!(context, paginator);
         }
 
-        final canGoPrevious =
-            paginator.hasPrevious && !paginator.isLoading;
-        final canGoNext = paginator.hasNext &&
+        final canGoPrevious = paginator.hasPrevious && !paginator.isLoading;
+        final canGoNext =
+            paginator.hasNext &&
             !paginator.isLoading &&
             !paginator.isLoadingNext;
 
-        final previousWidget = previousBuilder?.call(
+        final previousWidget =
+            previousBuilder?.call(
               context,
               canGoPrevious ? _handlePrevious : null,
               paginator.hasPrevious,
@@ -108,7 +112,8 @@ class NanoPaginationBar<T> extends StatelessWidget {
               onPressed: canGoPrevious ? _handlePrevious : null,
             );
 
-        final nextWidget = nextBuilder?.call(
+        final nextWidget =
+            nextBuilder?.call(
               context,
               canGoNext ? _handleNext : null,
               paginator.hasNext,
@@ -119,10 +124,8 @@ class NanoPaginationBar<T> extends StatelessWidget {
               onPressed: canGoNext ? _handleNext : null,
             );
 
-        final labelWidget = pageLabelBuilder?.call(
-              context,
-              paginator.currentPage,
-            ) ??
+        final labelWidget =
+            pageLabelBuilder?.call(context, paginator.currentPage) ??
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
@@ -141,7 +144,8 @@ class NanoPaginationBar<T> extends StatelessWidget {
               ? currentSize
               : availablePageSizes.first;
 
-          sizeSelectorWidget = pageSizeSelectorBuilder?.call(
+          sizeSelectorWidget =
+              pageSizeSelectorBuilder?.call(
                 context,
                 currentSize,
                 paginator.changePageSize,

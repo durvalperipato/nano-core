@@ -1,12 +1,10 @@
-import 'nano_cache.dart';
 import 'internal/nano_cache_entry.dart';
+import 'nano_cache.dart';
 
 /// An in-memory, thread-safe [NanoCache] implementation with TTL expiration.
 class NanoMemoryCache implements NanoCache {
   /// Creates a [NanoMemoryCache] instance.
-  NanoMemoryCache({
-    this.defaultTtl = const Duration(minutes: 5),
-  });
+  NanoMemoryCache({this.defaultTtl = const Duration(minutes: 5)});
 
   /// Default Time-To-Live duration for cached entries.
   final Duration? defaultTtl;
@@ -29,13 +27,11 @@ class NanoMemoryCache implements NanoCache {
   @override
   void set<T>(String key, T value, {Duration? ttl}) {
     final effectiveTtl = ttl ?? defaultTtl;
-    final expiresAt =
-        effectiveTtl != null ? DateTime.now().add(effectiveTtl) : null;
+    final expiresAt = effectiveTtl != null
+        ? DateTime.now().add(effectiveTtl)
+        : null;
 
-    _storage[key] = NanoCacheEntry(
-      value: value,
-      expiresAt: expiresAt,
-    );
+    _storage[key] = NanoCacheEntry(value: value, expiresAt: expiresAt);
   }
 
   @override

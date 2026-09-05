@@ -35,11 +35,11 @@ class NanoForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Form(
-        key: controller.formKey,
-        autovalidateMode: autovalidateMode,
-        onChanged: onChanged,
-        canPop: canPop,
-        onPopInvokedWithResult: onPopInvokedWithResult,
-        child: child,
-      );
+    key: controller.formKey,
+    autovalidateMode: autovalidateMode,
+    onChanged: onChanged,
+    canPop: canPop,
+    onPopInvokedWithResult: onPopInvokedWithResult,
+    child: child,
+  );
 }

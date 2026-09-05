@@ -34,7 +34,8 @@ class DataEnvelopeStrategy extends NanoDataStrategy {
       final total = meta['total'] ?? meta['total_count'] ?? meta['count'];
       final page = meta['current_page'] ?? meta['page'];
       final lastPage = meta['last_page'] ?? meta['total_pages'];
-      final hasNext = meta['has_next'] ??
+      final hasNext =
+          meta['has_next'] ??
           (page != null && lastPage != null ? page < lastPage : null);
 
       return NanoPaginationMeta(

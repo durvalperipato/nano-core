@@ -16,8 +16,8 @@ abstract class NanoAuthRepository<Session extends NanoEntity<dynamic>> {
     this.refreshTokenStorageKey = defaultRefreshTokenStorageKey,
     NanoHttpClient? client,
     NanoStorage? storage,
-  })  : _client = client,
-        _storage = storage;
+  }) : _client = client,
+       _storage = storage;
 
   /// Default storage key for authentication access tokens.
   static const String defaultTokenStorageKey = 'auth.access_token';

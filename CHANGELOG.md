@@ -5,6 +5,18 @@ All notable changes to the `nano_core` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.9.1 (2026-09-05)
+
+### Deprecated
+- `NanoNavigationExtension` legacy helpers: `context.toTab(...)`, `context.toSubView(...)`, `context.closeSubView()`, and `context.currentTab<T>()` are now deprecated in favor of `context.shell.*` methods with zero breaking changes for existing codebases.
+
+### Added
+- `NanoRouteBase`: Abstract base contract for all declarative router definitions (`NanoRoute`, `NanoShellRoute`, `NanoProtectedRoute`, `NanoGroupRoute`, `NanoRedirectRoute`). Unifies route handling across the framework, enabling polymorphic route grouping, modular feature route lists, and allowing `NanoProtectedRoute` to guard both standard routes and full multi-tab `NanoShellRoute` definitions.
+- `NanoShellRoute`: Declarative shell route for `NanoRouter` that decouples routing configuration from UI layouts via `builder: (context, controller, body) => Widget`, enabling clean page wrappers (`HomePage`), bottom navigation bars, floating action docks, and desktop sidebars without leaking Scaffold parameters into router tables.
+- `NanoRouter` `shells`: Dedicated parameter on `NanoRouter` to register persistent shell routes (`List<NanoShellRoute>`) alongside standard `routes` (`List<NanoRouteBase>`).
+- `NanoShellContext` & `context.shell`: Dedicated, clean BuildContext namespace for shell navigation and state queries (`context.shell.selectTab(...)`, `context.shell.openSubView(...)`, `context.shell.closeSubView()`, `context.shell.isSubViewOpen()`, `context.shell.currentTab<T>()`, and `context.shell.activeSubView<T>()`).
+- Unregistered Tab & Sub-View Debug Assertions: `NanoShellScaffold` now asserts with actionable error messages when attempting to navigate to an unregistered tab or sub-view enum, eliminating silent fallbacks to index 0 during development.
+
 ## 0.9.0 (2026-09-04)
 
 ### Added

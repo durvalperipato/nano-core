@@ -22,11 +22,7 @@ enum NanoDeviceType {
 
   /// Whether the current context represents a mobile layout.
   static bool isMobile(BuildContext context) {
-    if (kIsWeb) {
-      return MediaQuery.of(context).size.width < 600;
-    }
-    return defaultTargetPlatform == TargetPlatform.android ||
-        defaultTargetPlatform == TargetPlatform.iOS;
+    return MediaQuery.of(context).size.width < 600;
   }
 
   /// Whether the current context represents a tablet layout.
@@ -37,20 +33,13 @@ enum NanoDeviceType {
 
   /// Whether the current context represents a desktop layout.
   static bool isDesktop(BuildContext context) {
-    if (!kIsWeb &&
-        (defaultTargetPlatform == TargetPlatform.macOS ||
-            defaultTargetPlatform == TargetPlatform.windows ||
-            defaultTargetPlatform == TargetPlatform.linux)) {
-      return true;
-    }
     return MediaQuery.of(context).size.width >= 1024;
   }
 
   /// Evaluates and returns the active [NanoDeviceType] for the given [context].
   static NanoDeviceType fromContext(BuildContext context) {
-    if (isMobile(context)) return NanoDeviceType.mobile;
-    if (isTablet(context)) return NanoDeviceType.tablet;
     if (isDesktop(context)) return NanoDeviceType.desktop;
-    return NanoDeviceType.web;
+    if (isTablet(context)) return NanoDeviceType.tablet;
+    return NanoDeviceType.mobile;
   }
 }

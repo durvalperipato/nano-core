@@ -3,11 +3,7 @@ import 'nano_route_code.dart';
 /// Represents an error or access restriction during route resolution.
 class NanoRouteError {
   /// Creates a new [NanoRouteError] instance.
-  const NanoRouteError({
-    required this.path,
-    required this.code,
-    this.message,
-  });
+  const NanoRouteError({required this.path, required this.code, this.message});
 
   /// The path of the requested route.
   final String path;

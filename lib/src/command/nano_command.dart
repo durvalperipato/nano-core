@@ -5,11 +5,8 @@ import '../state/nano_state.dart';
 /// [ValueNotifier] holding [NanoState].
 abstract class NanoCommand<Output> extends ValueNotifier<NanoState<Output>> {
   /// Creates a [NanoCommand] initializing with default [NanoState].
-  NanoCommand({
-    this.onSuccess,
-    this.onError,
-    this.emitLoadingOnRequest = true,
-  }) : super(InitialState<Output>());
+  NanoCommand({this.onSuccess, this.onError, this.emitLoadingOnRequest = true})
+    : super(InitialState<Output>());
 
   /// Optional callback invoked when the command action completes successfully.
   final void Function(Output result)? onSuccess;

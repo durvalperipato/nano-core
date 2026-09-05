@@ -28,9 +28,9 @@ abstract class NanoRepository<Entity extends NanoEntity<Id>, Id> {
     NanoHttpClient? client,
     NanoCache? cache,
     NanoCachePolicy? cachePolicy,
-  })  : _client = client,
-        _cache = cache,
-        _cachePolicy = cachePolicy;
+  }) : _client = client,
+       _cache = cache,
+       _cachePolicy = cachePolicy;
 
   final NanoHttpClient? _client;
   final NanoCache? _cache;
@@ -115,14 +115,8 @@ abstract class NanoRepository<Entity extends NanoEntity<Id>, Id> {
     final effectivePolicy = cachePolicy ?? this.cachePolicy;
     final effectiveTtl = cacheTtl ?? this.cacheTtl;
     final strategy = dataStrategy ?? effectiveDataStrategy;
-    final params = {
-      ...?pagination?.toQueryParams(),
-      ...?queryParameters,
-    };
-    final cacheKey = _buildCacheKey(
-      path,
-      params.isNotEmpty ? params : null,
-    );
+    final params = {...?pagination?.toQueryParams(), ...?queryParameters};
+    final cacheKey = _buildCacheKey(path, params.isNotEmpty ? params : null);
 
     NanoPaginatedResult<Entity> parseResult(
       dynamic rawPayload,
@@ -244,7 +238,8 @@ abstract class NanoRepository<Entity extends NanoEntity<Id>, Id> {
     Map<String, String>? headers,
   }) async {
     final path = endpointCreate(entity);
-    final encoder = writeAdapter ??
+    final encoder =
+        writeAdapter ??
         (adapter is NanoWriteAdapter<Entity>
             ? (adapter as NanoWriteAdapter<Entity>)
             : null);
@@ -277,7 +272,8 @@ abstract class NanoRepository<Entity extends NanoEntity<Id>, Id> {
     Map<String, String>? headers,
   }) async {
     final path = endpointUpdate(entity);
-    final encoder = writeAdapter ??
+    final encoder =
+        writeAdapter ??
         (adapter is NanoWriteAdapter<Entity>
             ? (adapter as NanoWriteAdapter<Entity>)
             : null);

@@ -3,6 +3,8 @@ import '../models/nano_route_args.dart';
 import '../nano_router.dart';
 import '../routes/nano_protected_route.dart';
 import '../routes/nano_route.dart';
+import '../routes/nano_route_base.dart';
+import '../routes/nano_shell_route.dart';
 
 /// A wrapper widget that evaluates route guards before rendering the page.
 class NanoGuardedPage extends StatelessWidget {
@@ -17,7 +19,7 @@ class NanoGuardedPage extends StatelessWidget {
   });
 
   /// The target route to build.
-  final NanoRoute route;
+  final NanoRouteBase route;
 
   /// The requested path.
   final String path;
@@ -47,6 +49,16 @@ class NanoGuardedPage extends StatelessWidget {
         }
       }
     }
-    return route.builder(context, args);
+
+    final targetRoute = route;
+    if (targetRoute is NanoShellRoute) {
+      return targetRoute.buildWidget(context);
+    }
+
+    if (targetRoute is NanoRoute) {
+      return targetRoute.builder(context, args);
+    }
+
+    return const SizedBox.shrink();
   }
 }
