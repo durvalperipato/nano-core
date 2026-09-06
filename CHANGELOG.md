@@ -5,6 +5,19 @@ All notable changes to the `nano_core` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.0 (2026-09-06)
+
+### Added
+- **Official 1.0.0 Framework Milestone**: Complete, production-grade reactive architecture and multiplatform design system toolkit for Flutter.
+- **AI & Remote Model Context Protocol (MCP) Ecosystem**: Native integration with the official `nano-core-mcp` server.
+- **4 Specialized AI Personas**:
+  - `🧙‍♂️ nano-architect`: Designs clean architecture blueprints, state machines, form controllers (`NanoFormController`), pagination (`NanoPaginator`), and scaffold routing.
+  - `🛡️ nano-migration-master`: Conducts step-by-step framework version upgrades, resolves breaking changes, and refactors deprecated APIs.
+  - `🔍 nano-reviewer`: Audits Flutter code for controller memory leaks, `NanoResult` error handling, and lint rules.
+  - `🧪 nano-qa`: Generates unit and widget tests with full coverage and mock bindings.
+- **Zero-Hallucination Upgrade Matrix**: Real-time calculated migration playbooks across all 15 releases (`0.0.1` to `1.0.0`).
+- **Universal Safety Guardrails**: Strict 3-Phase Workflow protecting codebases from unauthorized modifications.
+
 ## 0.9.1 (2026-09-05)
 
 ### Deprecated

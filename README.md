@@ -2,58 +2,134 @@
 
 [![Pub Version](https://img.shields.io/pub/v/nano_core)](https://pub.dev/packages/nano_core)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![MCP Protocol](https://img.shields.io/badge/MCP-Protocol%20Ready-purple.svg)](https://github.com/durvalperipato/nano-core-mcp)
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Donate-orange.svg?logo=buy-me-a-coffee)](https://buymeacoffee.com/nanodevs)
 [![Status: Stable](https://img.shields.io/badge/Status-Stable-green.svg)](#)
 
 A lightweight reactive architecture framework and design system toolkit for Flutter multiplatform applications.
 
+---
+
+## 🤖 AI-Powered Architecture & Remote MCP Server
+
+`nano_core` comes with native support for the **Model Context Protocol (MCP)**, connecting your AI assistants directly to the framework's architecture, historical changelog matrix, and safety guardrails.
+
+### ⚡ Architecture & Orchestration Flow
+
+<p align="center">
+  <img src="doc/assets/nano_mcp_architecture.png" alt="nano-core-mcp Architecture" width="100%" />
+</p>
+
+### 🌐 IDE Configuration (Zero-Install)
+
+#### Option 1: Claude Desktop / Antigravity / VS Code (Universal HTTP Proxy)
+```json
+{
+  "mcpServers": {
+    "nano-core": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-proxy",
+        "https://api.nanodevs.com.br/mcp"
+      ]
+    }
+  }
+}
+```
+
+#### Option 2: Cursor IDE (Native Remote SSE)
+```json
+{
+  "mcpServers": {
+    "nano-core": {
+      "url": "https://api.nanodevs.com.br/sse"
+    }
+  }
+}
+```
+
+### 🎭 4 Specialized AI Personas
+
+| Persona | Purpose |
+|---|---|
+| 🧙‍♂️ **Nano Architect** | Designs clean architecture blueprints, state models, form controllers (`NanoFormController`), and scaffolding. |
+| 🛡️ **Nano Migration Master** | Calculates version migration paths, resolves breaking changes, and updates deprecated APIs safely. |
+| 🔍 **Nano Reviewer** | Audits code for controller memory leaks, `NanoResult` error handling, and lint rules. |
+| 🧪 **Nano QA** | Generates bulletproof unit and widget test suites with mocked dependencies. |
+
+---
+
 ## Features
+
+### 🧭 Navigation & Declarative Routing
 
 - 📱 [**NanoApp**](#4-declarative-routing-with-nanorouter-observers--nanoapp): Zero-boilerplate root application widget automatically configuring `NanoRouter`, `MaterialApp`, themes, and localizations.
 
 - 🧭 [**NanoRouter & Declarative Routes (NanoRouteBase)**](#4-declarative-routing-with-nanorouter-observers--nanoapp): Intuitive zero-dependency declarative router supporting polymorphic route hierarchies (`NanoRouteBase`), standard routes (`NanoRoute`), persistent tab shells (`NanoShellRoute`), animated transitions (`NanoAnimatedRoute`), route groups (`NanoGroupRoute`), typed sub-routes (`NanoDetailsRoute<Args>`), access-guarded routes (`NanoProtectedRoute`), and redirects (`NanoRedirectRoute`).
 
+- 🐚 [**NanoShellScaffold, NanoShellTab & NanoShellSubView**](#5-persistent-multi-tab-navigation-nanoshellroute--nanoshellscaffold): Persistent navigation shell scaffold managing primary tabs with keep-alive (`maintainState`), optional contextual sub-views (e.g. notifications, search overlays), persistent floating action buttons, drawers, and automatic back-gesture handling (`enablePopScope`).
+
 - 🔭 [**NanoRouteObserver**](#4-declarative-routing-with-nanorouter-observers--nanoapp): Granular navigation observer for screen tracking, Firebase Analytics, Datadog, breadcrumbs, and route lifecycle telemetry.
 
-- 🚀 [**NanoScaffold & NanoStateObservable**](#6-universal-state-management-bloc-cubit-mobx-getx-signals): Decoupled reactive base page scaffold supporting Web/Desktop headers, mobile AppBars, drawers, footers, customizable floating action buttons with positioning (`floatingActionButtonLocation`), loading overlays, toasts, fallback messages (`defaultErrorMessage`, `defaultWarningMessage`), and universal state observation (`NanoController`, BLoC, Cubit, MobX adapters).
+---
 
-- 🐚 [**NanoShellScaffold, NanoShellTab & NanoShellSubView**](#5-persistent-multi-tab-navigation-nanoshellroute--nanoshellscaffold): Persistent navigation shell scaffold managing primary tabs with keep-alive (`maintainState`), optional contextual sub-views (e.g. notifications, search overlays), persistent floating action buttons, drawers, and automatic back-gesture handling (`enablePopScope`).
+### ⚡ Reactive State Management & Architecture
 
 - ⚡ [**NanoController & NanoState**](#2-view-state-controller--injections): Clean, reactive state management built on `ChangeNotifier` and `ListenableBuilder`.
 
 - 📊 [**NanoViewState**](#2-view-state-controller--injections): Base class for structured, immutable and equatable view/page state data models.
 
+- 🚀 [**NanoScaffold & NanoStateObservable**](#6-universal-state-management-bloc-cubit-mobx-getx-signals): Decoupled reactive base page scaffold supporting Web/Desktop headers, mobile AppBars, drawers, footers, customizable floating action buttons with positioning (`floatingActionButtonLocation`), loading overlays, toasts, fallback messages, and universal state observation (`NanoController`, BLoC, Cubit, MobX adapters).
+
 - 🛠️ [**NanoCommand & NanoCommandBuilder**](#11-encapsulated-commands-nanocommand--nanocommandbuilder): Encapsulated async commands for user actions and operations.
+
+- 💉 [**NanoInjections, NanoDefaultInjections & NanoStatePage**](#13-dependency-injection-nanoinjections-async-binds--nanodefaultinjections): Dependency injection scoping with `GetIt`, default framework services registration (`NanoDefaultInjections.init`), modular composition, and page lifecycle binding.
+
+---
+
+### 📦 Data Layer, HTTP & Smart Caching
 
 - 🌐 [**NanoHttpClient & NanoHttpInterceptor**](#3-http-client-implementation-with-dio-optional): Standardized generic contract for decoupled HTTP communication, request/response interceptors (JWT injection, refresh tokens), built-in traffic logging (`NanoHttpLogInterceptor`), and helper extensions (`isSuccess`, `isClientError`, `isServerError`).
 
 - 📦 [**NanoRepository, NanoSearchRepository & NanoQueryAdapter**](#6-type-safe-search-query-adapters--pagination-with-nanopaginator): Automated generic CRUD repository layer, type-safe search query serialization, and domain model adapters.
 
+- ⚡ [**NanoCache & Smart Caching**](#4-instantaneous-caching-0ms-latency--offline-fallback): Zero-dependency in-memory caching (`NanoMemoryCache`) with configurable policies (`cacheFirst`, `networkFirst`, `networkOnly`, `cacheOnly`), TTL expiration, and automatic invalidation on CRUD mutations.
+
 - 📄 [**Pagination & NanoPaginator**](#4-automatic-infinite-scroll-mobile-or-page-navigation-bar-web): Pluggable strategies (`NanoOffsetPagination`, `NanoCursorPagination`), reactive controller (`NanoPaginator`), automatic infinite scrolling widget (`NanoPaginatedListView`), and customizable navigation bar (`NanoPaginationBar`).
 
-- ⚡ [**NanoCache & Smart Caching**](#4-instantaneous-caching-0ms-latency--offline-fallback): Zero-dependency in-memory caching (`NanoMemoryCache`) with configurable policies (`cacheFirst`, `networkFirst`, `networkOnly`, `cacheOnly`), TTL expiration, and automatic invalidation on CRUD mutations.
+- 🏷️ [**NanoEntity & NanoEquatable**](#1-domain-entity--adapter): Base domain entity with unique identification and value-based equality.
+
+---
+
+### 🛡️ Functional Safety & Reactive Forms
 
 - 🛡️ [**Functional Results (NanoResult)**](#6-type-safe-functional-results-with-nanoresult): Modern Dart 3 `sealed class` hierarchy (`NanoSuccess`, `NanoFailure`) with compile-time pattern matching, `fold`, `map`, and `runAsync` safe execution.
 
 - 📝 [**NanoForm & Validators**](#7-reactive-forms-internationalized-validators--nanotextfield): Strongly-typed form models, automatic field disposal, `BuildContext` i18n support, and reactive `NanoTextField` component.
 
-- 🏷️ [**NanoEntity & NanoEquatable**](#1-domain-entity--adapter): Base domain entity with unique identification and value-based equality.
+---
+
+### 🔐 Authentication, OAuth 2.0 & Security
 
 - 🔐 [**NanoOAuth & NanoPkce**](#7-modern-oauth-20--pkce-nanooauth--nanopkce): Zero-dependency OAuth 2.0 PKCE toolkit (RFC 7636) with built-in pure-Dart SHA-256 for secure authorization URLs, code challenge generation, token exchange payloads, and anti-CSRF callback parsing.
 
 - 🔑 [**NanoAuthRepository**](#6-authentication--session-repository-nanoauthrepository): Pure token and session lifecycle management with symmetrical storage keys, automatic token storage, and session contracts.
 
+---
+
+### 🪵 Observability, Utilities & Design System
+
 - 🪵 [**NanoLogger & NanoLogFilter**](#8-structured-logging-with-nanologger--nanologfilter): Granular structured console logger with type-safe level filtering (`NanoLogFilter`), ANSI styling, method context tracking, and telemetry hooks.
-
-- 💉 [**NanoInjections, NanoDefaultInjections & NanoStatePage**](#13-dependency-injection-nanoinjections-async-binds--nanodefaultinjections): Dependency injection scoping with `GetIt`, default framework services registration (`NanoDefaultInjections.init`), modular composition, and page lifecycle binding.
-
-- ⏱️ [**NanoDebouncer**](#9-debounced-search-inputs): Flexible async execution delay for search inputs, autocomplete, and live filters with native `NanoTextField(debounceDuration: ...)` support.
 
 - 🌐 [**NanoConnectivity**](#10-reactive-connectivity--offline-handling): Zero-dependency cross-platform reactive network monitor (`NanoConnectivity`, `NanoConnectivityStatus`) with seamless `NanoScaffold(connectivityBuilder: ...)` integration.
 
+- ⏱️ [**NanoDebouncer**](#9-debounced-search-inputs): Flexible async execution delay for search inputs, autocomplete, and live filters with native `NanoTextField(debounceDuration: ...)` support.
+
 - 🧩 [**Design System Components**](#7-reactive-forms-internationalized-validators--nanotextfield): Standalone reusable UI widgets such as `NanoLoadingOverlay`, `NanoToast`, `NanoPaginatedListView`, `NanoPaginationBar`, and `NanoTextField`.
 
-- 🖥️ [**NanoDeviceType**](#8-environment--build-modes-nanoenvironment--nanoenv): Real-time cross-platform environment and responsive viewport width inspection.
+- 🖥️ [**NanoDeviceType & NanoEnvironment**](#8-environment--build-modes-nanoenvironment--nanoenv): Real-time cross-platform environment, `--dart-define` parsers, and responsive viewport width inspection.
+
 
 ## Getting Started
 
@@ -63,7 +139,7 @@ Add `nano_core` to your `pubspec.yaml`:
 dependencies:
   flutter:
     sdk: flutter
-  nano_core: ^0.9.1
+  nano_core: ^1.0.0
 ```
 
 ## Quick Example
