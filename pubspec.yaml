@@ -1,6 +1,6 @@
 name: nano_core
 description: "A lightweight reactive architecture framework and design system toolkit for Flutter multiplatform applications."
-version: 1.0.1
+version: 1.0.2
 homepage: https://nanodevs.com.br
 repository: https://github.com/durvalperipato/nano-core
 topics:
@@ -34,4 +34,13 @@ flutter:
         pluginClass: NanoCorePlugin
       ios:
         pluginClass: NanoCorePlugin
+      macos:
+        pluginClass: NanoCorePlugin
+      web:
+        pluginClass: NanoCorePlugin
+        fileName: src/plugins/nano_core_plugin.dart
+      windows:
+        dartPluginClass: NanoCorePlugin
+      linux:
+        dartPluginClass: NanoCorePlugin
 

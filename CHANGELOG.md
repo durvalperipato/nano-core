@@ -5,6 +5,15 @@ All notable changes to the `nano_core` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.2 (2026-09-09)
+
+### Added
+- **Full 6-Platform Flutter Plugin Support**:
+  - Expanded plugin platform coverage to all 6 supported Flutter platforms: Android, iOS, macOS, Web, Windows, and Linux.
+  - Native macOS plugin implementation (`macos/Classes/NanoCorePlugin.swift` and `macos/nano_core.podspec`) resolving application version directly from `Bundle.main.infoDictionary`.
+  - Multiplatform Dart plugin class (`NanoCorePlugin`) providing unified registration entrypoints for Web and Desktop environments.
+  - Automatic zero-config resolution of Flutter Web `version.json` in `NanoAppInfo.getVersion()`.
+
 ## 1.0.1 (2026-09-09)
 
 ### Added

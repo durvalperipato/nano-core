@@ -51,7 +51,9 @@ app.*.map.json
 **/ios/Pods/
 **/ios/.symlinks/
 **/ios/Flutter/Generated.xcconfig
-macos/
+**/macos/Pods/
+**/macos/.symlinks/
+**/macos/Flutter/Generated.xcconfig
 linux/
 web/
 windows/

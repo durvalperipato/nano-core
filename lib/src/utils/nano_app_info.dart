@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/services.dart';
 
 /// Lightweight utility to resolve application metadata at runtime
@@ -9,15 +10,16 @@ class NanoAppInfo {
   static String? _cachedVersion;
 
   /// Resolves the application version (e.g. 'v1.0.0') natively from the
-  /// host platform (Android `PackageManager` / iOS `Bundle`), with fallback
-  /// to `pubspec.yaml` asset when run in environments without the plugin.
+  /// host platform (Android `PackageManager`, iOS/macOS `Bundle`), with
+  /// automatic fallback to `version.json` on Flutter Web, and `pubspec.yaml`
+  /// asset when run in environments without native plugins.
   static Future<String?> getVersion({
     String assetPath = 'pubspec.yaml',
     bool prefixV = true,
   }) async {
     if (_cachedVersion != null) return _cachedVersion;
 
-    // 1. Try native platform resolution via NanoCorePlugin
+    // 1. Try native platform resolution (Android, iOS, macOS)
     try {
       final nativeVersion =
           await _channel.invokeMethod<String>('getAppVersion');
@@ -32,7 +34,24 @@ class NanoAppInfo {
       // Platform channel unavailable or unhandled, proceed to fallback
     }
 
-    // 2. Fallback to pubspec.yaml asset if declared
+    // 2. Try Flutter Web standard version.json asset
+    try {
+      final jsonContent = await rootBundle.loadString('version.json');
+      final dynamic decoded = json.decode(jsonContent);
+      if (decoded is Map && decoded['version'] != null) {
+        final rawVersion = decoded['version'].toString().trim();
+        if (rawVersion.isNotEmpty) {
+          _cachedVersion = prefixV && !rawVersion.startsWith('v')
+              ? 'v$rawVersion'
+              : rawVersion;
+          return _cachedVersion;
+        }
+      }
+    } catch (_) {
+      // version.json unavailable, proceed to asset fallback
+    }
+
+    // 3. Fallback to pubspec.yaml asset if declared
     try {
       final yamlContent = await rootBundle.loadString(assetPath);
       final versionMatch = RegExp(
