@@ -51,9 +51,13 @@ app.*.map.json
 **/ios/Pods/
 **/ios/.symlinks/
 **/ios/Flutter/Generated.xcconfig
+**/ios/nano_core/.build/
+**/ios/nano_core/.swiftpm/
 **/macos/Pods/
 **/macos/.symlinks/
 **/macos/Flutter/Generated.xcconfig
+**/macos/nano_core/.build/
+**/macos/nano_core/.swiftpm/
 linux/
 web/
 windows/

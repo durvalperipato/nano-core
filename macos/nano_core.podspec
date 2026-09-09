@@ -2,9 +2,13 @@
 # To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html.
 # Run `pod lib lint nano_core.podspec` to validate before publishing.
 #
+require 'yaml'
+
+pubspec = YAML.load_file(File.join(__dir__, '..', 'pubspec.yaml'))
+
 Pod::Spec.new do |s|
   s.name             = 'nano_core'
-  s.version          = '1.0.2'
+  s.version          = pubspec['version'].gsub(/-.*/, '')
   s.summary          = 'Nano Core macOS Plugin'
   s.description      = <<-DESC
 A lightweight reactive architecture framework and design system toolkit for Flutter multiplatform applications.
@@ -13,7 +17,7 @@ A lightweight reactive architecture framework and design system toolkit for Flut
   s.license          = { :file => '../LICENSE' }
   s.author           = { 'NanoDevs' => 'contato@nanodevs.com.br' }
   s.source           = { :path => '.' }
-  s.source_files = 'Classes/**/*'
+  s.source_files = 'Classes/**/*', 'nano_core/Sources/nano_core/**/*'
   s.dependency 'FlutterMacOS'
   s.platform = :osx, '10.14'
 

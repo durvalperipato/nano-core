@@ -5,6 +5,16 @@ All notable changes to the `nano_core` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.3 (2026-09-09)
+
+### Added
+- **Swift Package Manager (SPM) Support (iOS & macOS)**:
+  - Official Swift Package Manager manifests (`ios/nano_core/Package.swift` and `macos/nano_core/Package.swift`) conforming to modern Flutter SPM plugin specifications.
+  - Native Apple plugin sources organized into standard SPM structures (`ios/nano_core/Sources/nano_core/` and `macos/nano_core/Sources/nano_core/`).
+  - Dual-support architecture preserving CocoaPods compatibility alongside Swift Package Manager.
+- **Dynamic Podspec Version Resolution**:
+  - Upgraded `ios/nano_core.podspec` and `macos/nano_core.podspec` to dynamically resolve version directly from `pubspec.yaml`.
+
 ## 1.0.2 (2026-09-09)
 
 ### Added
