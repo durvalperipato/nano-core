@@ -11,10 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    outputs:
-      should_publish: ${{ steps.check_tag.outputs.exists == 'false' }}
-      tag: ${{ steps.extract_version.outputs.tag }}
-      version: ${{ steps.extract_version.outputs.version }}
 
     steps:
       - name: Checkout Repository
@@ -66,31 +62,4 @@ jobs:
           draft: false
           prerelease: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  publish:
-    name: Publish to pub.dev
-    needs: release
-    if: needs.release.outputs.should_publish == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-          cache: true
-
-      - name: Set up Dart
-        uses: dart-lang/setup-dart@v1
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Publish to pub.dev
-        run: dart pub publish --force
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}

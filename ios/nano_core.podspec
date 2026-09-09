@@ -4,7 +4,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'nano_core'
-  s.version          = '1.0.1'
+  s.version          = '1.0.3'
   s.summary          = 'Nano Core Flutter Plugin'
   s.description      = <<-DESC
 A lightweight reactive architecture framework and design system toolkit for Flutter multiplatform applications.
@@ -13,7 +13,7 @@ A lightweight reactive architecture framework and design system toolkit for Flut
   s.license          = { :file => '../LICENSE' }
   s.author           = { 'NanoDevs' => 'contato@nanodevs.com.br' }
   s.source           = { :path => '.' }
-  s.source_files = 'Classes/**/*'
+  s.source_files = 'Classes/**/*', 'nano_core/Sources/nano_core/**/*'
   s.dependency 'Flutter'
   s.platform = :ios, '12.0'
 
