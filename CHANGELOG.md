@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **Swift Package Manager (SPM) Support (iOS & macOS)**:
-  - Added official Swift Package Manager manifests (`ios/nano_core/Package.swift` and `macos/nano_core/Package.swift`) conforming to modern Flutter 3.44+ SPM plugin specifications.
+  - Official Swift Package Manager manifests (`ios/nano_core/Package.swift` and `macos/nano_core/Package.swift`) conforming to modern Flutter SPM plugin specifications.
+  - Native Apple plugin sources organized into standard SPM structures (`ios/nano_core/Sources/nano_core/` and `macos/nano_core/Sources/nano_core/`).
+  - Dual-support architecture preserving CocoaPods compatibility alongside Swift Package Manager.
+- **Dynamic Podspec Version Resolution**:
+  - Upgraded `ios/nano_core.podspec` and `macos/nano_core.podspec` to dynamically resolve version directly from `pubspec.yaml`.
 
 ## 1.0.2 (2026-09-09)
 
