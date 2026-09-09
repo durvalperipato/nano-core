@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 1.0.3 [Unreleased]
 
 ### Added
-- Swift Package Manager (SPM) support for iOS and macOS.
+- **Swift Package Manager (SPM) Support (iOS & macOS)**:
+  - Added official Swift Package Manager manifests (`ios/nano_core/Package.swift` and `macos/nano_core/Package.swift`) conforming to modern Flutter 3.44+ SPM plugin specifications.
 
 ## 1.0.2 (2026-09-09)
 
