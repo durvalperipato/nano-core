@@ -5,6 +5,17 @@ All notable changes to the `nano_core` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.1 (2026-09-09)
+
+### Added
+- **`NanoPoweredBy` Branding Component**: Lightweight, customizable branding and organization attribution widget designed for navigation drawers, footers, settings, and about dialogs (`companyName`, optional `prefix`, `version`, `logo`, `onTap`, `isCompact`, `companyTextStyle`, `prefixTextStyle`, `versionTextStyle`, and custom alignment).
+- **`NanoAppInfo` Runtime Metadata Utility**: Zero-dependency utility to dynamically resolve application version and build metadata at runtime (`NanoAppInfo.getVersion()`, `cachedVersion`, `setVersion()`, `reset()`). Employs a resilient dual-layer architecture with native platform channel resolution and silent fallback to `pubspec.yaml` asset.
+- **Flutter Plugin Architecture (`NanoCorePlugin`)**:
+  - Native Android platform channel implementation (`NanoCorePlugin.kt`) reading application version directly from `PackageManager.getPackageInfo`.
+  - Native iOS platform channel implementation (`NanoCorePlugin.swift`) reading application version directly from `Bundle.main.infoDictionary`.
+  - Platform integration configurations via `android/` and `ios/` (`nano_core.podspec`).
+- **Direct `get_it` Export**: Re-exported `package:get_it/get_it.dart` directly from `package:nano_core/nano_core.dart` to streamline dependency injection setup across client applications.
+
 ## 1.0.0 (2026-09-06)
 
 ### Added

@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:get_it/get_it.dart';
 import 'package:nano_core/nano_core.dart';
 
 class MockHttpClient extends Fake implements NanoHttpClient {}
