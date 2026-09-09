@@ -2,6 +2,8 @@
 /// design system toolkit for Flutter multiplatform applications.
 library;
 
+export 'package:get_it/get_it.dart';
+
 export 'src/adapter/nano_adapter.dart';
 export 'src/adapter/nano_read_adapter.dart';
 export 'src/adapter/nano_write_adapter.dart';
@@ -15,6 +17,7 @@ export 'src/components/nano_form.dart';
 export 'src/components/nano_loading_overlay.dart';
 export 'src/components/nano_paginated_list_view.dart';
 export 'src/components/nano_pagination_bar.dart';
+export 'src/components/nano_powered_by.dart';
 export 'src/components/nano_text_field.dart';
 export 'src/components/nano_toast.dart';
 export 'src/connectivity/nano_connectivity.dart';
@@ -94,5 +97,6 @@ export 'src/state/nano_state_page.dart';
 export 'src/state/nano_view_state.dart';
 export 'src/storage/nano_storage.dart';
 export 'src/strategy/nano_data_strategy.dart';
+export 'src/utils/nano_app_info.dart';
 export 'src/utils/nano_debouncer.dart';
 export 'src/utils/nano_device_type.dart';

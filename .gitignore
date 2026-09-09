@@ -45,9 +45,12 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# Platforms
-android/
-ios/
+# Platforms (ephemeral artifacts)
+**/android/.gradle/
+**/android/local.properties
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/Generated.xcconfig
 macos/
 linux/
 web/

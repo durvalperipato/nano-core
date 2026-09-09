@@ -126,7 +126,7 @@ A lightweight reactive architecture framework and design system toolkit for Flut
 
 - ⏱️ [**NanoDebouncer**](#9-debounced-search-inputs): Flexible async execution delay for search inputs, autocomplete, and live filters with native `NanoTextField(debounceDuration: ...)` support.
 
-- 🧩 [**Design System Components**](#7-reactive-forms-internationalized-validators--nanotextfield): Standalone reusable UI widgets such as `NanoLoadingOverlay`, `NanoToast`, `NanoPaginatedListView`, `NanoPaginationBar`, and `NanoTextField`.
+- 🧩 [**Design System Components**](#7-reactive-forms-internationalized-validators--nanotextfield): Standalone reusable UI widgets such as `NanoLoadingOverlay`, `NanoToast`, `NanoPaginatedListView`, `NanoPaginationBar`, `NanoTextField`, and `NanoPoweredBy`.
 
 - 🖥️ [**NanoDeviceType & NanoEnvironment**](#8-environment--build-modes-nanoenvironment--nanoenv): Real-time cross-platform environment, `--dart-define` parsers, and responsive viewport width inspection.
 
@@ -139,7 +139,7 @@ Add `nano_core` to your `pubspec.yaml`:
 dependencies:
   flutter:
     sdk: flutter
-  nano_core: ^1.0.0
+  nano_core: ^1.0.1
 ```
 
 ## Quick Example
@@ -238,8 +238,19 @@ class MyController extends NanoController<UsersState> {
     await loadUsers();
   }
 
+  // 🚀 Option A (Recommended): Clean async execution with `execute()`
+  // Automatically emits Loading, handles try/catch, emits Error on failure, and triggers onSuccess!
   Future<void> loadUsers() async {
-    emitLoading(); // Style 1: Direct convenience method
+    await execute(
+      () => repository.getAll(),
+      onSuccess: (users) => emitLoaded(UsersState(users: users)),
+      // onError: (error) => emitError(key: 'custom_error'), // Optional custom error handler
+    );
+  }
+
+  // 🛠️ Option B: Manual control with direct emit helpers & try/catch
+  Future<void> loadUsersManual() async {
+    emitLoading();
     try {
       final users = await repository.getAll();
       emitLoaded(UsersState(users: users));
