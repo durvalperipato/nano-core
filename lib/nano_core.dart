@@ -59,6 +59,7 @@ export 'src/pagination/nano_offset_pagination.dart';
 export 'src/pagination/nano_paginated_result.dart';
 export 'src/pagination/nano_pagination.dart';
 export 'src/pagination/nano_paginator.dart';
+export 'src/plugins/nano_core_plugin.dart';
 export 'src/repository/nano_auth_repository.dart';
 export 'src/repository/nano_repository.dart';
 export 'src/repository/nano_search_repository.dart';
