@@ -120,6 +120,8 @@ A lightweight reactive architecture framework and design system toolkit for Flut
 
 ### 🪵 Observability, Utilities & Design System
 
+- 📡 [**NanoTelemetry & Observers (Analytics & Crashes)**](#9-telemetry--observability-nanotelemetry-nanoanalyticsobserver--nanocrashobserver): 100% decoupled, zero-dependency telemetry architecture multiplexing events, anti-cardinality screen tracking, breadcrumbs, and error reporting to Firebase, Sentry, Datadog, or Mixpanel.
+
 - 🪵 [**NanoLogger & NanoLogFilter**](#8-structured-logging-with-nanologger--nanologfilter): Granular structured console logger with type-safe level filtering (`NanoLogFilter`), ANSI styling, method context tracking, and telemetry hooks.
 
 - 🌐 [**NanoConnectivity**](#10-reactive-connectivity--offline-handling): Zero-dependency cross-platform reactive network monitor (`NanoConnectivity`, `NanoConnectivityStatus`) with seamless `NanoScaffold(connectivityBuilder: ...)` integration.
@@ -1245,6 +1247,185 @@ NanoLogger.enable();  // or NanoLogger.unmute()
 ```
 
 > **Tip:** You can use `NanoLogger`, `NanoLog`, or `NLog` interchangeably as concise aliases.
+
+### 9. Telemetry & Observability (NanoTelemetry, NanoAnalyticsObserver & NanoCrashObserver)
+
+`nano_core` includes a **100% decoupled, zero-dependency Telemetry & Observability architecture**. The framework remains pure Dart/Flutter without coupling to any third-party SDK. 
+
+Your application plugs into monitoring and analytics tools (Firebase Analytics, Firebase Crashlytics, Sentry, Datadog, Mixpanel) simply by implementing two pure observer contracts.
+
+#### 🧩 1. The Pure Contracts
+
+##### `NanoAnalyticsObserver`
+```dart
+abstract interface class NanoAnalyticsObserver {
+  void onScreenView(String screenName, {Map<String, dynamic>? parameters});
+  void onEvent(String name, {Map<String, dynamic>? parameters});
+  void setUserId(String? id);
+  void setUserProperty(String key, String value);
+}
+```
+
+##### `NanoCrashObserver`
+```dart
+abstract interface class NanoCrashObserver {
+  void recordError(
+    dynamic error,
+    StackTrace? stackTrace, {
+    dynamic reason,
+    bool fatal = false,
+  });
+  void log(String message); // Diagnostic Breadcrumbs
+  void setCustomKey(String key, Object value);
+  void setUserId(String? id);
+}
+```
+
+---
+
+#### 🚀 2. Implementing Observers (Example: Firebase)
+
+In your client application, implement the contracts using your chosen SDKs:
+
+```dart
+// 1. Analytics Observer (Firebase Analytics):
+class MyFirebaseAnalyticsObserver implements NanoAnalyticsObserver {
+  final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
+
+  @override
+  void onScreenView(String screenName, {Map<String, dynamic>? parameters}) {
+    _analytics.logScreenView(screenName: screenName, parameters: parameters);
+  }
+
+  @override
+  void onEvent(String name, {Map<String, dynamic>? parameters}) {
+    _analytics.logEvent(name: name, parameters: parameters);
+  }
+
+  @override
+  void setUserId(String? id) => _analytics.setUserId(id: id);
+
+  @override
+  void setUserProperty(String key, String value) {
+    _analytics.setUserProperty(name: key, value: value);
+  }
+}
+
+// 2. Crash Observer (Firebase Crashlytics):
+class MyFirebaseCrashObserver implements NanoCrashObserver {
+  final FirebaseCrashlytics _crashlytics = FirebaseCrashlytics.instance;
+
+  @override
+  void recordError(
+    dynamic error,
+    StackTrace? stackTrace, {
+    dynamic reason,
+    bool fatal = false,
+  }) {
+    _crashlytics.recordError(
+      error,
+      stackTrace,
+      reason: reason,
+      fatal: fatal,
+    );
+  }
+
+  @override
+  void log(String message) => _crashlytics.log(message);
+
+  @override
+  void setCustomKey(String key, Object value) {
+    _crashlytics.setCustomKey(key, value);
+  }
+
+  @override
+  void setUserId(String? id) => _crashlytics.setUserIdentifier(id ?? '');
+}
+```
+
+---
+
+#### 💉 3. Centralized Injections (`NanoDefaultInjections`)
+
+Register your observers once during app bootstrap. `NanoDefaultInjections` registers `NanoTelemetry` into `GetIt`:
+
+```dart
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+
+  NanoDefaultInjections.init(
+    GetIt.I,
+    analyticsObservers: [
+      MyFirebaseAnalyticsObserver(),
+      // You can pass multiple tools simultaneously (e.g. Mixpanel, Datadog)!
+    ],
+    crashObservers: [
+      MyFirebaseCrashObserver(),
+      // e.g. SentryCrashObserver()
+    ],
+  );
+
+  runApp(const MyApp());
+}
+```
+
+---
+
+#### ⚡ 4. Automatic Screen Tracking & Crash Wiring
+
+When telemetry observers are configured, the framework handles the heavy lifting automatically:
+
+1. **Anti-Cardinality Screen Tracking**: `NanoRouter` and `NanoRouteObserver` automatically track `PageRoute` screen views. Canonical route templates (e.g., `"/product/:id"`) are sent as `screenName` while dynamic values go into `parameters`, preventing dashboard fragmentation.
+2. **Automatic Flutter & Platform Crash Wiring**: `NanoApp` automatically connects `FlutterError.onError` and `PlatformDispatcher.instance.onError` to `NanoTelemetry.recordError(..., fatal: true)`.
+3. **Smart Repository Telemetry**: `NanoRepository` automatically catches real JSON parsing/adapter exceptions (`TypeError`, `FormatException`) and reports them as bugs via `recordError`, while operational network failures (offline, 401, timeouts) are recorded as non-polluting diagnostic breadcrumbs (`NanoTelemetry.log`).
+
+```dart
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return NanoApp(
+      router: myNanoRouter,
+      // NanoApp automatically wires global crashes and injects NanoRouteObserver!
+    );
+  }
+}
+```
+
+---
+
+#### 🎯 5. Manual Event Tracking & Error Logging
+
+##### In Controllers / Services:
+```dart
+// Custom business event:
+NanoTelemetry.onEvent('checkout_completed', parameters: {
+  'order_id': 'ORD-9821',
+  'total': 250.0,
+});
+
+// Identify user on login / logout:
+NanoTelemetry.setUserId('user_42');
+NanoTelemetry.setUserId(null); // On logout
+```
+
+##### In Try / Catch:
+```dart
+try {
+  await paymentService.charge();
+} catch (e, s) {
+  // 1-line catch ergonomics:
+  // 1. Dispatches to all registered NanoCrashObservers
+  // 2. Formats and prints locally via NanoLogger.error (default debugPrint: true)
+  NanoTelemetry.recordError(
+    e,
+    s,
+    reason: 'Payment transaction failed',
+  );
+}
+```
 
 ### 6. Universal State Management (BLoC, Cubit, MobX, GetX, Signals)
 

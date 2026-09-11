@@ -7,6 +7,9 @@ import '../pagination/nano_pagination.dart';
 import '../repository/nano_auth_repository.dart';
 import '../storage/nano_storage.dart';
 import '../strategy/nano_data_strategy.dart';
+import '../telemetry/nano_telemetry.dart';
+import '../telemetry/observers/nano_analytics_observer.dart';
+import '../telemetry/observers/nano_crash_observer.dart';
 import 'nano_injections.dart';
 
 /// Convenient type alias for [NanoDefaultInjections].
@@ -16,7 +19,7 @@ typedef NanoCoreInjections = NanoDefaultInjections;
 ///
 /// Registers essential framework singletons such as [NanoHttpClient],
 /// [NanoPagination] strategy, [NanoStorage], [NanoCache], [NanoConnectivity],
-/// [NanoDataStrategy], and [NanoAuthRepository] into [GetIt].
+/// [NanoDataStrategy], [NanoAuthRepository], and [NanoTelemetry] into [GetIt].
 class NanoDefaultInjections extends NanoInjections {
   /// Creates a [NanoDefaultInjections] scope.
   const NanoDefaultInjections({
@@ -28,8 +31,16 @@ class NanoDefaultInjections extends NanoInjections {
     this.connectivity,
     this.authRepository,
     this.dataStrategy,
+    this.analyticsObservers,
+    this.crashObservers,
     super.scope = 'nano_default_global',
   });
+
+  /// The optional list of global [NanoAnalyticsObserver] instances.
+  final List<NanoAnalyticsObserver>? analyticsObservers;
+
+  /// The optional list of global [NanoCrashObserver] instances.
+  final List<NanoCrashObserver>? crashObservers;
 
   /// The global [NanoHttpClient] instance to be registered.
   final NanoHttpClient? client;
@@ -67,6 +78,8 @@ class NanoDefaultInjections extends NanoInjections {
       connectivity: connectivity,
       authRepository: authRepository,
       dataStrategy: dataStrategy,
+      analyticsObservers: analyticsObservers,
+      crashObservers: crashObservers,
     );
   }
 
@@ -82,6 +95,8 @@ class NanoDefaultInjections extends NanoInjections {
     NanoConnectivity? connectivity,
     NanoAuthRepository<dynamic>? authRepository,
     NanoDataStrategy? dataStrategy,
+    List<NanoAnalyticsObserver>? analyticsObservers,
+    List<NanoCrashObserver>? crashObservers,
   }) {
     if (client != null && !i.isRegistered<NanoHttpClient>()) {
       i.registerLazySingleton<NanoHttpClient>(() => client);
@@ -110,6 +125,17 @@ class NanoDefaultInjections extends NanoInjections {
     if (dataStrategy != null && !i.isRegistered<NanoDataStrategy>()) {
       i.registerLazySingleton<NanoDataStrategy>(() => dataStrategy);
     }
+
+    if (analyticsObservers != null || crashObservers != null) {
+      final effectiveTelemetry = NanoTelemetry(
+        analyticsObservers: analyticsObservers,
+        crashObservers: crashObservers,
+      );
+      NanoTelemetry.instance = effectiveTelemetry;
+      if (!i.isRegistered<NanoTelemetry>()) {
+        i.registerLazySingleton<NanoTelemetry>(() => effectiveTelemetry);
+      }
+    }
   }
 
   /// Convenience static helper to register default dependencies into [GetIt.I]
@@ -123,6 +149,8 @@ class NanoDefaultInjections extends NanoInjections {
     NanoConnectivity? connectivity,
     NanoAuthRepository<dynamic>? authRepository,
     NanoDataStrategy? dataStrategy,
+    List<NanoAnalyticsObserver>? analyticsObservers,
+    List<NanoCrashObserver>? crashObservers,
   }) {
     init(
       GetIt.I,
@@ -134,6 +162,8 @@ class NanoDefaultInjections extends NanoInjections {
       connectivity: connectivity,
       authRepository: authRepository,
       dataStrategy: dataStrategy,
+      analyticsObservers: analyticsObservers,
+      crashObservers: crashObservers,
     );
   }
 }

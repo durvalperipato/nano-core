@@ -64,3 +64,6 @@ windows/
 
 # FVM Version Cache
 .fvm/
+
+# BMAD
+_bmad/

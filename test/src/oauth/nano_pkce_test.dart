@@ -42,7 +42,7 @@ void main() {
 
     test('randomString generates requested entropy byte length', () {
       final str1 = NanoPkce.randomString(16);
-      final str2 = NanoPkce.randomString(32);
+      final str2 = NanoPkce.randomString();
 
       expect(str1, isNotEmpty);
       expect(str2, isNotEmpty);

@@ -154,7 +154,7 @@ class NanoRouter {
     Object? arguments,
   }) {
     final state = navigatorKey.currentState;
-    if (state == null) return Future.value(null);
+    if (state == null) return Future.value();
     return state.pushNamed<T>(pathOrName, arguments: arguments);
   }
 
@@ -165,7 +165,7 @@ class NanoRouter {
     Object? arguments,
   }) {
     final state = navigatorKey.currentState;
-    if (state == null) return Future.value(null);
+    if (state == null) return Future.value();
     return state.pushReplacementNamed<T, TO>(
       pathOrName,
       result: result,
@@ -180,7 +180,7 @@ class NanoRouter {
     Object? arguments,
   }) {
     final state = navigatorKey.currentState;
-    if (state == null) return Future.value(null);
+    if (state == null) return Future.value();
     return state.pushNamedAndRemoveUntil<T>(
       pathOrName,
       predicate ?? (route) => false,

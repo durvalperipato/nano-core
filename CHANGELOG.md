@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 1.0.4 [Unreleased]
 
+### Added
+- **Native Decoupled Telemetry & Observability Architecture**:
+  - Pure Dart/Flutter contracts for analytics and crash reporting with zero external package coupling (`NanoAnalyticsObserver`, `NanoCrashObserver`, and central dispatcher `NanoTelemetry`).
+  - **`NanoAnalyticsObserver`**: Standardized observer contract for automated screen tracking (`onScreenView`), custom business events (`onEvent`), user identification (`setUserId`), and persistent user properties (`setUserProperty`).
+  - **`NanoCrashObserver`**: Standardized error observer contract for reporting handled and unhandled crashes (`recordError`), diagnostic breadcrumbs (`log`), custom runtime keys (`setCustomKey`), and user identification (`setUserId`).
+  - **`NanoTelemetry` Dispatcher & Facade**: Multiplexing dispatcher capable of broadcasting events across multiple analytics and crash providers simultaneously (e.g. Firebase Analytics, Crashlytics, Sentry, Datadog, Mixpanel).
+  - **Automated Anti-Cardinality Screen Tracking**: Integrated `NanoRouteObserver` with automatic `PageRoute` detection, tracking canonical route templates or names while preserving dynamic parameters separately to prevent dashboard cardinality explosion.
+  - **Automatic Global Error Wiring in `NanoApp`**: Automatically connects `FlutterError.onError` and `PlatformDispatcher.instance.onError` directly to `NanoTelemetry.recordError(..., fatal: true)` whenever crash observers are configured.
+  - **Single-Line Catch Ergonomics**: `NanoTelemetry.recordError(...)` reports errors remotely while printing formatted console diagnostics via `NanoLogger.error` by default (`debugPrint: true`).
+  - **Centralized Dependency Injection**: `NanoDefaultInjections` registers `analyticsObservers` and `crashObservers` with zero boilerplate into `GetIt`.
+  - **Smart Repository Telemetry**: `NanoRepository._safeParse` reports real serialization and adapter bugs (`TypeError`, `FormatException`) to `recordError` while recording common operational network failures (offline, 401, timeouts) as non-polluting diagnostic breadcrumbs (`NanoTelemetry.log`).
+
 ## 1.0.3 (2026-09-09)
 
 ### Added

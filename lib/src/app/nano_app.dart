@@ -1,10 +1,18 @@
+import 'dart:ui';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../router/nano_router.dart';
+import '../router/observers/nano_route_observer.dart';
+import '../telemetry/nano_telemetry.dart';
 
 /// The root application widget for apps using the nano-core framework.
 ///
 /// Wraps [MaterialApp] and automatically configures [NanoRouter] navigation,
 /// including navigatorKey, initialRoute, and onGenerateRoute handlers.
+///
+/// If telemetry observers are configured, automatically connects Flutter
+/// framework and platform crash handlers, and registers [NanoRouteObserver]
+/// for automated screen tracking.
 class NanoApp extends StatelessWidget {
   /// Creates a [NanoApp] instance.
   const NanoApp({
@@ -34,6 +42,8 @@ class NanoApp extends StatelessWidget {
     this.scrollBehavior,
     this.builder,
     this.navigatorObservers = const <NavigatorObserver>[],
+    this.autoWireCrashHandlers = true,
+    this.autoInjectRouteObserver = true,
     super.key,
   });
 
@@ -116,9 +126,74 @@ class NanoApp extends StatelessWidget {
   /// Observers for the navigator.
   final List<NavigatorObserver> navigatorObservers;
 
+  /// Whether to automatically wire global Flutter framework and platform error
+  /// hooks into [NanoTelemetry.recordError]. Defaults to `true`.
+  final bool autoWireCrashHandlers;
+
+  /// Whether to automatically inject [NanoRouteObserver] if not already present
+  /// when telemetry observers are active. Defaults to `true`.
+  final bool autoInjectRouteObserver;
+
+  static bool _handlersInstalled = false;
+
+  /// Manually or globally registers [FlutterError.onError] and
+  /// [PlatformDispatcher.instance.onError] to forward unhandled errors to
+  /// [NanoTelemetry.recordError].
+  static void setupGlobalErrorHandlers() {
+    if (_handlersInstalled) return;
+    _handlersInstalled = true;
+
+    final originalOnError = FlutterError.onError;
+    FlutterError.onError = (details) {
+      NanoTelemetry.recordError(
+        details.exception,
+        details.stack,
+        reason: details.context?.toString() ?? 'Flutter framework error',
+      );
+      originalOnError?.call(details);
+    };
+
+    final originalPlatformOnError = PlatformDispatcher.instance.onError;
+    PlatformDispatcher.instance.onError = (error, stack) {
+      NanoTelemetry.recordError(
+        error,
+        stack,
+        reason: 'Uncaught platform dispatcher error',
+        fatal: true,
+      );
+      return originalPlatformOnError?.call(error, stack) ?? true;
+    };
+  }
+
+  /// Resets the error handlers installation flag (primarily for unit testing).
+  @visibleForTesting
+  static void resetGlobalErrorHandlersFlag() {
+    _handlersInstalled = false;
+  }
+
+  List<NavigatorObserver> _resolveObservers(
+    List<NavigatorObserver> routerObservers,
+    List<NavigatorObserver> appObservers,
+  ) {
+    final combined = [...routerObservers, ...appObservers];
+    if (autoInjectRouteObserver &&
+        (NanoTelemetry.instance.hasAnalyticsObservers ||
+            NanoTelemetry.instance.hasCrashObservers)) {
+      final hasRouteObserver = combined.any((o) => o is NanoRouteObserver);
+      if (!hasRouteObserver) {
+        combined.add(NanoRouteObserver());
+      }
+    }
+    return combined;
+  }
+
   @override
   Widget build(BuildContext context) {
     final effectiveRouter = router;
+
+    if (autoWireCrashHandlers && NanoTelemetry.instance.hasCrashObservers) {
+      setupGlobalErrorHandlers();
+    }
 
     if (effectiveRouter != null) {
       return MaterialApp(
@@ -149,10 +224,10 @@ class NanoApp extends StatelessWidget {
         restorationScopeId: restorationScopeId,
         scrollBehavior: scrollBehavior,
         builder: builder,
-        navigatorObservers: [
-          ...effectiveRouter.observers,
-          ...navigatorObservers,
-        ],
+        navigatorObservers: _resolveObservers(
+          effectiveRouter.observers,
+          navigatorObservers,
+        ),
       );
     }
 
@@ -182,7 +257,10 @@ class NanoApp extends StatelessWidget {
       restorationScopeId: restorationScopeId,
       scrollBehavior: scrollBehavior,
       builder: builder,
-      navigatorObservers: navigatorObservers,
+      navigatorObservers: _resolveObservers(
+        const [],
+        navigatorObservers,
+      ),
     );
   }
 }
