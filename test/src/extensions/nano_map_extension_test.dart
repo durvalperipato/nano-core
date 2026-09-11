@@ -10,12 +10,12 @@ void main() {
 
     test('addIf adds when condition is true and value is non-empty', () {
       final map = <String, dynamic>{}
-          .addIf('valid', 'hello', condition: true)
+          .addIf('valid', 'hello')
           .addIf('falseCond', 'world', condition: false)
           .addIf('nullVal', null)
-          .addIf('emptyString', '   ', skipEmpty: true)
-          .addIf('emptyList', [], skipEmpty: true)
-          .addIf('emptyMap', {}, skipEmpty: true)
+          .addIf('emptyString', '   ')
+          .addIf('emptyList', [])
+          .addIf('emptyMap', {})
           .addIf('keepEmptyString', '', skipEmpty: false);
 
       expect(

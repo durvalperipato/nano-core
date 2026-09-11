@@ -5,10 +5,10 @@ void main() {
   group('NanoHttpResponseExtension', () {
     test('evaluates isSuccess, isClientError and isServerError', () {
       const res200 = NanoHttpResponse(data: {'ok': true}, statusCode: 200);
-      const res204 = NanoHttpResponse(data: null, statusCode: 204);
-      const res404 = NanoHttpResponse(data: null, statusCode: 404);
-      const res500 = NanoHttpResponse(data: null, statusCode: 500);
-      const resNull = NanoHttpResponse(data: null);
+      const res204 = NanoHttpResponse(statusCode: 204);
+      const res404 = NanoHttpResponse(statusCode: 404);
+      const res500 = NanoHttpResponse(statusCode: 500);
+      const resNull = NanoHttpResponse();
 
       expect(res200.isSuccess, isTrue);
       expect(res204.isSuccess, isTrue);

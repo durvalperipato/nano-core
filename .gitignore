@@ -30,7 +30,7 @@ migrate_working_dir/
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
-/build/
+**/build/
 /coverage/
 pubspec.lock
 
@@ -64,3 +64,6 @@ windows/
 
 # FVM Version Cache
 .fvm/
+
+# BMAD
+_bmad/

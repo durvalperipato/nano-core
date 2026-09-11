@@ -5,7 +5,7 @@ void main() {
   group('NanoCorePlugin', () {
     test('registerWith executes without error', () {
       expect(NanoCorePlugin.registerWith, returnsNormally);
-      expect(() => NanoCorePlugin.registerWith(null), returnsNormally);
+      expect(NanoCorePlugin.registerWith, returnsNormally);
     });
   });
 }

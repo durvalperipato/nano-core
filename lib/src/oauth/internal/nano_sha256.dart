@@ -93,14 +93,14 @@ abstract final class NanoSha256 {
 
     ByteData.sublistView(
       padded,
-    ).setUint64(paddedLength - 8, bitLength, Endian.big);
+    ).setUint64(paddedLength - 8, bitLength);
 
     final view = ByteData.sublistView(padded);
     final w = Uint32List(64);
 
     for (var i = 0; i < paddedLength; i += 64) {
       for (var t = 0; t < 16; t++) {
-        w[t] = view.getUint32(i + t * 4, Endian.big);
+        w[t] = view.getUint32(i + t * 4);
       }
       for (var t = 16; t < 64; t++) {
         final s0 =
@@ -148,14 +148,14 @@ abstract final class NanoSha256 {
     }
 
     final result = ByteData(32)
-      ..setUint32(0, h0, Endian.big)
-      ..setUint32(4, h1, Endian.big)
-      ..setUint32(8, h2, Endian.big)
-      ..setUint32(12, h3, Endian.big)
-      ..setUint32(16, h4, Endian.big)
-      ..setUint32(20, h5, Endian.big)
-      ..setUint32(24, h6, Endian.big)
-      ..setUint32(28, h7, Endian.big);
+      ..setUint32(0, h0)
+      ..setUint32(4, h1)
+      ..setUint32(8, h2)
+      ..setUint32(12, h3)
+      ..setUint32(16, h4)
+      ..setUint32(20, h5)
+      ..setUint32(24, h6)
+      ..setUint32(28, h7);
 
     return result.buffer.asUint8List();
   }
