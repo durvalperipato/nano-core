@@ -10,6 +10,7 @@ import '../http/nano_http_client.dart';
 import '../pagination/nano_paginated_result.dart';
 import '../pagination/nano_pagination.dart';
 import '../strategy/nano_data_strategy.dart';
+import '../telemetry/nano_telemetry.dart';
 
 /// An abstract generic repository providing standard CRUD operations with
 /// optional caching, pagination, and type-safe query adapters.
@@ -101,6 +102,24 @@ abstract class NanoRepository<Entity extends NanoEntity<Id>, Id> {
   void invalidateCache({String? prefix}) =>
       cache?.clear(prefix: prefix ?? endpoint);
 
+  T _safeParse<T>(
+    T Function() parse, {
+    required String action,
+    String? path,
+  }) {
+    try {
+      return parse();
+    } catch (e, s) {
+      final location = path != null ? ' at $path' : '';
+      NanoTelemetry.recordError(
+        e,
+        s,
+        reason: 'Failed to parse $Entity $action in $runtimeType$location',
+      );
+      rethrow;
+    }
+  }
+
   /// Retrieves a [NanoPaginatedResult] of type [Entity], optionally applying
   /// [pagination], [cachePolicy], and [dataStrategy].
   Future<NanoPaginatedResult<Entity>> getAll({
@@ -125,18 +144,24 @@ abstract class NanoRepository<Entity extends NanoEntity<Id>, Id> {
       if (rawPayload == null) {
         return const NanoPaginatedResult(items: []);
       }
-      final listPayload = strategy.extractList(rawPayload);
-      final meta = strategy.extractMeta(rawPayload, responseHeaders);
-      final items = adapter.fromList(listPayload);
+      return _safeParse(
+        () {
+          final listPayload = strategy.extractList(rawPayload);
+          final meta = strategy.extractMeta(rawPayload, responseHeaders);
+          final items = adapter.fromList(listPayload);
 
-      return NanoPaginatedResult<Entity>(
-        items: items,
-        totalCount: meta.totalCount,
-        currentPage: meta.currentPage,
-        totalPages: meta.totalPages,
-        hasNext: meta.hasNext,
-        nextCursor: meta.nextCursor,
-        meta: meta.meta,
+          return NanoPaginatedResult<Entity>(
+            items: items,
+            totalCount: meta.totalCount,
+            currentPage: meta.currentPage,
+            totalPages: meta.totalPages,
+            hasNext: meta.hasNext,
+            nextCursor: meta.nextCursor,
+            meta: meta.meta,
+          );
+        },
+        action: 'paginated payload',
+        path: path,
       );
     }
 
@@ -177,6 +202,7 @@ abstract class NanoRepository<Entity extends NanoEntity<Id>, Id> {
           return parseResult(cached, null);
         }
       }
+      NanoTelemetry.log('Repo [$runtimeType]: getAll failed at $path: $e');
       rethrow;
     }
   }
@@ -219,14 +245,25 @@ abstract class NanoRepository<Entity extends NanoEntity<Id>, Id> {
       if (data == null) return null;
 
       cache?.set(cacheKey, data, ttl: effectiveTtl);
-      return adapter.fromMap(data);
+      final entity = _safeParse(
+        () => adapter.fromMap(data),
+        action: 'from response',
+        path: path,
+      );
+      return entity;
     } catch (e) {
       if (effectivePolicy == NanoCachePolicy.networkFirst) {
         final cached = cache?.get<Map<String, dynamic>>(cacheKey);
         if (cached != null) {
-          return adapter.fromMap(cached);
+          final cachedEntity = _safeParse(
+            () => adapter.fromMap(cached),
+            action: 'from cache',
+            path: path,
+          );
+          return cachedEntity;
         }
       }
+      NanoTelemetry.log('Repo [$runtimeType]: getById failed at $path: $e');
       rethrow;
     }
   }
@@ -262,7 +299,11 @@ abstract class NanoRepository<Entity extends NanoEntity<Id>, Id> {
       throw StateError('Server returned null response data for create $Entity');
     }
 
-    return adapter.fromMap(data);
+    return _safeParse(
+      () => adapter.fromMap(data),
+      action: 'create response',
+      path: path,
+    );
   }
 
   /// Updates an existing entity on the server and invalidates related cache.
@@ -296,7 +337,11 @@ abstract class NanoRepository<Entity extends NanoEntity<Id>, Id> {
       throw StateError('Server returned null response data for update $Entity');
     }
 
-    return adapter.fromMap(data);
+    return _safeParse(
+      () => adapter.fromMap(data),
+      action: 'update response',
+      path: path,
+    );
   }
 
   /// Deletes an entity from the server by its [id] and invalidates

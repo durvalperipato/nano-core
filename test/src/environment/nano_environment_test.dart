@@ -19,7 +19,7 @@ void main() {
         NanoEnvironment.getBool('NON_EXISTING', defaultValue: true),
         isTrue,
       );
-      expect(NanoEnv.getBool('NON_EXISTING', defaultValue: false), isFalse);
+      expect(NanoEnv.getBool('NON_EXISTING'), isFalse);
     });
 
     test('getInt returns defaultValue when key is absent', () {
