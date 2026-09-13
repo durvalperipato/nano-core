@@ -209,9 +209,9 @@ void main() {
       });
     });
 
-    group('cardExpiration validator', () {
+    group('creditCardExpiration validator', () {
       final fixedDate = DateTime(2026, 9, 13);
-      final validator = NanoValidator.cardExpiration(
+      final validator = NanoValidator.creditCardExpiration(
         'Invalid Expiration',
         now: () => fixedDate,
       );
@@ -255,8 +255,8 @@ void main() {
       });
     });
 
-    group('cardCvv validator', () {
-      final validator = NanoValidator.cardCvv('Invalid CVV');
+    group('creditCardCvv validator', () {
+      final validator = NanoValidator.creditCardCvv('Invalid CVV');
 
       test('validates 3 and 4 digit CVVs', () {
         expect(validator('123'), isNull);
@@ -271,7 +271,7 @@ void main() {
       });
 
       test('handles custom minLength and maxLength', () {
-        final exactThreeCvv = NanoValidator.cardCvv(
+        final exactThreeCvv = NanoValidator.creditCardCvv(
           'CVV must be exactly 3 digits',
           maxLength: 3,
         );
@@ -283,6 +283,34 @@ void main() {
         expect(validator(null), isNull);
         expect(validator(''), isNull);
         expect(validator('   '), isNull);
+      });
+    });
+
+    group('NanoValidatorPatterns and Constants', () {
+      test('constants expose expected values', () {
+        expect(NanoValidatorConstants.cpfLength, equals(11));
+        expect(NanoValidatorConstants.cnpjLength, equals(14));
+        expect(NanoValidatorConstants.creditCardMinLength, equals(13));
+        expect(NanoValidatorConstants.creditCardMaxLength, equals(19));
+        expect(NanoValidatorConstants.creditCardCvvMinLength, equals(3));
+        expect(NanoValidatorConstants.creditCardCvvMaxLength, equals(4));
+        expect(
+          NanoValidatorConstants.cnpjWeightsFirstDigit.length,
+          equals(12),
+        );
+        expect(
+          NanoValidatorConstants.cnpjWeightsSecondDigit.length,
+          equals(13),
+        );
+      });
+
+      test('regexes can be used in custom pattern validators', () {
+        final emailValidator = NanoValidator.pattern(
+          NanoValidatorRegex.email,
+          'Custom invalid email',
+        );
+        expect(emailValidator('test@example.com'), isNull);
+        expect(emailValidator('invalid'), equals('Custom invalid email'));
       });
     });
   });

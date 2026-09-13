@@ -35,6 +35,7 @@ export 'src/form/nano_form_controller.dart';
 export 'src/form/nano_form_entity.dart';
 export 'src/form/nano_form_state.dart';
 export 'src/form/nano_validator.dart';
+export 'src/form/nano_validator_patterns.dart';
 export 'src/http/interceptors/nano_auth_interceptor.dart';
 export 'src/http/interceptors/nano_http_interceptor.dart';
 export 'src/http/interceptors/nano_http_log_interceptor.dart';

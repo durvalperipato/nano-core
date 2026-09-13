@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'nano_validator_patterns.dart';
+
 /// Signature for validator functions returning an error message if invalid,
 /// or `null` if valid.
 ///
@@ -10,29 +12,6 @@ typedef NanoValidatorFunction<Value> = dynamic Function(Value? value);
 /// Collection of standard, chainable form field validators with full
 /// internationalization ([BuildContext]) support.
 abstract final class NanoValidator {
-  // Document length constants
-  static const int _cpfLength = 11;
-  static const int _cnpjLength = 14;
-
-  // Credit card constants
-  static const int _creditCardMinLength = 13;
-  static const int _creditCardMaxLength = 19;
-  static const int _cardCvvMinLength = 3;
-  static const int _cardCvvMaxLength = 4;
-
-  // Pre-compiled regular expressions for performance and readability
-  static final _emailRegex = RegExp(
-    r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-  );
-  static final _digitsOnlyRegex = RegExp(r'[^0-9]');
-  static final _nonAlphanumericRegex = RegExp(r'[^a-zA-Z0-9]');
-  static final _repeatedCpfRegex = RegExp(r'^(\d)\1{10}$');
-  static final _repeatedCnpjRegex = RegExp(r'^([A-Z0-9])\1{13}$');
-  static final _numericCnpjRegex = RegExp(r'^\d{14}$');
-  static final _alphanumericCnpjRegex = RegExp(r'^[A-Z0-9]{12}\d{2}$');
-  static final _creditCardAllowedCharsRegex = RegExp(r'^[0-9\s-]+$');
-  static final _cardExpirationRegex = RegExp(r'^(\d{1,2})[\/\-](\d{2}|\d{4})$');
-  static final _digitsRegex = RegExp(r'^\d+$');
 
   /// Resolves an error message payload (static string or context callback)
   /// into a localized [String].
@@ -64,7 +43,7 @@ abstract final class NanoValidator {
   static NanoValidatorFunction<String> email(dynamic message) {
     return (value) {
       if (value == null || value.trim().isEmpty) return null;
-      if (!_emailRegex.hasMatch(value.trim())) return message;
+      if (!NanoValidatorRegex.email.hasMatch(value.trim())) return message;
       return null;
     };
   }
@@ -170,9 +149,9 @@ abstract final class NanoValidator {
   }) {
     return (value) {
       if (value == null || value.trim().isEmpty) return null;
-      final clean = value.replaceAll(_nonAlphanumericRegex, '');
-      final isCpf = clean.length == _cpfLength;
-      final isCnpj = clean.length == _cnpjLength;
+      final clean = value.replaceAll(NanoValidatorRegex.nonAlphanumeric, '');
+      final isCpf = clean.length == NanoValidatorConstants.cpfLength;
+      final isCnpj = clean.length == NanoValidatorConstants.cnpjLength;
 
       if (isCpf) {
         if (!_isValidCpf(clean)) return message;
@@ -195,14 +174,16 @@ abstract final class NanoValidator {
   /// (default 19) digits and satisfy the Luhn checksum formula.
   static NanoValidatorFunction<String> creditCard(
     dynamic message, {
-    int minLength = _creditCardMinLength,
-    int maxLength = _creditCardMaxLength,
+    int minLength = NanoValidatorConstants.creditCardMinLength,
+    int maxLength = NanoValidatorConstants.creditCardMaxLength,
   }) {
     return (value) {
       if (value == null || value.trim().isEmpty) return null;
       final trimmed = value.trim();
-      if (!_creditCardAllowedCharsRegex.hasMatch(trimmed)) return message;
-      final clean = trimmed.replaceAll(_digitsOnlyRegex, '');
+      if (!NanoValidatorRegex.creditCardAllowedChars.hasMatch(trimmed)) {
+        return message;
+      }
+      final clean = trimmed.replaceAll(NanoValidatorRegex.digitsOnly, '');
       if (clean.length < minLength || clean.length > maxLength) return message;
       if (!_isValidLuhn(clean)) return message;
       return null;
@@ -214,14 +195,14 @@ abstract final class NanoValidator {
   /// Verifies that the month is between 1 and 12, and that the card has not
   /// expired (a card remains valid until the last day of the expiration month).
   /// An optional [now] provider can be passed for deterministic testing.
-  static NanoValidatorFunction<String> cardExpiration(
+  static NanoValidatorFunction<String> creditCardExpiration(
     dynamic message, {
     DateTime Function()? now,
   }) {
     return (value) {
       if (value == null || value.trim().isEmpty) return null;
       final clean = value.trim();
-      final match = _cardExpirationRegex.firstMatch(clean);
+      final match = NanoValidatorRegex.creditCardExpiration.firstMatch(clean);
       if (match == null) return message;
 
       final month = int.tryParse(match.group(1)!);
@@ -247,16 +228,16 @@ abstract final class NanoValidator {
   ///
   /// Ensures the input contains strictly numeric digits with a length between
   /// [minLength] (default 3) and [maxLength] (default 4).
-  static NanoValidatorFunction<String> cardCvv(
+  static NanoValidatorFunction<String> creditCardCvv(
     dynamic message, {
-    int minLength = _cardCvvMinLength,
-    int maxLength = _cardCvvMaxLength,
+    int minLength = NanoValidatorConstants.creditCardCvvMinLength,
+    int maxLength = NanoValidatorConstants.creditCardCvvMaxLength,
   }) {
     return (value) {
       if (value == null || value.trim().isEmpty) return null;
       final clean = value.trim();
       if (clean.length < minLength || clean.length > maxLength) return message;
-      if (!_digitsRegex.hasMatch(clean)) return message;
+      if (!NanoValidatorRegex.digits.hasMatch(clean)) return message;
       return null;
     };
   }
@@ -280,9 +261,9 @@ abstract final class NanoValidator {
   }
 
   static bool _isValidCpf(String value) {
-    final numbers = value.replaceAll(_digitsOnlyRegex, '');
-    if (numbers.length != _cpfLength) return false;
-    if (_repeatedCpfRegex.hasMatch(numbers)) return false;
+    final numbers = value.replaceAll(NanoValidatorRegex.digitsOnly, '');
+    if (numbers.length != NanoValidatorConstants.cpfLength) return false;
+    if (NanoValidatorRegex.repeatedCpf.hasMatch(numbers)) return false;
 
     var sum = 0;
     for (var i = 0; i < 9; i++) {
@@ -302,18 +283,20 @@ abstract final class NanoValidator {
   }
 
   static bool _isValidCnpj(String value, {required bool allowAlphanumeric}) {
-    final clean = value.replaceAll(_nonAlphanumericRegex, '').toUpperCase();
-    if (clean.length != _cnpjLength) return false;
+    final clean = value
+        .replaceAll(NanoValidatorRegex.nonAlphanumeric, '')
+        .toUpperCase();
+    if (clean.length != NanoValidatorConstants.cnpjLength) return false;
 
     if (!allowAlphanumeric) {
-      if (!_numericCnpjRegex.hasMatch(clean)) return false;
+      if (!NanoValidatorRegex.numericCnpj.hasMatch(clean)) return false;
     } else {
-      if (!_alphanumericCnpjRegex.hasMatch(clean)) return false;
+      if (!NanoValidatorRegex.alphanumericCnpj.hasMatch(clean)) return false;
     }
 
-    if (_repeatedCnpjRegex.hasMatch(clean)) return false;
+    if (NanoValidatorRegex.repeatedCnpj.hasMatch(clean)) return false;
 
-    const weights1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+    final weights1 = NanoValidatorConstants.cnpjWeightsFirstDigit;
     var sum = 0;
     for (var i = 0; i < 12; i++) {
       sum += (clean.codeUnitAt(i) - 48) * weights1[i];
@@ -322,7 +305,7 @@ abstract final class NanoValidator {
     final firstDigit = rest1 < 2 ? 0 : 11 - rest1;
     if (firstDigit != clean.codeUnitAt(12) - 48) return false;
 
-    const weights2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+    final weights2 = NanoValidatorConstants.cnpjWeightsSecondDigit;
     sum = 0;
     for (var i = 0; i < 12; i++) {
       sum += (clean.codeUnitAt(i) - 48) * weights2[i];
