@@ -14,6 +14,12 @@ abstract final class NanoValidator {
   static const int _cpfLength = 11;
   static const int _cnpjLength = 14;
 
+  // Credit card constants
+  static const int _creditCardMinLength = 13;
+  static const int _creditCardMaxLength = 19;
+  static const int _cardCvvMinLength = 3;
+  static const int _cardCvvMaxLength = 4;
+
   // Pre-compiled regular expressions for performance and readability
   static final _emailRegex = RegExp(
     r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
@@ -24,6 +30,9 @@ abstract final class NanoValidator {
   static final _repeatedCnpjRegex = RegExp(r'^([A-Z0-9])\1{13}$');
   static final _numericCnpjRegex = RegExp(r'^\d{14}$');
   static final _alphanumericCnpjRegex = RegExp(r'^[A-Z0-9]{12}\d{2}$');
+  static final _creditCardAllowedCharsRegex = RegExp(r'^[0-9\s-]+$');
+  static final _cardExpirationRegex = RegExp(r'^(\d{1,2})[\/\-](\d{2}|\d{4})$');
+  static final _digitsRegex = RegExp(r'^\d+$');
 
   /// Resolves an error message payload (static string or context callback)
   /// into a localized [String].
@@ -177,6 +186,97 @@ abstract final class NanoValidator {
       }
       return message;
     };
+  }
+
+  /// Validates a credit card number using the Luhn algorithm (Modulo 10).
+  ///
+  /// Ignores standard formatting characters (spaces and hyphens). The cleaned
+  /// number must contain between [minLength] (default 13) and [maxLength]
+  /// (default 19) digits and satisfy the Luhn checksum formula.
+  static NanoValidatorFunction<String> creditCard(
+    dynamic message, {
+    int minLength = _creditCardMinLength,
+    int maxLength = _creditCardMaxLength,
+  }) {
+    return (value) {
+      if (value == null || value.trim().isEmpty) return null;
+      final trimmed = value.trim();
+      if (!_creditCardAllowedCharsRegex.hasMatch(trimmed)) return message;
+      final clean = trimmed.replaceAll(_digitsOnlyRegex, '');
+      if (clean.length < minLength || clean.length > maxLength) return message;
+      if (!_isValidLuhn(clean)) return message;
+      return null;
+    };
+  }
+
+  /// Validates a credit card expiration date in `MM/YY` or `MM/YYYY` format.
+  ///
+  /// Verifies that the month is between 1 and 12, and that the card has not
+  /// expired (a card remains valid until the last day of the expiration month).
+  /// An optional [now] provider can be passed for deterministic testing.
+  static NanoValidatorFunction<String> cardExpiration(
+    dynamic message, {
+    DateTime Function()? now,
+  }) {
+    return (value) {
+      if (value == null || value.trim().isEmpty) return null;
+      final clean = value.trim();
+      final match = _cardExpirationRegex.firstMatch(clean);
+      if (match == null) return message;
+
+      final month = int.tryParse(match.group(1)!);
+      var year = int.tryParse(match.group(2)!);
+      if (month == null || year == null) return message;
+      if (month < 1 || month > 12) return message;
+
+      if (year < 100) {
+        year += 2000;
+      }
+
+      final currentDate = now != null ? now() : DateTime.now();
+      final currentYear = currentDate.year;
+      final currentMonth = currentDate.month;
+
+      if (year < currentYear) return message;
+      if (year == currentYear && month < currentMonth) return message;
+      return null;
+    };
+  }
+
+  /// Validates a credit card CVV/CVC security code.
+  ///
+  /// Ensures the input contains strictly numeric digits with a length between
+  /// [minLength] (default 3) and [maxLength] (default 4).
+  static NanoValidatorFunction<String> cardCvv(
+    dynamic message, {
+    int minLength = _cardCvvMinLength,
+    int maxLength = _cardCvvMaxLength,
+  }) {
+    return (value) {
+      if (value == null || value.trim().isEmpty) return null;
+      final clean = value.trim();
+      if (clean.length < minLength || clean.length > maxLength) return message;
+      if (!_digitsRegex.hasMatch(clean)) return message;
+      return null;
+    };
+  }
+
+  static bool _isValidLuhn(String number) {
+    var sum = 0;
+    var alternate = false;
+    for (var i = number.length - 1; i >= 0; i--) {
+      var n = number.codeUnitAt(i) - 48;
+      if (n < 0 || n > 9) return false;
+      if (alternate) {
+        n *= 2;
+        if (n > 9) {
+          n -= 9;
+        }
+      }
+      sum += n;
+      alternate = !alternate;
+    }
+    return sum % 10 == 0;
   }
 
   static bool _isValidCpf(String value) {

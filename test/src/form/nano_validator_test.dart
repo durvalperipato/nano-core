@@ -163,5 +163,127 @@ void main() {
       expect(pattern('abc'), equals('Must be 3 uppercase'));
       expect(pattern('ABC'), isNull);
     });
+
+    group('creditCard validator', () {
+      final validator = NanoValidator.creditCard('Invalid Credit Card');
+
+      test(
+        'validates valid credit card numbers with and without formatting',
+        () {
+          // Standard 16 digits (Visa)
+          expect(validator('4532 0151 1283 0366'), isNull);
+          expect(validator('4532-0151-1283-0366'), isNull);
+          expect(validator('4532015112830366'), isNull);
+
+          // Mastercard
+          expect(validator('5454 5454 5454 5454'), isNull);
+
+          // 15 digits (Amex)
+          expect(validator('378282246310005'), isNull);
+        },
+      );
+
+      test('rejects invalid Luhn checksum', () {
+        expect(validator('4532 0151 1283 0367'), equals('Invalid Credit Card'));
+      });
+
+      test('rejects invalid lengths', () {
+        // 12 digits (too short by default)
+        expect(validator('453201511283'), equals('Invalid Credit Card'));
+        // 20 digits (too long)
+        expect(
+          validator('45320151128303661234'),
+          equals('Invalid Credit Card'),
+        );
+      });
+
+      test('rejects invalid characters', () {
+        expect(validator('4532 0151 1283 036A'), equals('Invalid Credit Card'));
+        expect(validator('4532@0151#1283!0366'), equals('Invalid Credit Card'));
+      });
+
+      test('handles null and empty as valid (optional)', () {
+        expect(validator(null), isNull);
+        expect(validator(''), isNull);
+        expect(validator('   '), isNull);
+      });
+    });
+
+    group('cardExpiration validator', () {
+      final fixedDate = DateTime(2026, 9, 13);
+      final validator = NanoValidator.cardExpiration(
+        'Invalid Expiration',
+        now: () => fixedDate,
+      );
+
+      test('validates current month and future dates', () {
+        // Current month and year is valid until the end of the month
+        expect(validator('09/26'), isNull);
+        expect(validator('09/2026'), isNull);
+        expect(validator('9/26'), isNull);
+        expect(validator('09-26'), isNull);
+
+        // Future dates
+        expect(validator('10/26'), isNull);
+        expect(validator('01/27'), isNull);
+        expect(validator('12/2030'), isNull);
+      });
+
+      test('rejects past expiration dates', () {
+        // Previous month of same year
+        expect(validator('08/26'), equals('Invalid Expiration'));
+        // Past year
+        expect(validator('12/25'), equals('Invalid Expiration'));
+        expect(validator('01/2020'), equals('Invalid Expiration'));
+      });
+
+      test('rejects invalid month numbers', () {
+        expect(validator('00/26'), equals('Invalid Expiration'));
+        expect(validator('13/26'), equals('Invalid Expiration'));
+      });
+
+      test('rejects malformed date strings', () {
+        expect(validator('2026/09'), equals('Invalid Expiration'));
+        expect(validator('invalid'), equals('Invalid Expiration'));
+        expect(validator('09/2'), equals('Invalid Expiration'));
+      });
+
+      test('handles null and empty as valid (optional)', () {
+        expect(validator(null), isNull);
+        expect(validator(''), isNull);
+        expect(validator('   '), isNull);
+      });
+    });
+
+    group('cardCvv validator', () {
+      final validator = NanoValidator.cardCvv('Invalid CVV');
+
+      test('validates 3 and 4 digit CVVs', () {
+        expect(validator('123'), isNull);
+        expect(validator('1234'), isNull);
+      });
+
+      test('rejects invalid lengths and characters', () {
+        expect(validator('12'), equals('Invalid CVV'));
+        expect(validator('12345'), equals('Invalid CVV'));
+        expect(validator('12a'), equals('Invalid CVV'));
+        expect(validator('abc'), equals('Invalid CVV'));
+      });
+
+      test('handles custom minLength and maxLength', () {
+        final exactThreeCvv = NanoValidator.cardCvv(
+          'CVV must be exactly 3 digits',
+          maxLength: 3,
+        );
+        expect(exactThreeCvv('123'), isNull);
+        expect(exactThreeCvv('1234'), equals('CVV must be exactly 3 digits'));
+      });
+
+      test('handles null and empty as valid (optional)', () {
+        expect(validator(null), isNull);
+        expect(validator(''), isNull);
+        expect(validator('   '), isNull);
+      });
+    });
   });
 }

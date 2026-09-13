@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 1.0.5 [Unreleased]
 
+### Added
+- **Native Brazilian Document Validators**:
+  - **`NanoValidator.cnpj`**: Upgraded to support the new alphanumeric CNPJ specification (Receita Federal IN RFB nº 2.229/2024) alongside legacy numeric CNPJs, utilizing ASCII-offset Modulo 11 math with check digit verification.
+  - **`NanoValidator.cpfOrCnpj`**: Universal single-field validator dynamically routing to CPF (11 digits) or CNPJ (14 characters) based on stripped character length.
+  - Pre-compiled static regular expressions and eliminated magic numbers across all document validators for high-performance keystroke validation.
+- **Credit Card & Payment Form Validators**:
+  - **`NanoValidator.creditCard`**: Credit card number validator utilizing the Luhn algorithm (Modulo 10 checksum) with automatic whitespace/hyphen tolerance and configurable length boundaries (default 13–19 digits).
+  - **`NanoValidator.cardExpiration`**: Expiration date validator supporting `MM/YY` and `MM/YYYY` formats with strict month checking (1–12), automatic expiration calculation, and optional `now` provider for deterministic unit testing.
+  - **`NanoValidator.cardCvv`**: Security code validator supporting 3-digit and 4-digit (Amex) CVVs with configurable length boundaries.
+
 ## 1.0.4 (2026-09-11)
 
 ### Added
