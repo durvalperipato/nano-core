@@ -5,17 +5,16 @@ import 'nano_validator_patterns.dart';
 /// Signature for validator functions returning an error message if invalid,
 /// or `null` if valid.
 ///
-/// Can return a static [String], an internationalized
-/// `String Function(BuildContext)` callback, or `null`.
-typedef NanoValidatorFunction<Value> = dynamic Function(Value? value);
+/// Returns a [String] error message when validation fails, or `null` when
+/// valid. Aligns directly with Flutter's standard `FormFieldValidator<T>`.
+typedef NanoValidatorFunction<Value> = String? Function(Value? value);
 
 /// Collection of standard, chainable form field validators with full
 /// internationalization ([BuildContext]) support.
 abstract final class NanoValidator {
 
-  /// Resolves an error message payload (static string or context callback)
-  /// into a localized [String].
-  static String? resolveMessage(dynamic error, BuildContext? context) {
+  /// Resolves an error message payload into a localized [String].
+  static String? resolveMessage(dynamic error, [BuildContext? context]) {
     if (error == null) return null;
     if (error is String) return error;
     if (error is String Function(BuildContext)) {
@@ -29,7 +28,7 @@ abstract final class NanoValidator {
   }
 
   /// Requires the field to have a non-null, non-empty value.
-  static NanoValidatorFunction<Value> required<Value>(dynamic message) {
+  static NanoValidatorFunction<Value> required<Value>(String message) {
     return (value) {
       if (value == null) return message;
       if (value is String && value.trim().isEmpty) return message;
@@ -40,7 +39,7 @@ abstract final class NanoValidator {
   }
 
   /// Validates that a string is a well-formatted email address.
-  static NanoValidatorFunction<String> email(dynamic message) {
+  static NanoValidatorFunction<String> email(String message) {
     return (value) {
       if (value == null || value.trim().isEmpty) return null;
       if (!NanoValidatorRegex.email.hasMatch(value.trim())) return message;
@@ -49,7 +48,7 @@ abstract final class NanoValidator {
   }
 
   /// Validates that a string has at least [min] characters.
-  static NanoValidatorFunction<String> minLength(int min, dynamic message) {
+  static NanoValidatorFunction<String> minLength(int min, String message) {
     return (value) {
       if (value == null || value.isEmpty) return null;
       if (value.length < min) return message;
@@ -58,7 +57,7 @@ abstract final class NanoValidator {
   }
 
   /// Validates that a string does not exceed [max] characters.
-  static NanoValidatorFunction<String> maxLength(int max, dynamic message) {
+  static NanoValidatorFunction<String> maxLength(int max, String message) {
     return (value) {
       if (value == null || value.isEmpty) return null;
       if (value.length > max) return message;
@@ -67,7 +66,7 @@ abstract final class NanoValidator {
   }
 
   /// Validates that a numeric value is at least [min].
-  static NanoValidatorFunction<num> min(num min, dynamic message) {
+  static NanoValidatorFunction<num> min(num min, String message) {
     return (value) {
       if (value == null) return null;
       if (value < min) return message;
@@ -76,7 +75,7 @@ abstract final class NanoValidator {
   }
 
   /// Validates that a numeric value does not exceed [max].
-  static NanoValidatorFunction<num> max(num max, dynamic message) {
+  static NanoValidatorFunction<num> max(num max, String message) {
     return (value) {
       if (value == null) return null;
       if (value > max) return message;
@@ -87,7 +86,7 @@ abstract final class NanoValidator {
   /// Validates that a string matches a given regular expression [pattern].
   static NanoValidatorFunction<String> pattern(
     Pattern pattern,
-    dynamic message,
+    String message,
   ) {
     return (value) {
       if (value == null || value.isEmpty) return null;
@@ -100,7 +99,7 @@ abstract final class NanoValidator {
   /// Validates that this field value equals another getter / value.
   static NanoValidatorFunction<Value> match<Value>(
     Value Function() otherValueGetter,
-    dynamic message,
+    String message,
   ) {
     return (value) {
       if (value != otherValueGetter()) return message;
@@ -109,7 +108,7 @@ abstract final class NanoValidator {
   }
 
   /// Validates Brazilian CPF format and check digits.
-  static NanoValidatorFunction<String> cpf(dynamic message) {
+  static NanoValidatorFunction<String> cpf(String message) {
     return (value) {
       if (value == null || value.trim().isEmpty) return null;
       if (!_isValidCpf(value)) return message;
@@ -126,7 +125,7 @@ abstract final class NanoValidator {
   /// contain letters (A-Z) and digits (0-9). The two check digits (positions
   /// 13 and 14) are always strictly numeric.
   static NanoValidatorFunction<String> cnpj(
-    dynamic message, {
+    String message, {
     bool allowAlphanumeric = true,
   }) {
     return (value) {
@@ -144,7 +143,7 @@ abstract final class NanoValidator {
   /// Automatically determines the document type based on the cleaned character
   /// length. Supports alphanumeric CNPJ when [allowAlphanumeric] is `true`.
   static NanoValidatorFunction<String> cpfOrCnpj(
-    dynamic message, {
+    String message, {
     bool allowAlphanumeric = true,
   }) {
     return (value) {
@@ -173,7 +172,7 @@ abstract final class NanoValidator {
   /// number must contain between [minLength] (default 13) and [maxLength]
   /// (default 19) digits and satisfy the Luhn checksum formula.
   static NanoValidatorFunction<String> creditCard(
-    dynamic message, {
+    String message, {
     int minLength = NanoValidatorConstants.creditCardMinLength,
     int maxLength = NanoValidatorConstants.creditCardMaxLength,
   }) {
@@ -194,10 +193,11 @@ abstract final class NanoValidator {
   ///
   /// Verifies that the month is between 1 and 12, and that the card has not
   /// expired (a card remains valid until the last day of the expiration month).
-  /// An optional [now] provider can be passed for deterministic testing.
+  /// An optional [referenceDate] can be passed for deterministic testing.
+  /// Defaults to [DateTime.now].
   static NanoValidatorFunction<String> creditCardExpiration(
-    dynamic message, {
-    DateTime Function()? now,
+    String message, {
+    DateTime? referenceDate,
   }) {
     return (value) {
       if (value == null || value.trim().isEmpty) return null;
@@ -214,7 +214,7 @@ abstract final class NanoValidator {
         year += 2000;
       }
 
-      final currentDate = now != null ? now() : DateTime.now();
+      final currentDate = referenceDate ?? DateTime.now();
       final currentYear = currentDate.year;
       final currentMonth = currentDate.month;
 
@@ -229,7 +229,7 @@ abstract final class NanoValidator {
   /// Ensures the input contains strictly numeric digits with a length between
   /// [minLength] (default 3) and [maxLength] (default 4).
   static NanoValidatorFunction<String> creditCardCvv(
-    dynamic message, {
+    String message, {
     int minLength = NanoValidatorConstants.creditCardCvvMinLength,
     int maxLength = NanoValidatorConstants.creditCardCvvMaxLength,
   }) {
@@ -320,6 +320,6 @@ abstract final class NanoValidator {
 
   /// Custom inline validator function.
   static NanoValidatorFunction<Value> custom<Value>(
-    dynamic Function(Value? value) validatorFn,
+    String? Function(Value? value) validatorFn,
   ) => validatorFn;
 }

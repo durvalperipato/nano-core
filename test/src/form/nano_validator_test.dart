@@ -213,7 +213,7 @@ void main() {
       final fixedDate = DateTime(2026, 9, 13);
       final validator = NanoValidator.creditCardExpiration(
         'Invalid Expiration',
-        now: () => fixedDate,
+        referenceDate: fixedDate,
       );
 
       test('validates current month and future dates', () {
@@ -246,6 +246,12 @@ void main() {
         expect(validator('2026/09'), equals('Invalid Expiration'));
         expect(validator('invalid'), equals('Invalid Expiration'));
         expect(validator('09/2'), equals('Invalid Expiration'));
+      });
+
+      test('defaults referenceDate to current date when omitted', () {
+        final defaultValidator = NanoValidator.creditCardExpiration('Expired');
+        expect(defaultValidator('12/2099'), isNull);
+        expect(defaultValidator('01/2000'), equals('Expired'));
       });
 
       test('handles null and empty as valid (optional)', () {

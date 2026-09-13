@@ -13,11 +13,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **`NanoValidator.cpfOrCnpj`**: Universal single-field validator dynamically routing to CPF (11 digits) or CNPJ (14 characters) based on stripped character length.
 - **Credit Card & Payment Form Validators**:
   - **`NanoValidator.creditCard`**: Credit card number validator utilizing the Luhn algorithm (Modulo 10 checksum) with automatic whitespace/hyphen tolerance and configurable length boundaries (default 13–19 digits).
-  - **`NanoValidator.creditCardExpiration`**: Expiration date validator supporting `MM/YY` and `MM/YYYY` formats with strict month checking (1–12), automatic expiration calculation, and optional `now` provider for deterministic unit testing.
+  - **`NanoValidator.creditCardExpiration`**: Expiration date validator supporting `MM/YY` and `MM/YYYY` formats with strict month checking (1–12), automatic expiration calculation, and optional `referenceDate` provider for deterministic unit testing.
   - **`NanoValidator.creditCardCvv`**: Security code validator supporting 3-digit and 4-digit (Amex) CVVs with configurable length boundaries.
 - **Dedicated Validation Patterns & Constants**:
   - **`NanoValidatorConstants`**: Centralized, semantic length and weight constants (`cpfLength`, `cnpjLength`, `creditCardMinLength`, `creditCardMaxLength`, etc.).
   - **`NanoValidatorRegex`**: Public pre-compiled regular expressions (`email`, `digitsOnly`, `numericCnpj`, `alphanumericCnpj`, `creditCardExpiration`, etc.) for zero-allocation performance and custom validator reuse.
+
+### Changed
+- **Strong Typing Across `NanoValidator`**:
+  - Replaced permissive `dynamic message` parameters with strongly-typed `String message` across all `NanoValidator` methods (`required`, `email`, `minLength`, `maxLength`, `min`, `max`, `pattern`, `match`, `cpf`, `cnpj`, `cpfOrCnpj`, `creditCard`, `creditCardExpiration`, `creditCardCvv`).
+  - Updated `NanoValidatorFunction<Value>` signature to `String? Function(Value? value)`, aligning 1:1 with Flutter's standard `FormFieldValidator<T>`.
+  - Replaced ambiguous parameter `now` with intuitive `referenceDate: DateTime?` in `NanoValidator.creditCardExpiration`.
 
 ## 1.0.4 (2026-09-11)
 
