@@ -10,6 +10,21 @@ typedef NanoValidatorFunction<Value> = dynamic Function(Value? value);
 /// Collection of standard, chainable form field validators with full
 /// internationalization ([BuildContext]) support.
 abstract final class NanoValidator {
+  // Document length constants
+  static const int _cpfLength = 11;
+  static const int _cnpjLength = 14;
+
+  // Pre-compiled regular expressions for performance and readability
+  static final _emailRegex = RegExp(
+    r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+  );
+  static final _digitsOnlyRegex = RegExp(r'[^0-9]');
+  static final _nonAlphanumericRegex = RegExp(r'[^a-zA-Z0-9]');
+  static final _repeatedCpfRegex = RegExp(r'^(\d)\1{10}$');
+  static final _repeatedCnpjRegex = RegExp(r'^([A-Z0-9])\1{13}$');
+  static final _numericCnpjRegex = RegExp(r'^\d{14}$');
+  static final _alphanumericCnpjRegex = RegExp(r'^[A-Z0-9]{12}\d{2}$');
+
   /// Resolves an error message payload (static string or context callback)
   /// into a localized [String].
   static String? resolveMessage(dynamic error, BuildContext? context) {
@@ -38,12 +53,9 @@ abstract final class NanoValidator {
 
   /// Validates that a string is a well-formatted email address.
   static NanoValidatorFunction<String> email(dynamic message) {
-    final emailRegex = RegExp(
-      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-    );
     return (value) {
       if (value == null || value.trim().isEmpty) return null;
-      if (!emailRegex.hasMatch(value.trim())) return message;
+      if (!_emailRegex.hasMatch(value.trim())) return message;
       return null;
     };
   }
@@ -112,54 +124,115 @@ abstract final class NanoValidator {
   static NanoValidatorFunction<String> cpf(dynamic message) {
     return (value) {
       if (value == null || value.trim().isEmpty) return null;
-      final numbers = value.replaceAll(RegExp(r'[^0-9]'), '');
-      if (numbers.length != 11) return message;
-      if (RegExp(r'^(\d)\1{10}$').hasMatch(numbers)) return message;
-
-      var sum = 0;
-      for (var i = 0; i < 9; i++) {
-        sum += int.parse(numbers[i]) * (10 - i);
-      }
-      final firstDigit = sum % 11 < 2 ? 0 : 11 - (sum % 11);
-      if (firstDigit != int.parse(numbers[9])) return message;
-
-      sum = 0;
-      for (var i = 0; i < 10; i++) {
-        sum += int.parse(numbers[i]) * (11 - i);
-      }
-      final secondDigit = sum % 11 < 2 ? 0 : 11 - (sum % 11);
-      if (secondDigit != int.parse(numbers[10])) return message;
-
+      if (!_isValidCpf(value)) return message;
       return null;
     };
   }
 
   /// Validates Brazilian CNPJ format and check digits.
-  static NanoValidatorFunction<String> cnpj(dynamic message) {
+  ///
+  /// Supports both legacy numeric CNPJs and the new alphanumeric CNPJ
+  /// specification (Instrução Normativa RFB nº 2.229/2024).
+  ///
+  /// When [allowAlphanumeric] is `true` (default), the first 12 characters may
+  /// contain letters (A-Z) and digits (0-9). The two check digits (positions
+  /// 13 and 14) are always strictly numeric.
+  static NanoValidatorFunction<String> cnpj(
+    dynamic message, {
+    bool allowAlphanumeric = true,
+  }) {
     return (value) {
       if (value == null || value.trim().isEmpty) return null;
-      final numbers = value.replaceAll(RegExp(r'[^0-9]'), '');
-      if (numbers.length != 14) return message;
-      if (RegExp(r'^(\d)\1{13}$').hasMatch(numbers)) return message;
-
-      const weights1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
-      var sum = 0;
-      for (var i = 0; i < 12; i++) {
-        sum += int.parse(numbers[i]) * weights1[i];
+      if (!_isValidCnpj(value, allowAlphanumeric: allowAlphanumeric)) {
+        return message;
       }
-      final firstDigit = sum % 11 < 2 ? 0 : 11 - (sum % 11);
-      if (firstDigit != int.parse(numbers[12])) return message;
-
-      const weights2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
-      sum = 0;
-      for (var i = 0; i < 13; i++) {
-        sum += int.parse(numbers[i]) * weights2[i];
-      }
-      final secondDigit = sum % 11 < 2 ? 0 : 11 - (sum % 11);
-      if (secondDigit != int.parse(numbers[13])) return message;
-
       return null;
     };
+  }
+
+  /// Validates a Brazilian document field accepting either a CPF (11 digits)
+  /// or a CNPJ (14 characters).
+  ///
+  /// Automatically determines the document type based on the cleaned character
+  /// length. Supports alphanumeric CNPJ when [allowAlphanumeric] is `true`.
+  static NanoValidatorFunction<String> cpfOrCnpj(
+    dynamic message, {
+    bool allowAlphanumeric = true,
+  }) {
+    return (value) {
+      if (value == null || value.trim().isEmpty) return null;
+      final clean = value.replaceAll(_nonAlphanumericRegex, '');
+      final isCpf = clean.length == _cpfLength;
+      final isCnpj = clean.length == _cnpjLength;
+
+      if (isCpf) {
+        if (!_isValidCpf(clean)) return message;
+        return null;
+      }
+      if (isCnpj) {
+        if (!_isValidCnpj(clean, allowAlphanumeric: allowAlphanumeric)) {
+          return message;
+        }
+        return null;
+      }
+      return message;
+    };
+  }
+
+  static bool _isValidCpf(String value) {
+    final numbers = value.replaceAll(_digitsOnlyRegex, '');
+    if (numbers.length != _cpfLength) return false;
+    if (_repeatedCpfRegex.hasMatch(numbers)) return false;
+
+    var sum = 0;
+    for (var i = 0; i < 9; i++) {
+      sum += (numbers.codeUnitAt(i) - 48) * (10 - i);
+    }
+    final firstDigit = sum % 11 < 2 ? 0 : 11 - (sum % 11);
+    if (firstDigit != numbers.codeUnitAt(9) - 48) return false;
+
+    sum = 0;
+    for (var i = 0; i < 10; i++) {
+      sum += (numbers.codeUnitAt(i) - 48) * (11 - i);
+    }
+    final secondDigit = sum % 11 < 2 ? 0 : 11 - (sum % 11);
+    if (secondDigit != numbers.codeUnitAt(10) - 48) return false;
+
+    return true;
+  }
+
+  static bool _isValidCnpj(String value, {required bool allowAlphanumeric}) {
+    final clean = value.replaceAll(_nonAlphanumericRegex, '').toUpperCase();
+    if (clean.length != _cnpjLength) return false;
+
+    if (!allowAlphanumeric) {
+      if (!_numericCnpjRegex.hasMatch(clean)) return false;
+    } else {
+      if (!_alphanumericCnpjRegex.hasMatch(clean)) return false;
+    }
+
+    if (_repeatedCnpjRegex.hasMatch(clean)) return false;
+
+    const weights1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+    var sum = 0;
+    for (var i = 0; i < 12; i++) {
+      sum += (clean.codeUnitAt(i) - 48) * weights1[i];
+    }
+    final rest1 = sum % 11;
+    final firstDigit = rest1 < 2 ? 0 : 11 - rest1;
+    if (firstDigit != clean.codeUnitAt(12) - 48) return false;
+
+    const weights2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+    sum = 0;
+    for (var i = 0; i < 12; i++) {
+      sum += (clean.codeUnitAt(i) - 48) * weights2[i];
+    }
+    sum += firstDigit * weights2[12];
+    final rest2 = sum % 11;
+    final secondDigit = rest2 < 2 ? 0 : 11 - rest2;
+    if (secondDigit != clean.codeUnitAt(13) - 48) return false;
+
+    return true;
   }
 
   /// Custom inline validator function.
