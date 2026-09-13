@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 1.0.5 [Unreleased]
 
+### Breaking Changes
+- `NanoValidator`: Replaced permissive `dynamic message` parameters with strongly-typed `String message` across all validator methods (`required`, `email`, `minLength`, `maxLength`, `min`, `max`, `pattern`, `match`, `cpf`, `cnpj`, `cpfOrCnpj`, `creditCard`, `creditCardExpiration`, `creditCardCvv`).
+- `NanoValidatorFunction<Value>`: Updated signature from `dynamic Function(Value? value)` to `String? Function(Value? value)`, aligning 1:1 with Flutter's standard `FormFieldValidator<T>`.
+
 ### Added
 - **Native Brazilian Document Validators**:
   - **`NanoValidator.cnpj`**: Upgraded to support the new alphanumeric CNPJ specification (Receita Federal IN RFB nº 2.229/2024) alongside legacy numeric CNPJs, utilizing ASCII-offset Modulo 11 math with check digit verification.
@@ -18,12 +22,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Dedicated Validation Patterns & Constants**:
   - **`NanoValidatorConstants`**: Centralized, semantic length and weight constants (`cpfLength`, `cnpjLength`, `creditCardMinLength`, `creditCardMaxLength`, etc.).
   - **`NanoValidatorRegex`**: Public pre-compiled regular expressions (`email`, `digitsOnly`, `numericCnpj`, `alphanumericCnpj`, `creditCardExpiration`, etc.) for zero-allocation performance and custom validator reuse.
-
-### Changed
-- **Strong Typing Across `NanoValidator`**:
-  - Replaced permissive `dynamic message` parameters with strongly-typed `String message` across all `NanoValidator` methods (`required`, `email`, `minLength`, `maxLength`, `min`, `max`, `pattern`, `match`, `cpf`, `cnpj`, `cpfOrCnpj`, `creditCard`, `creditCardExpiration`, `creditCardCvv`).
-  - Updated `NanoValidatorFunction<Value>` signature to `String? Function(Value? value)`, aligning 1:1 with Flutter's standard `FormFieldValidator<T>`.
-  - Replaced ambiguous parameter `now` with intuitive `referenceDate: DateTime?` in `NanoValidator.creditCardExpiration`.
 
 ## 1.0.4 (2026-09-11)
 
