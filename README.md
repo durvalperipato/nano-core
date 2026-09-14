@@ -128,7 +128,9 @@ A lightweight reactive architecture framework and design system toolkit for Flut
 
 - ⏱️ [**NanoDebouncer**](#9-debounced-search-inputs): Flexible async execution delay for search inputs, autocomplete, and live filters with native `NanoTextField(debounceDuration: ...)` support.
 
-- 🧩 [**Design System Components**](#7-reactive-forms-internationalized-validators--nanotextfield): Standalone reusable UI widgets such as `NanoLoadingOverlay`, `NanoToast`, `NanoPaginatedListView`, `NanoPaginationBar`, `NanoTextField`, and `NanoPoweredBy`.
+- 🧩 [**Design System & Feedback Components**](#14-native-skeleton-loading--wave-shimmer-nanoskeleton--nanoshimmer): Standalone reusable UI widgets including `NanoSkeleton`, `NanoShimmer`, `NanoLoadingOverlay`, `NanoToast`, `NanoPaginatedListView`, `NanoPaginationBar`, `NanoTextField`, and `NanoPoweredBy`.
+
+- ✨ [**Native Skeleton & Shimmer Loading**](#14-native-skeleton-loading--wave-shimmer-nanoskeleton--nanoshimmer): 100% native wave gradient shimmer and skeleton placeholders (presets: list, card, grid; primitives: box, circle, text; and GPU-accelerated ghost masking).
 
 - 🖥️ [**NanoDeviceType & NanoEnvironment**](#8-environment--build-modes-nanoenvironment--nanoenv): Real-time cross-platform environment, `--dart-define` parsers, and responsive viewport width inspection.
 
@@ -141,7 +143,7 @@ Add `nano_core` to your `pubspec.yaml`:
 dependencies:
   flutter:
     sdk: flutter
-  nano_core: ^1.0.5
+  nano_core: ^1.0.6
 ```
 
 ## Quick Example
@@ -1138,12 +1140,26 @@ NanoForm(
         label: 'Full Name',
         prefixIcon: const Icon(Icons.person_outline),
         validators: [
-          NanoValidator.required((context) => 'Name is required'),
-          NanoValidator.minLength(3, (context) => 'Minimum 3 characters'),
+          NanoValidator.required('Name is required'),
+          NanoValidator.minLength(3, 'Minimum 3 characters'),
         ],
         autoValidateMode: NanoAutoValidateMode.onUserInteraction,
         onChanged: (text) => controller.updateForm(
           (s) => s.copyWith(form: s.form.copyWith(name: () => text)),
+        ),
+      ),
+      const SizedBox(height: 14),
+      // Built-in Brazilian Document Validation (CPF, CNPJ, or Hybrid):
+      NanoTextField(
+        value: state.data?.form.document,
+        label: 'Document (CPF or CNPJ)',
+        prefixIcon: const Icon(Icons.badge_outlined),
+        validators: [
+          NanoValidator.required('Document is required'),
+          NanoValidator.cpfOrCnpj('Please provide a valid CPF or CNPJ'),
+        ],
+        onChanged: (text) => controller.updateForm(
+          (s) => s.copyWith(form: s.form.copyWith(document: () => text)),
         ),
       ),
       const SizedBox(height: 20),
@@ -1155,6 +1171,16 @@ NanoForm(
   ),
 )
 ```
+
+#### 4. Built-in Native Validators (`NanoValidator`)
+`nano_core` provides strongly typed, offline-first validators matching Flutter's standard `FormFieldValidator<T>`:
+
+| Category | Validators |
+|---|---|
+| **Core Form** | `NanoValidator.required(msg)`, `NanoValidator.email(msg)`, `NanoValidator.minLength(len, msg)`, `NanoValidator.maxLength(len, msg)`, `NanoValidator.min(val, msg)`, `NanoValidator.max(val, msg)`, `NanoValidator.pattern(regex, msg)`, `NanoValidator.match(otherField, msg)` |
+| **Brazilian Documents** | `NanoValidator.cpf(msg)` (standard Modulo 11 check), `NanoValidator.cnpj(msg)` (supports both legacy numeric and new alphanumeric IN RFB 2.229/2024), `NanoValidator.cpfOrCnpj(msg)` (auto-detects by length) |
+| **Cards & Payments** | `NanoValidator.creditCard(msg)` (Luhn algorithm), `NanoValidator.creditCardExpiration(msg)` (MM/YY or MM/YYYY future date), `NanoValidator.creditCardCvv(msg)` (3 or 4 digits) |
+
 
 ### 8. Structured Logging with NanoLogger & NanoLogFilter
 
@@ -1809,6 +1835,107 @@ class LoginInjections extends NanoInjections {
 
 ---
 
+### 14. Native Skeleton Loading & Wave Shimmer (NanoSkeleton & NanoShimmer)
+
+`nano_core` provides a 100% native, zero-dependency skeleton loading design system and GPU-accelerated wave gradient shimmer animation widget powered by Flutter's built-in `ShaderMask` and `AnimatedBuilder`.
+
+#### 1. Ready-to-Use Layout Presets
+Quickly render complete layout placeholders without building ad-hoc loading widgets:
+
+```dart
+// 1. Shimmering List of avatar and text lines:
+NanoShimmer(
+  child: NanoSkeleton.list(items: 5, spacing: 16),
+)
+
+// 2. Structural Card skeleton:
+NanoShimmer(
+  child: NanoSkeleton.card(height: 140),
+)
+
+// 3. Responsive Grid of skeleton tiles:
+NanoShimmer(
+  child: NanoSkeleton.grid(
+    columns: 2,
+    rows: 3,
+    itemHeight: 100,
+    spacing: 12,
+  ),
+)
+```
+
+#### 2. Geometric Building Blocks (Primitives)
+Assemble custom loading skeletons using elementary shapes:
+
+```dart
+NanoShimmer(
+  child: Row(
+    children: [
+      NanoSkeleton.circle(size: 56),
+      const SizedBox(width: 16),
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            NanoSkeleton.text(lines: 2, lineSpacing: 6),
+            const SizedBox(height: 8),
+            NanoSkeleton.box(width: 120, height: 14),
+          ],
+        ),
+      ),
+    ],
+  ),
+)
+```
+
+#### 3. GPU-Accelerated Ghost Masking (`NanoSkeleton.mask`)
+Wrap any existing widget tree with `.mask()`. When `loading: true`, it automatically converts all visual child shapes into shimmering silhouettes while preserving the exact layout geometry:
+
+```dart
+NanoSkeleton.mask(
+  loading: state is LoadingState,
+  child: UserProfileCard(user: state.data?.user),
+)
+```
+
+#### 4. Directional Wave Shimmer (`NanoShimmerDirection`)
+Customize wave motion direction (`ltr`, `rtl`, `ttb`, `btt`), duration, base and highlight colors:
+
+```dart
+NanoShimmer(
+  direction: NanoShimmerDirection.rtl, // Right-to-Left wave
+  duration: const Duration(milliseconds: 1200),
+  baseColor: Colors.grey.shade800,
+  highlightColor: Colors.grey.shade600,
+  child: NanoSkeleton.card(),
+)
+```
+
+#### 5. Native Integration with `NanoPaginatedListView` & `NanoScaffold`
+`NanoPaginatedListView` natively defaults to `NanoSkeleton.list()` as its initial loading placeholder:
+
+```dart
+// NanoPaginatedListView automatically displays shimmering skeleton rows during initial fetch:
+NanoPaginatedListView<User>(
+  paginator: controller.paginator,
+  itemBuilder: (context, user, index) => UserTile(user: user),
+  // Optional custom loading override:
+  loadingWidget: const NanoLoadingOverlay(),
+)
+
+// NanoScaffold page loading slot:
+NanoScaffold<UserState, UserMessages>(
+  controller: controller,
+  loadingWidget: Padding(
+    padding: const EdgeInsets.all(16),
+    child: NanoSkeleton.list(items: 6),
+  ),
+  builder: (context, state) => ...,
+)
+```
+
+---
+
 ## 💖 Supporting & Sponsoring
 
 `nano_core` is an open-source framework created to elevate architecture, performance, and developer experience in Flutter multiplatform applications. If this framework saved you time or is helping your team, consider supporting its continuous development:
@@ -1822,7 +1949,6 @@ class LoginInjections extends NanoInjections {
 ## 💬 Community, Support & Feedback
 
 - 🐛 **Issue Tracker**: [GitHub Issues](https://github.com/durvalperipato/nano-core/issues)
-- 💡 **Discussions**: [GitHub Discussions](https://github.com/durvalperipato/nano-core/discussions)
 - ✉️ **Direct Contact**: [durvalana8893@gmail.com](mailto:durvalana8893@gmail.com)
 - 🌐 **Website**: [nanodevs.com.br](https://nanodevs.com.br)
 - 💼 **Author**: [Durval Peripato Neto](https://github.com/durvalperipato)
