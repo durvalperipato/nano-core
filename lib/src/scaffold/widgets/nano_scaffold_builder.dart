@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../components/nano_loading_overlay.dart';
+import '../../components/loading/nano_loading_overlay.dart';
 import '../../state/nano_state.dart';
 import '../../state/nano_view_state.dart';
 import 'nano_scaffold_header.dart';
