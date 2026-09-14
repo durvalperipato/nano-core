@@ -1949,7 +1949,6 @@ NanoScaffold<UserState, UserMessages>(
 ## 💬 Community, Support & Feedback
 
 - 🐛 **Issue Tracker**: [GitHub Issues](https://github.com/durvalperipato/nano-core/issues)
-- 💡 **Discussions**: [GitHub Discussions](https://github.com/durvalperipato/nano-core/discussions)
 - ✉️ **Direct Contact**: [durvalana8893@gmail.com](mailto:durvalana8893@gmail.com)
 - 🌐 **Website**: [nanodevs.com.br](https://nanodevs.com.br)
 - 💼 **Author**: [Durval Peripato Neto](https://github.com/durvalperipato)
