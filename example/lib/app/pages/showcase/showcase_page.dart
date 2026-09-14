@@ -13,6 +13,7 @@ import 'widgets/navigation_showcase_card.dart';
 import 'widgets/repository_showcase_card.dart';
 import 'widgets/result_showcase_card.dart';
 import 'widgets/shell_scaffold_showcase_card.dart';
+import 'widgets/skeleton_and_shimmer_card.dart';
 import 'widgets/state_simulator_card.dart';
 import 'widgets/toast_showcase_card.dart';
 import 'widgets/universal_adapter_showcase_card.dart';
@@ -80,6 +81,8 @@ class _ShowcasePageState
               const SizedBox(height: 20),
               const ConnectivityAndDebounceCard(),
               const SizedBox(height: 20),
+              const SkeletonAndShimmerCard(),
+              const SizedBox(height: 20),
               StateSimulatorCard(controller: controller),
               const SizedBox(height: 20),
               const FormShowcaseCard(),
@@ -99,6 +102,23 @@ class _ShowcasePageState
               const ResultShowcaseCard(),
               const SizedBox(height: 20),
               NanoCommandCard(controller: controller),
+              const SizedBox(height: 32),
+              Center(
+                child: NanoPoweredBy(
+                  companyName: 'NanoDevs',
+                  prefix: 'Showcase synced with nano_core',
+                  version: 'v1.0.6',
+                  isCompact: true,
+                  onTap: () {
+                    NanoToast.show(
+                      context,
+                      message: 'Nano Core Showcase reference: v1.0.6',
+                      type: NanoToastType.success,
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 16),
             ],
           ),
         );
