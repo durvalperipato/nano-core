@@ -5,6 +5,13 @@ All notable changes to the `nano_core` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.6 [Unreleased]
+
+### Added
+- **`NanoShimmer` Component**: Native wave gradient animation widget powered by Flutter's built-in `ShaderMask` and `AnimatedBuilder` (zero external dependencies, fully compatible with Flutter `>=3.10.0`, light & dark theme adaptive).
+- **`NanoSkeleton` Design System**: Structural loading placeholders with presets (`.grid()`, `.list()`, `.card()`), geometric primitives (`.box()`, `.circle()`), and GPU-accelerated ghost masking (`.mask()`).
+- **`NanoPaginatedListView` Integration**: Elevated default loading view from `CircularProgressIndicator` to `const NanoSkeleton.list()` while preserving `loadingWidget` for custom overrides.
+
 ## 1.0.5 (2026-09-13)
 
 ### Breaking Changes
