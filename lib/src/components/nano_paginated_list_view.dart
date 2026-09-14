@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../pagination/nano_paginator.dart';
+import 'loading/nano_skeleton.dart';
 
 /// A reactive [ListView] that automatically binds to a [NanoPaginator] to
 /// handle infinite scrolling, bottom loading indicators, and pull-to-refresh.
@@ -106,8 +107,7 @@ class _NanoPaginatedListViewState<T> extends State<NanoPaginatedListView<T>> {
         final paginator = widget.paginator;
 
         if (paginator.isLoading && paginator.items.isEmpty) {
-          return widget.loadingWidget ??
-              const Center(child: CircularProgressIndicator());
+          return widget.loadingWidget ?? NanoSkeleton.list();
         }
 
         if (paginator.error != null && paginator.items.isEmpty) {

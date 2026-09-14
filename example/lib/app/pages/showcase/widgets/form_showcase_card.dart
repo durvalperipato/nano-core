@@ -4,26 +4,34 @@ import 'section_header.dart';
 
 /// Form data entity holding user inputs.
 class UserFormEntity extends NanoFormEntity {
-  const UserFormEntity({this.name = '', this.email = '', this.password = ''});
+  const UserFormEntity({
+    this.name = '',
+    this.email = '',
+    this.password = '',
+    this.document = '',
+  });
 
   final String name;
   final String email;
   final String password;
+  final String document;
 
   UserFormEntity copyWith({
     String Function()? name,
     String Function()? email,
     String Function()? password,
+    String Function()? document,
   }) {
     return UserFormEntity(
       name: name != null ? name() : this.name,
       email: email != null ? email() : this.email,
       password: password != null ? password() : this.password,
+      document: document != null ? document() : this.document,
     );
   }
 
   @override
-  List<Object?> get props => [name, email, password];
+  List<Object?> get props => [name, email, password, document];
 }
 
 /// View state holding the [UserFormEntity].
@@ -71,7 +79,7 @@ class _FormShowcaseCardState extends State<FormShowcaseCard> {
       (form) {
         setState(() {
           _submittedData =
-              '✅ Form Submitted:\nName: ${form.name}\nEmail: ${form.email}';
+              '✅ Form Submitted:\nName: ${form.name}\nEmail: ${form.email}\nDocument: ${form.document.isEmpty ? "(none)" : form.document}';
         });
         NanoToast.showSuccess(context, 'Form submitted successfully!');
       },
@@ -168,6 +176,24 @@ class _FormShowcaseCardState extends State<FormShowcaseCard> {
                         onChanged: (text) => _controller.updateForm(
                           (state) => state.copyWith(
                             form: state.form.copyWith(password: () => text),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+
+                      NanoTextField(
+                        value: form.document,
+                        label: 'Document (CPF or CNPJ)',
+                        hint: 'e.g. 000.000.000-00',
+                        prefixIcon: const Icon(Icons.badge_outlined),
+                        validators: [
+                          NanoValidator.cpfOrCnpj(
+                            'Please enter a valid CPF or CNPJ',
+                          ),
+                        ],
+                        onChanged: (text) => _controller.updateForm(
+                          (state) => state.copyWith(
+                            form: state.form.copyWith(document: () => text),
                           ),
                         ),
                       ),
