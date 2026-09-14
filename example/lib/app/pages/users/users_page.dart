@@ -23,6 +23,10 @@ class _UsersPageState extends NanoStatePage<UsersPage, UsersController> {
   Widget build(BuildContext context) {
     return NanoScaffold<UsersState, NanoMessageKey>(
       controller: controller,
+      loadingWidget: Padding(
+        padding: const EdgeInsets.all(16),
+        child: NanoSkeleton.list(items: 6),
+      ),
       header: (context, state) => AppBar(
         title: Text(
           state.data?.users.isNotEmpty == true
@@ -137,7 +141,10 @@ class _UserCard extends StatelessWidget {
             ),
           ),
         ),
-        title: Text(user.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(
+          user.name,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
         subtitle: Text(user.email),
         trailing: const Icon(Icons.chevron_right, size: 20),
         onTap: onTap,
