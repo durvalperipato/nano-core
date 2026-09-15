@@ -5,6 +5,15 @@ All notable changes to the `nano_core` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.7 (2026-09-15)
+
+### Added
+- **Dynamic URL Pattern Matching & Deep Linking**:
+  - `NanoRouter` now natively compiles and matches declarative dynamic route patterns with parameter tokens (e.g. `/users/:id`, `/docs/*filepath`).
+  - Automatic parsing of URI query parameters (e.g. `/users/42?tab=reviews&page=1`) seamlessly accessible through `NanoRouteArgs`.
+  - Typed helper methods added to `NanoRouteArgs`: `pathParam()`, `queryParam()`, `queryParamInt()`, `queryParamBool()`, `queryParamDouble()`, with automatic fallback in `get<T>()`.
+  - `NanoDetailsRoute<Args>` automatically extracts dynamic path parameters into typed view parameters when in-memory arguments are omitted.
+
 ## 1.0.6 (2026-09-14)
 
 ### Added
