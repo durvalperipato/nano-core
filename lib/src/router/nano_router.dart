@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import 'internal/nano_guarded_page.dart';
+import 'internal/nano_route_matcher.dart';
 import 'models/nano_paths.dart';
 import 'models/nano_route_args.dart';
 import 'models/nano_route_code.dart';
@@ -10,7 +13,6 @@ import 'routes/nano_redirect_route.dart';
 import 'routes/nano_route_base.dart';
 import 'routes/nano_shell_route.dart';
 import 'widgets/nano_error_page.dart';
-import 'widgets/nano_guarded_page.dart';
 
 /// Central declarative router manager for Flutter applications.
 class NanoRouter {
@@ -53,6 +55,7 @@ class NanoRouter {
   final Map<String, NanoRouteBase> _routeMap = {};
   final Map<String, String> _nameToPathMap = {};
   final Map<String, List<NanoProtectedRoute>> _routeGuardsMap = {};
+  final List<NanoRouteMatcher> _matchers = [];
 
   void _registerRoute(
     NanoRouteBase route,
@@ -66,6 +69,9 @@ class NanoRouter {
 
     if (route is! NanoGroupRoute && route is! NanoProtectedRoute) {
       _routeMap[fullPath] = route;
+      if (NanoRouteMatcher.isDynamicPattern(fullPath)) {
+        _matchers.add(NanoRouteMatcher(pattern: fullPath, route: route));
+      }
       if (currentGuards.isNotEmpty) _routeGuardsMap[fullPath] = currentGuards;
     }
 
@@ -78,25 +84,51 @@ class NanoRouter {
     }
   }
 
+  static const String _pathSeparator = '/';
+
   String _joinPaths(String parent, String child) {
-    if (child.isEmpty) return parent.isEmpty ? '/' : parent;
-    if (parent.isEmpty || parent == '/') {
-      return child.startsWith('/') ? child : '/$child';
+    if (child.isEmpty) return parent.isEmpty ? NanoPaths.root : parent;
+    if (parent.isEmpty || parent == NanoPaths.root) {
+      return child.startsWith(_pathSeparator) ? child : '$_pathSeparator$child';
     }
-    final cleanParent = parent.endsWith('/')
+    final cleanParent = parent.endsWith(_pathSeparator)
         ? parent.substring(0, parent.length - 1)
         : parent;
-    final cleanChild = child.startsWith('/') ? child.substring(1) : child;
-    return '$cleanParent/$cleanChild';
+    final cleanChild = child.startsWith(_pathSeparator)
+        ? child.substring(1)
+        : child;
+    return '$cleanParent$_pathSeparator$cleanChild';
   }
 
   /// Generates Flutter [Route] from [RouteSettings].
   Route<dynamic> onGenerateRoute(RouteSettings settings) {
     final requested = settings.name ?? initialRoute;
-    final path = _nameToPathMap[requested] ?? requested;
-    final args = NanoRouteArgs(data: settings.arguments);
 
-    final route = _routeMap[path];
+    // Parse URI to separate path from query parameters
+    final uri = Uri.tryParse(requested) ?? Uri(path: requested);
+    final rawRequestedPath = uri.path.isEmpty ? initialRoute : uri.path;
+    final queryParams = uri.queryParameters;
+
+    // Resolve route name to path if applicable
+    final path = _nameToPathMap[rawRequestedPath] ?? rawRequestedPath;
+
+    // Fast-path: check static exact match
+    NanoRouteBase? route = _routeMap[path];
+    String matchedCanonicalPath = path;
+    Map<String, String> pathParams = const <String, String>{};
+
+    // If exact match not found, evaluate dynamic route matchers
+    if (route == null) {
+      for (final matcher in _matchers) {
+        final match = matcher.match(path);
+        if (match != null) {
+          route = match.route;
+          matchedCanonicalPath = match.canonicalPath;
+          pathParams = match.pathParameters;
+          break;
+        }
+      }
+    }
 
     if (route == null) {
       return MaterialPageRoute<dynamic>(
@@ -119,11 +151,17 @@ class NanoRouter {
       );
     }
 
+    final args = NanoRouteArgs(
+      data: settings.arguments,
+      pathParameters: pathParams,
+      queryParameters: queryParams,
+    );
+
     final page = NanoGuardedPage(
       route: route,
       path: path,
       args: args,
-      guards: _routeGuardsMap[path] ?? const [],
+      guards: _routeGuardsMap[matchedCanonicalPath] ?? const [],
       nameToPathMap: _nameToPathMap,
     );
 

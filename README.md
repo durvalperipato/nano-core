@@ -66,10 +66,10 @@ A lightweight reactive architecture framework and design system toolkit for Flut
 
 - 📱 [**NanoApp**](#4-declarative-routing-with-nanorouter-observers--nanoapp): Zero-boilerplate root application widget (auto-configures router, themes, and localizations).
 - 🧭 **Declarative Routes ([`NanoRouteBase`](#4-declarative-routing-with-nanorouter-observers--nanoapp))**:
-  - `NanoRoute`: Standard URL-driven screen route.
+  - `NanoRoute`: Standard and dynamic URL-driven screen route (`:id`, `*wildcard`, query parameters).
   - `NanoAnimatedRoute`: Custom page transitions (fade, slide, scale, size).
   - `NanoGroupRoute`: Path-prefixed nested sub-routes.
-  - `NanoDetailsRoute<Args>`: Strongly-typed arguments route.
+  - `NanoDetailsRoute<Args>`: Strongly-typed arguments route with automatic path parameter extraction.
   - `NanoProtectedRoute`: Route guards with conditional redirection.
   - `NanoRedirectRoute`: Declarative URL aliases and fallbacks.
 - 🐚 **Persistent Multi-Tab Shell ([`NanoShellRoute`](#5-persistent-multi-tab-navigation-nanoshellroute--nanoshellscaffold))**:
@@ -509,18 +509,22 @@ final appRouter = NanoRouter(
       builder: (context, args) => const ShowcasePage(),
     ),
 
-    // Users list with nested typed detail route:
+    // Dynamic route matching with path parameter (:id) and query parameters (?tab=):
     NanoRoute(
-      name: 'users',
-      path: '/users',
-      builder: (context, args) => const UsersPage(),
-      routes: [
-        // Sub-route: /users/detail with automatic argument typing
-        NanoDetailsRoute<User>(
-          name: 'user_detail',
-          builder: (context, user) => UserDetailPage(user: user),
-        ),
-      ],
+      name: 'user_profile',
+      path: '/users/:id',
+      builder: (context, args) {
+        final userId = args.pathParam('id');
+        final tab = args.queryParam('tab') ?? 'overview';
+        return UserProfilePage(userId: userId, tab: tab);
+      },
+    ),
+
+    // Strongly-typed details route (automatically extracts :id from path if arguments omitted):
+    NanoDetailsRoute<String>(
+      name: 'product_detail',
+      path: '/products/:id',
+      builder: (context, productId) => ProductDetailPage(productId: productId),
     ),
 
     // Protected area with route guard wrapping admin routes:
@@ -573,11 +577,11 @@ class MainApp extends StatelessWidget {
 
 #### Navigating anywhere:
 ```dart
-// Navigate by route name:
-context.toNamed('user_detail', arguments: user);
+// Navigate by route name with in-memory arguments:
+context.toNamed('product_detail', arguments: 'PROD-1024');
 
-// Navigate by path:
-context.toNamed('/users/detail', arguments: user);
+// Deep Linking with dynamic path parameters and query strings:
+context.toNamed('/users/42?tab=reviews');
 
 // Replace current screen:
 context.toReplacementNamed('login');
