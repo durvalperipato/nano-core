@@ -124,5 +124,74 @@ void main() {
         expect(find.text('Protected Feed'), findsNothing);
       },
     );
+
+    testWidgets(
+      'matches dynamic route with path parameters and query parameters',
+      (tester) async {
+      final router = NanoRouter(
+        initialRoute: '/home',
+        routes: [
+          NanoRoute(
+            path: '/home',
+            builder: (context, _) => const Text('Home Screen'),
+          ),
+          NanoRoute(
+            path: '/users/:id',
+            builder: (context, args) {
+              final id = args.pathParam('id');
+              final tab = args.queryParam('tab') ?? 'none';
+              return Text('User $id tab $tab');
+            },
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          navigatorKey: NanoRouter.navigatorKey,
+          onGenerateRoute: router.onGenerateRoute,
+          initialRoute: router.initialRoute,
+        ),
+      );
+
+      expect(find.text('Home Screen'), findsOneWidget);
+
+      NanoRouter.navigatorKey.currentState?.pushNamed('/users/42?tab=reviews');
+      await tester.pumpAndSettle();
+
+      expect(find.text('User 42 tab reviews'), findsOneWidget);
+    });
+
+    testWidgets(
+      'NanoDetailsRoute automatically extracts path parameter when data '
+      'is omitted',
+      (tester) async {
+      final router = NanoRouter(
+        initialRoute: '/home',
+        routes: [
+          NanoRoute(
+            path: '/home',
+            builder: (context, _) => const Text('Home Screen'),
+          ),
+          NanoDetailsRoute<String>(
+            path: '/products/:id',
+            builder: (context, id) => Text('Product ID: $id'),
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          navigatorKey: NanoRouter.navigatorKey,
+          onGenerateRoute: router.onGenerateRoute,
+          initialRoute: router.initialRoute,
+        ),
+      );
+
+      NanoRouter.navigatorKey.currentState?.pushNamed('/products/999');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Product ID: 999'), findsOneWidget);
+    });
   });
 }

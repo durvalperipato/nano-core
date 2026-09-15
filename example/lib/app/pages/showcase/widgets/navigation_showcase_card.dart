@@ -36,6 +36,15 @@ class NavigationShowcaseCard extends StatelessWidget {
                   icon: const Icon(Icons.people_outline),
                   label: const Text('Users List (/users)'),
                 ),
+                ElevatedButton.icon(
+                  onPressed: () => context.toNamed('/users/42?tab=activity'),
+                  icon: const Icon(Icons.link),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF6366F1),
+                    foregroundColor: Colors.white,
+                  ),
+                  label: const Text('Deep Link (:id & ?tab)'),
+                ),
                 OutlinedButton.icon(
                   onPressed: () => context.toNamed(AppRouteNames.admin),
                   icon: const Icon(Icons.lock_outline),

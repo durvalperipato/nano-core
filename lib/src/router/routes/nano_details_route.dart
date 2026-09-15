@@ -30,6 +30,19 @@ class NanoDetailsRoute<Args> extends NanoRoute {
         if (value is TargetType) return value;
       }
     }
+
+    if (args.pathParameters.isNotEmpty) {
+      final first = args.pathParameters.values.first;
+      if (TargetType == String) return first as TargetType;
+      if (TargetType == int) {
+        final parsed = int.tryParse(first);
+        if (parsed != null) return parsed as TargetType;
+      }
+      if (TargetType == double) {
+        final parsed = double.tryParse(first);
+        if (parsed != null) return parsed as TargetType;
+      }
+    }
     return null;
   }
 }

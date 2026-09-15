@@ -62,77 +62,105 @@ A lightweight reactive architecture framework and design system toolkit for Flut
 
 ## Features
 
-### 🧭 Navigation & Declarative Routing
+### 🧭 Navigation & Shell Routing
 
-- 📱 [**NanoApp**](#4-declarative-routing-with-nanorouter-observers--nanoapp): Zero-boilerplate root application widget automatically configuring `NanoRouter`, `MaterialApp`, themes, and localizations.
-
-- 🧭 [**NanoRouter & Declarative Routes (NanoRouteBase)**](#4-declarative-routing-with-nanorouter-observers--nanoapp): Intuitive zero-dependency declarative router supporting polymorphic route hierarchies (`NanoRouteBase`), standard routes (`NanoRoute`), persistent tab shells (`NanoShellRoute`), animated transitions (`NanoAnimatedRoute`), route groups (`NanoGroupRoute`), typed sub-routes (`NanoDetailsRoute<Args>`), access-guarded routes (`NanoProtectedRoute`), and redirects (`NanoRedirectRoute`).
-
-- 🐚 [**NanoShellScaffold, NanoShellTab & NanoShellSubView**](#5-persistent-multi-tab-navigation-nanoshellroute--nanoshellscaffold): Persistent navigation shell scaffold managing primary tabs with keep-alive (`maintainState`), optional contextual sub-views (e.g. notifications, search overlays), persistent floating action buttons, drawers, and automatic back-gesture handling (`enablePopScope`).
-
-- 🔭 [**NanoRouteObserver**](#4-declarative-routing-with-nanorouter-observers--nanoapp): Granular navigation observer for screen tracking, Firebase Analytics, Datadog, breadcrumbs, and route lifecycle telemetry.
+- 📱 [**NanoApp**](#4-declarative-routing-with-nanorouter-observers--nanoapp): Zero-boilerplate root application widget (auto-configures router, themes, and localizations).
+- 🧭 **Declarative Routes ([`NanoRouteBase`](#4-declarative-routing-with-nanorouter-observers--nanoapp))**:
+  - `NanoRoute`: Standard and dynamic URL-driven screen route (`:id`, `*wildcard`, query parameters).
+  - `NanoAnimatedRoute`: Custom page transitions (fade, slide, scale, size).
+  - `NanoGroupRoute`: Path-prefixed nested sub-routes.
+  - `NanoDetailsRoute<Args>`: Strongly-typed arguments route with automatic path parameter extraction.
+  - `NanoProtectedRoute`: Route guards with conditional redirection.
+  - `NanoRedirectRoute`: Declarative URL aliases and fallbacks.
+- 🐚 **Persistent Multi-Tab Shell ([`NanoShellRoute`](#5-persistent-multi-tab-navigation-nanoshellroute--nanoshellscaffold))**:
+  - `NanoShellScaffold`: Multi-tab layout with keep-alive tabs, drawers, and persistent FABs.
+  - `NanoShellTab`: Independent tab navigation stack.
+  - `NanoShellSubView`: Modal-like contextual overlays without unmounting tabs.
+- 🔭 [**NanoRouteObserver**](#4-declarative-routing-with-nanorouter-observers--nanoapp): Granular navigation observer for analytics, Datadog, breadcrumbs, and route lifecycle telemetry.
 
 ---
 
 ### ⚡ Reactive State Management & Architecture
 
 - ⚡ [**NanoController & NanoState**](#2-view-state-controller--injections): Clean, reactive state management built on `ChangeNotifier` and `ListenableBuilder`.
-
-- 📊 [**NanoViewState**](#2-view-state-controller--injections): Base class for structured, immutable and equatable view/page state data models.
-
-- 🚀 [**NanoScaffold & NanoStateObservable**](#6-universal-state-management-bloc-cubit-mobx-getx-signals): Decoupled reactive base page scaffold supporting Web/Desktop headers, mobile AppBars, drawers, footers, customizable floating action buttons with positioning (`floatingActionButtonLocation`), loading overlays, toasts, fallback messages, and universal state observation (`NanoController`, BLoC, Cubit, MobX adapters).
-
-- 🛠️ [**NanoCommand & NanoCommandBuilder**](#11-encapsulated-commands-nanocommand--nanocommandbuilder): Encapsulated async commands for user actions and operations.
-
-- 💉 [**NanoInjections, NanoDefaultInjections & NanoStatePage**](#13-dependency-injection-nanoinjections-async-binds--nanodefaultinjections): Dependency injection scoping with `GetIt`, default framework services registration (`NanoDefaultInjections.init`), modular composition, and page lifecycle binding.
+- 📊 [**NanoViewState**](#2-view-state-controller--injections): Base class for structured, immutable, and equatable view/page state models.
+- 🚀 **Reactive Page Scaffold & State Observers ([`NanoScaffold`](#6-universal-state-management-bloc-cubit-mobx-getx-signals))**:
+  - `NanoScaffold`: Page layout supporting headers, mobile AppBars, drawers, footers, customizable FAB positioning, loading overlays, and toasts.
+  - `NanoStateObservable`: Universal adapters for `NanoController`, BLoC, Cubit, MobX, and Signals.
+- 🛠️ [**NanoCommand & NanoCommandBuilder**](#11-encapsulated-commands-nanocommand--nanocommandbuilder): Encapsulated async commands with automatic execution state tracking.
+- 💉 **Dependency Injection ([`NanoInjections`](#13-dependency-injection-nanoinjections-async-binds--nanodefaultinjections))**:
+  - `NanoInjections`: Scoped `GetIt` lifecycle bindings (supports both sync and async binds).
+  - `NanoDefaultInjections`: Global framework services bootstrap (`client`, `storage`, `cache`).
+  - `NanoStatePage`: Auto-binds injections to page lifecycle.
 
 ---
 
 ### 📦 Data Layer, HTTP & Smart Caching
 
-- 🌐 [**NanoHttpClient & NanoHttpInterceptor**](#3-http-client-implementation-with-dio-optional): Standardized generic contract for decoupled HTTP communication, request/response interceptors (JWT injection, refresh tokens), built-in traffic logging (`NanoHttpLogInterceptor`), and helper extensions (`isSuccess`, `isClientError`, `isServerError`).
-
-- 📦 [**NanoRepository, NanoSearchRepository & NanoQueryAdapter**](#6-type-safe-search-query-adapters--pagination-with-nanopaginator): Automated generic CRUD repository layer, type-safe search query serialization, and domain model adapters.
-
-- ⚡ [**NanoCache & Smart Caching**](#4-instantaneous-caching-0ms-latency--offline-fallback): Zero-dependency in-memory caching (`NanoMemoryCache`) with configurable policies (`cacheFirst`, `networkFirst`, `networkOnly`, `cacheOnly`), TTL expiration, and automatic invalidation on CRUD mutations.
-
-- 📄 [**Pagination & NanoPaginator**](#4-automatic-infinite-scroll-mobile-or-page-navigation-bar-web): Pluggable strategies (`NanoOffsetPagination`, `NanoCursorPagination`), reactive controller (`NanoPaginator`), automatic infinite scrolling widget (`NanoPaginatedListView`), and customizable navigation bar (`NanoPaginationBar`).
-
-- 🏷️ [**NanoEntity & NanoEquatable**](#1-domain-entity--adapter): Base domain entity with unique identification and value-based equality.
+- 🌐 **HTTP Client & Interceptors ([`NanoHttpClient`](#3-http-client-implementation-with-dio-optional))**:
+  - Standardized generic contract for decoupled HTTP communication.
+  - `NanoAuthInterceptor`: Automatic JWT and token injection.
+  - `NanoHttpLogInterceptor`: Structured request/response console logging.
+  - Helper extensions: `isSuccess`, `isClientError`, `isServerError`.
+- 📦 **Repositories & Query Adapters ([`NanoRepository`](#6-type-safe-search-query-adapters--pagination-with-nanopaginator))**:
+  - `NanoRepository`: Automated generic CRUD repository layer.
+  - `NanoSearchRepository`: Type-safe search query serialization.
+  - `NanoDataStrategy`: Pluggable response extractors (`raw`, `data`, `results`, `items`, `key`).
+- ⚡ [**NanoCache & Smart Caching**](#4-instantaneous-caching-0ms-latency--offline-fallback):
+  - In-memory cache (`NanoMemoryCache`) with 0ms latency and TTL expiration.
+  - Configurable policies: `cacheFirst`, `networkFirst`, `networkOnly`, `cacheOnly`.
+  - Automatic cache invalidation on CRUD mutations.
+- 📄 **Pagination Engine ([`NanoPaginator`](#4-automatic-infinite-scroll-mobile-or-page-navigation-bar-web))**:
+  - Pluggable strategies: `NanoOffsetPagination` and `NanoCursorPagination`.
+  - Reactive state coordinator for infinite lists or paged views.
+- 🏷️ [**NanoEntity & NanoEquatable**](#1-domain-entity--adapter): Base domain entity with unique identity and value equality.
 
 ---
 
 ### 🛡️ Functional Safety & Reactive Forms
 
-- 🛡️ [**Functional Results (NanoResult)**](#6-type-safe-functional-results-with-nanoresult): Modern Dart 3 `sealed class` hierarchy (`NanoSuccess`, `NanoFailure`) with compile-time pattern matching, `fold`, `map`, and `runAsync` safe execution.
+- 🛡️ [**NanoResult (Functional Results)**](#6-type-safe-functional-results-with-nanoresult):
+  - Sealed class hierarchy (`NanoSuccess`, `NanoFailure`) with compile-time exhaustiveness.
+  - Functional combinators: `fold()`, `map()`, and safe async execution with `runAsync()`.
+- 📝 **Reactive Forms & Validation ([`NanoForm`](#7-reactive-forms-internationalized-validators--nanotextfield))**:
+  - `NanoFormEntity` & `NanoFormState`: Strongly-typed form state models.
+  - `NanoFormController`: Automated validation lifecycle, submit, and reset.
+  - `NanoTextField`: Reactive text field with debouncing and error feedback.
+  - `NanoValidator`: Offline-first validators (Core, Brazilian CPF/CNPJ, Credit Cards).
 
-- 📝 [**NanoForm & Validators**](#7-reactive-forms-internationalized-validators--nanotextfield): Strongly-typed form models, automatic field disposal, `BuildContext` i18n support, and reactive `NanoTextField` component.
+---
+
+### 🎨 Design System & UI Components
+
+- ✨ **Skeleton & Shimmer Loading ([`NanoSkeleton`](#14-native-skeleton-loading--wave-shimmer-nanoskeleton--nanoshimmer) & [`NanoShimmer`](#14-native-skeleton-loading--wave-shimmer-nanoskeleton--nanoshimmer))**:
+  - `NanoShimmer`: 100% native wave gradient animation with directional flow (`ltr`, `rtl`, `ttb`, `btt`).
+  - Layout Presets: `NanoSkeleton.list()`, `NanoSkeleton.card()`, `NanoSkeleton.grid()`.
+  - Geometric Primitives: `NanoSkeleton.box()`, `NanoSkeleton.circle()`, `NanoSkeleton.text()`.
+  - Ghost Masking: `NanoSkeleton.mask(loading: child:)` silhouettes.
+- 📄 **Pagination UI Widgets ([`NanoPaginatedListView`](#4-automatic-infinite-scroll-mobile-or-page-navigation-bar-web) & [`NanoPaginationBar`](#4-automatic-infinite-scroll-mobile-or-page-navigation-bar-web))**:
+  - `NanoPaginatedListView`: Infinite scrolling with automatic skeleton loading.
+  - `NanoPaginationBar`: Numeric page selector for Web and Desktop viewports.
+- 🧩 **Feedback & Attribution Widgets**:
+  - `NanoLoadingOverlay`: Blocking modal loading spinner overlay.
+  - `NanoToast`: Notification toasts (`success`, `warning`, `error`).
+  - `NanoPoweredBy`: Attribution widget with automatic platform version resolution.
 
 ---
 
 ### 🔐 Authentication, OAuth 2.0 & Security
 
 - 🔐 [**NanoOAuth & NanoPkce**](#7-modern-oauth-20--pkce-nanooauth--nanopkce): Zero-dependency OAuth 2.0 PKCE toolkit (RFC 7636) with built-in pure-Dart SHA-256 for secure authorization URLs, code challenge generation, token exchange payloads, and anti-CSRF callback parsing.
-
 - 🔑 [**NanoAuthRepository**](#6-authentication--session-repository-nanoauthrepository): Pure token and session lifecycle management with symmetrical storage keys, automatic token storage, and session contracts.
 
 ---
 
-### 🪵 Observability, Utilities & Design System
+### 🪵 Observability, Diagnostics & Utilities
 
-- 📡 [**NanoTelemetry & Observers (Analytics & Crashes)**](#9-telemetry--observability-nanotelemetry-nanoanalyticsobserver--nanocrashobserver): 100% decoupled, zero-dependency telemetry architecture multiplexing events, anti-cardinality screen tracking, breadcrumbs, and error reporting to Firebase, Sentry, Datadog, or Mixpanel.
-
-- 🪵 [**NanoLogger & NanoLogFilter**](#8-structured-logging-with-nanologger--nanologfilter): Granular structured console logger with type-safe level filtering (`NanoLogFilter`), ANSI styling, method context tracking, and telemetry hooks.
-
-- 🌐 [**NanoConnectivity**](#10-reactive-connectivity--offline-handling): Zero-dependency cross-platform reactive network monitor (`NanoConnectivity`, `NanoConnectivityStatus`) with seamless `NanoScaffold(connectivityBuilder: ...)` integration.
-
-- ⏱️ [**NanoDebouncer**](#9-debounced-search-inputs): Flexible async execution delay for search inputs, autocomplete, and live filters with native `NanoTextField(debounceDuration: ...)` support.
-
-- 🧩 [**Design System & Feedback Components**](#14-native-skeleton-loading--wave-shimmer-nanoskeleton--nanoshimmer): Standalone reusable UI widgets including `NanoSkeleton`, `NanoShimmer`, `NanoLoadingOverlay`, `NanoToast`, `NanoPaginatedListView`, `NanoPaginationBar`, `NanoTextField`, and `NanoPoweredBy`.
-
-- ✨ [**Native Skeleton & Shimmer Loading**](#14-native-skeleton-loading--wave-shimmer-nanoskeleton--nanoshimmer): 100% native wave gradient shimmer and skeleton placeholders (presets: list, card, grid; primitives: box, circle, text; and GPU-accelerated ghost masking).
-
-- 🖥️ [**NanoDeviceType & NanoEnvironment**](#8-environment--build-modes-nanoenvironment--nanoenv): Real-time cross-platform environment, `--dart-define` parsers, and responsive viewport width inspection.
+- 📡 [**NanoTelemetry & Observers**](#9-telemetry--observability-nanotelemetry-nanoanalyticsobserver--nanocrashobserver): 100% decoupled telemetry architecture multiplexing analytics, anti-cardinality screen tracking, breadcrumbs, and error reporting to Firebase, Sentry, Datadog, or Mixpanel.
+- 🪵 [**NanoLogger & NanoLogFilter**](#8-structured-logging-with-nanologger--nanologfilter): Granular structured console logger with ANSI styling, execution tracing, and category filtering (`NanoLogFilter`).
+- 🌐 [**NanoConnectivity**](#10-reactive-connectivity--offline-handling): Reactive cross-platform network monitor with seamless `NanoScaffold(connectivityBuilder:)` integration.
+- ⏱️ [**NanoDebouncer**](#9-debounced-search-inputs): Flexible async execution delay for search inputs, autocomplete, and live filters with native `NanoTextField(debounceDuration:)` support.
+- 🖥️ [**NanoDeviceType & NanoEnvironment**](#8-environment--build-modes-nanoenvironment--nanoenv): Real-time environment inspect, `--dart-define` parsers, and responsive viewport width detection.
 
 
 ## Getting Started
@@ -481,18 +509,22 @@ final appRouter = NanoRouter(
       builder: (context, args) => const ShowcasePage(),
     ),
 
-    // Users list with nested typed detail route:
+    // Dynamic route matching with path parameter (:id) and query parameters (?tab=):
     NanoRoute(
-      name: 'users',
-      path: '/users',
-      builder: (context, args) => const UsersPage(),
-      routes: [
-        // Sub-route: /users/detail with automatic argument typing
-        NanoDetailsRoute<User>(
-          name: 'user_detail',
-          builder: (context, user) => UserDetailPage(user: user),
-        ),
-      ],
+      name: 'user_profile',
+      path: '/users/:id',
+      builder: (context, args) {
+        final userId = args.pathParam('id');
+        final tab = args.queryParam('tab') ?? 'overview';
+        return UserProfilePage(userId: userId, tab: tab);
+      },
+    ),
+
+    // Strongly-typed details route (automatically extracts :id from path if arguments omitted):
+    NanoDetailsRoute<String>(
+      name: 'product_detail',
+      path: '/products/:id',
+      builder: (context, productId) => ProductDetailPage(productId: productId),
     ),
 
     // Protected area with route guard wrapping admin routes:
@@ -545,11 +577,11 @@ class MainApp extends StatelessWidget {
 
 #### Navigating anywhere:
 ```dart
-// Navigate by route name:
-context.toNamed('user_detail', arguments: user);
+// Navigate by route name with in-memory arguments:
+context.toNamed('product_detail', arguments: 'PROD-1024');
 
-// Navigate by path:
-context.toNamed('/users/detail', arguments: user);
+// Deep Linking with dynamic path parameters and query strings:
+context.toNamed('/users/42?tab=reviews');
 
 // Replace current screen:
 context.toReplacementNamed('login');

@@ -38,6 +38,22 @@ final appRouter = NanoRouter(
           name: AppRouteNames.userDetail,
           builder: (context, user) => UserDetailPage(user: user),
         ),
+        // Dynamic Deep-Link route: /users/:id with path and query parameters:
+        NanoRoute(
+          path: '/:id',
+          builder: (context, args) {
+            final id = args.pathParam('id') ?? '0';
+            final tab = args.queryParam('tab') ?? 'overview';
+            return UserDetailPage(
+              user: MockUser(
+                id: id,
+                name: 'User #$id (Deep-Linked)',
+                email: 'user$id@nanodevs.com',
+                role: 'Param tab: $tab',
+              ),
+            );
+          },
+        ),
       ],
     ),
 
