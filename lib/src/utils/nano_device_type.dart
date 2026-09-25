@@ -22,18 +22,18 @@ enum NanoDeviceType {
 
   /// Whether the current context represents a mobile layout.
   static bool isMobile(BuildContext context) {
-    return MediaQuery.of(context).size.width < 600;
+    return MediaQuery.sizeOf(context).width < 600;
   }
 
   /// Whether the current context represents a tablet layout.
   static bool isTablet(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
+    final width = MediaQuery.sizeOf(context).width;
     return width >= 600 && width < 1024;
   }
 
   /// Whether the current context represents a desktop layout.
   static bool isDesktop(BuildContext context) {
-    return MediaQuery.of(context).size.width >= 1024;
+    return MediaQuery.sizeOf(context).width >= 1024;
   }
 
   /// Evaluates and returns the active [NanoDeviceType] for the given [context].

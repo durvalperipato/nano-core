@@ -132,6 +132,11 @@ A lightweight reactive architecture framework and design system toolkit for Flut
 
 ### 🎨 Design System & UI Components
 
+- 📱 **Responsive Layout & Context Namespaces ([`NanoResponsiveLayout`](#15-responsive-layout--context-namespaces-nanoresponsivelayout-contextscreen--contexttheme))**:
+  - `NanoResponsiveLayout`: Adaptive tree branching (`mobile`, `desktop`, `tablet`).
+  - `NanoResponsiveLayout.flex`: Dynamic axis switching (`Row` on desktop/tablet, `Column` on mobile) with directional spacing and `reverseOnMobile`.
+  - `context.screen.*`: Viewport queries (`isMobile`, `isTablet`, `isDesktop`, `width`, `height`, `size`, `deviceType`) with `MediaQuery.sizeOf(context)` and 1-line `responsive<T>()`.
+  - `context.theme.*`: Fast-path theme metrics (`data`, `colors`, `text`, `isDark`, `isLight`).
 - ✨ **Skeleton & Shimmer Loading ([`NanoSkeleton`](#14-native-skeleton-loading--wave-shimmer-nanoskeleton--nanoshimmer) & [`NanoShimmer`](#14-native-skeleton-loading--wave-shimmer-nanoskeleton--nanoshimmer))**:
   - `NanoShimmer`: 100% native wave gradient animation with directional flow (`ltr`, `rtl`, `ttb`, `btt`).
   - Layout Presets: `NanoSkeleton.list()`, `NanoSkeleton.card()`, `NanoSkeleton.grid()`.
@@ -1963,6 +1968,75 @@ NanoScaffold<UserState, UserMessages>(
     child: NanoSkeleton.list(items: 6),
   ),
   builder: (context, state) => ...,
+)
+```
+
+---
+
+### 15. Responsive Layout & Context Namespaces (NanoResponsiveLayout, context.screen & context.theme)
+
+`nano_core` provides a lightweight, modular, and ergonomic toolkit for responsive design and context-driven helpers, fully optimized with `MediaQuery.sizeOf(context)` to prevent unnecessary widget rebuilds.
+
+#### 1. Context Screen Namespace (`context.screen`)
+Access screen metrics, breakpoints, and device types cleanly through the `context.screen` domain:
+
+```dart
+// Breakpoint checks:
+if (context.screen.isMobile) { ... }
+if (context.screen.isTablet) { ... }
+if (context.screen.isDesktop) { ... }
+
+// Dimension queries (optimized with MediaQuery.sizeOf):
+final width = context.screen.width;
+final height = context.screen.height;
+final size = context.screen.size;
+final deviceType = context.screen.deviceType; // NanoDeviceType enum
+
+// One-line adaptive value with automatic desktop fallback for tablets:
+final padding = context.screen.responsive<double>(
+  mobile: 16.0,
+  desktop: 32.0,
+  tablet: 24.0, // Optional: defaults to desktop if omitted
+);
+```
+
+#### 2. Context Theme Namespace (`context.theme`)
+Direct, clean access to visual styles, color schemes, and brightness checks without verbose boilerplate:
+
+```dart
+// Instant dark/light mode checks:
+if (context.theme.isDark) { ... }
+if (context.theme.isLight) { ... }
+
+// High-frequency style shortcuts:
+final primaryColor = context.theme.colors.primary;
+final titleStyle = context.theme.text.titleLarge;
+final themeData = context.theme.data;
+```
+
+#### 3. Adaptive Tree Branching (`NanoResponsiveLayout`)
+Render distinct component trees for different device form factors with automatic tablet-to-desktop fallback:
+
+```dart
+NanoResponsiveLayout(
+  mobile: (context) => const MobileUserFeed(),
+  desktop: (context) => const DesktopUserFeed(),
+  tablet: (context) => const TabletUserFeed(), // Optional: defaults to desktop
+)
+```
+
+#### 4. Responsive Flex Axis Switching (`NanoResponsiveLayout.flex`)
+Dynamically switch a shared list of children between a horizontal `Row` (desktop/tablet) and a vertical `Column` (mobile), complete with automatic directional spacing and optional mobile ordering reversal:
+
+```dart
+NanoResponsiveLayout.flex(
+  spacing: 16.0, // Applies horizontal spacing on desktop/tablet, vertical on mobile
+  reverseOnMobile: true, // Reverses children in column layout (e.g. actions above content)
+  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  children: [
+    const UserSummaryWidget(),
+    const ActionButtonsGroup(),
+  ],
 )
 ```
 
