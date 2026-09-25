@@ -5,6 +5,22 @@ All notable changes to the `nano_core` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.8 (2026-09-25)
+
+### Added
+- **`NanoScreenContext` & `context.screen` Namespace**:
+  - Direct contextual querying for viewport metrics: `context.screen.isMobile`, `context.screen.isTablet`, `context.screen.isDesktop`, `context.screen.width`, `context.screen.height`, `context.screen.size`, and `context.screen.deviceType`.
+  - High-performance integration utilizing `MediaQuery.sizeOf(context)` to eliminate spurious rebuilds on window insets and keyboard animations.
+  - 1-line responsive value resolution: `context.screen.responsive<T>(mobile: ..., desktop: ..., tablet: ...)` with automatic fallback from `tablet` to `desktop`.
+- **`NanoThemeContext` & `context.theme` Namespace**:
+  - Ergonomic contextual querying for styling, color scheme, text theme, and brightness: `context.theme.data`, `context.theme.colors`, `context.theme.text`, `context.theme.isDark`, and `context.theme.isLight`.
+- **`NanoResponsiveLayout` & Modular Architecture**:
+  - `NanoResponsiveLayout`: Standard constructor providing adaptive tree branching (`mobile`, `desktop`, and optional `tablet` with desktop fallback).
+  - `NanoResponsiveLayout.flex`: Named constructor dynamically alternating between `Row` (desktop/tablet) and `Column` (mobile) with automatic horizontal/vertical spacing and `reverseOnMobile` support.
+  - Decomposed into dedicated modular widgets inside `lib/src/components/responsive_layout/widgets/`: `NanoResponsiveBuilderLayout` and `NanoResponsiveFlexLayout`.
+- **`NanoDeviceType` Performance Optimization**:
+  - Migrated `isMobile`, `isTablet`, and `isDesktop` to `MediaQuery.sizeOf(context)`.
+
 ## 1.0.7 (2026-09-15)
 
 ### Added
