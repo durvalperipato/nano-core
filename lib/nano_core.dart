@@ -30,4 +30,5 @@ export 'src/state/state.dart';
 export 'src/storage/storage.dart';
 export 'src/strategy/strategy.dart';
 export 'src/telemetry/telemetry.dart';
+export 'src/theme/theme.dart';
 export 'src/utils/utils.dart';
