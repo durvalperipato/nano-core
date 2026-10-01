@@ -1,26 +1,22 @@
 import 'package:flutter/widgets.dart';
 import '../models/nano_route_args.dart';
-import 'nano_route_base.dart';
+import 'nano_route_guard.dart';
 
-/// A route guard wrapper that enforces access permissions for all child
-/// [routes].
+/// A route guard wrapper that enforces synchronous access permissions for all
+/// child [routes].
 ///
 /// If [hasAccess] returns `false`, navigation redirects to [redirectTo].
-class NanoProtectedRoute extends NanoRouteBase {
+class NanoProtectedRoute extends NanoRouteGuard {
   /// Creates a [NanoProtectedRoute] guard wrapper.
   NanoProtectedRoute({
+    required super.redirectTo,
     required this.hasAccess,
-    required this.redirectTo,
     required super.routes,
     super.path = '',
+    super.name,
   });
 
   /// Evaluates whether the user has access to view routes wrapped by this
   /// guard.
   final bool Function(BuildContext context, NanoRouteArgs args) hasAccess;
-
-  /// The destination path or route name to redirect to when [hasAccess]
-  /// returns `false`.
-  final String redirectTo;
 }
-
