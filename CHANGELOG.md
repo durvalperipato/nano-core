@@ -5,6 +5,31 @@ All notable changes to the `nano_core` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.1.0 (2026-10-01)
+
+### Added
+- **`NanoBiometrics` Zero-Dependency Contract**:
+  - Pure Dart/Flutter abstract contract (`NanoBiometrics`) providing async methods: `isAvailable()`, `getAvailableTypes()`, and `authenticate([NanoBiometricOptions? options])`.
+  - Zero native bloat or direct external dependencies in `nano_core`.
+- **`NanoBiometricType` & `NanoBiometricOptions`**:
+  - `NanoBiometricType` enum with standard cross-platform biometric modalities (`face`, `fingerprint`, `iris`, `weak`, `strong`).
+  - Extensible `NanoBiometricOptions` value object inheriting from `NanoEquatable` with zero hardcoded strings for 100% i18n/l10n compatibility.
+- **`NanoRouteGuard` & `NanoBiometricProtectedRoute`**:
+  - Polymorphic router guard base class `NanoRouteGuard` unifying synchronous (`NanoProtectedRoute`) and asynchronous biometric (`NanoBiometricProtectedRoute`) access control.
+  - Automatic evaluation of biometric hardware availability and user authentication before rendering child routes.
+  - Automatic fallback redirect to `redirectTo` on missing hardware, cancelled prompt, or failed authentication, accompanied by transparent `NanoLogger.debug` traces.
+  - Dynamic localized options resolver support via `optionsBuilder: (context) => ...`.
+  - Full custom UI flexibility via `authBuilder: (context, onAuthenticate, onCancel)`.
+  - Custom loading placeholder support via `loadingBuilder: (context) => ...`.
+- **`NanoResponsiveFlexConfig` & Granular Flex Layouts**:
+  - Value object `NanoResponsiveFlexConfig` extending `NanoEquatable` with intelligent `merge()` inheritance.
+  - Granular viewport overrides in `NanoResponsiveLayout.flex`: `config` (baseline), `mobileConfig`, `tabletConfig`, and `desktopConfig`.
+- **`NanoDateTimeExtension` Universal Date & Timestamp Utilities**:
+  - Pure zero-dependency extension on `DateTime` providing `timestampSeconds` (Unix epoch seconds), `timestampMillis`, boundary helpers (`startOfDay`, `endOfDay`), and calendar predicates (`isToday`, `isYesterday`, `isTomorrow`, `isSameDay`, `isBetween`, `isPast`, `isFuture`).
+
+### Deprecated
+- **`NanoResponsiveLayout.flex` direct layout parameters**: `spacing`, `reverseOnMobile`, `mainAxisAlignment`, `mainAxisSize`, `crossAxisAlignment`, `textDirection`, `verticalDirection`, and `textBaseline` are now deprecated in favor of the unified `config` parameter with zero breaking changes for existing codebases.
+
 ## 1.0.8 (2026-09-25)
 
 ### Added

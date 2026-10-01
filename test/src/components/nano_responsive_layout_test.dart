@@ -173,5 +173,149 @@ void main() {
       expect((column.children.first as Text).data, 'Item 2');
       expect((column.children.last as Text).data, 'Item 1');
     });
+
+    testWidgets('applies global config across viewports', (tester) async {
+      tester.view.physicalSize = const Size(1200, 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: NanoResponsiveLayout.flex(
+              config: NanoResponsiveFlexConfig(
+                spacing: 24.0,
+                crossAxisAlignment: CrossAxisAlignment.end,
+              ),
+              children: [
+                Text('A'),
+                Text('B'),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      final row = tester.widget<Row>(find.byType(Row));
+      expect(row.crossAxisAlignment, CrossAxisAlignment.end);
+
+      final sizedBoxes = tester.widgetList<SizedBox>(find.byType(SizedBox));
+      final spacer = sizedBoxes.firstWhere((box) => box.width == 24.0);
+      expect(spacer.width, 24.0);
+    });
+
+    testWidgets('mobileConfig overrides global config on mobile screens', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(400, 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: NanoResponsiveLayout.flex(
+              config: NanoResponsiveFlexConfig(
+                spacing: 24.0,
+                crossAxisAlignment: CrossAxisAlignment.center,
+              ),
+              mobileConfig: NanoResponsiveFlexConfig(
+                spacing: 8.0,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                reverse: true,
+              ),
+              children: [
+                Text('First'),
+                Text('Second'),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      final column = tester.widget<Column>(find.byType(Column));
+      expect(column.crossAxisAlignment, CrossAxisAlignment.stretch);
+      expect((column.children.first as Text).data, 'Second');
+
+      final sizedBoxes = tester.widgetList<SizedBox>(find.byType(SizedBox));
+      final spacer = sizedBoxes.firstWhere((box) => box.height == 8.0);
+      expect(spacer.height, 8.0);
+    });
+
+    testWidgets('tabletConfig and desktopConfig overrides apply properly', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(800, 800); // Tablet viewport
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: NanoResponsiveLayout.flex(
+              config: NanoResponsiveFlexConfig(spacing: 16.0),
+              tabletConfig: NanoResponsiveFlexConfig(spacing: 12.0),
+              desktopConfig: NanoResponsiveFlexConfig(spacing: 32.0),
+              children: [
+                Text('A'),
+                Text('B'),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      // Verify tablet gets 12.0
+      expect(find.byType(Row), findsOneWidget);
+      final tabletBoxes = tester.widgetList<SizedBox>(find.byType(SizedBox));
+      expect(tabletBoxes.any((box) => box.width == 12.0), isTrue);
+
+      // Resize to Desktop
+      tester.view.physicalSize = const Size(1200, 800);
+      await tester.pump();
+
+      // Verify desktop gets 32.0
+      final desktopBoxes = tester.widgetList<SizedBox>(find.byType(SizedBox));
+      expect(desktopBoxes.any((box) => box.width == 32.0), isTrue);
+    });
+  });
+
+  group('NanoResponsiveFlexConfig', () {
+    test('merge respects overrides and preserves unset properties', () {
+      const base = NanoResponsiveFlexConfig(
+        spacing: 16.0,
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+      );
+
+      final merged = base.merge(
+        const NanoResponsiveFlexConfig(
+          spacing: 8.0,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+        ),
+      );
+
+      expect(merged.spacing, 8.0);
+      expect(merged.mainAxisAlignment, MainAxisAlignment.center);
+      expect(merged.crossAxisAlignment, CrossAxisAlignment.stretch);
+      expect(merged.reverse, isNull);
+    });
+
+    test('copyWith updates specified fields', () {
+      const config = NanoResponsiveFlexConfig(spacing: 16.0);
+      final updated = config.copyWith(spacing: 20.0, reverse: true);
+
+      expect(updated.spacing, 20.0);
+      expect(updated.reverse, isTrue);
+    });
+
+    test('props equality behaves as NanoEquatable value object', () {
+      const c1 = NanoResponsiveFlexConfig(spacing: 16.0);
+      const c2 = NanoResponsiveFlexConfig(spacing: 16.0);
+      const c3 = NanoResponsiveFlexConfig(spacing: 8.0);
+
+      expect(c1, equals(c2));
+      expect(c1 == c3, isFalse);
+    });
   });
 }

@@ -69,5 +69,41 @@ void main() {
       expect(protected.redirectTo, '/login');
       expect(protected.routes.length, 1);
     });
+
+    test('NanoBiometricProtectedRoute stores configuration and destination',
+        () {
+      final biometric = NanoBiometricProtectedRoute(
+        redirectTo: '/pin-fallback',
+        optionsBuilder: (context) =>
+            const NanoBiometricOptions(reason: 'Verify your identity'),
+        routes: [
+          NanoRoute(
+            path: '/vault',
+            builder: (context, _) => const SizedBox.shrink(),
+          ),
+        ],
+      );
+
+      expect(biometric.redirectTo, '/pin-fallback');
+      expect(biometric.routes.length, 1);
+      expect(biometric.routes.first.path, '/vault');
+    });
+
+    test('NanoRouteGuard polymorphism holds for all guard types', () {
+      final protected = NanoProtectedRoute(
+        hasAccess: (context, args) => true,
+        redirectTo: '/login',
+        routes: const [],
+      );
+      final biometric = NanoBiometricProtectedRoute(
+        redirectTo: '/auth',
+        routes: const [],
+      );
+
+      expect(protected, isA<NanoRouteGuard>());
+      expect(protected, isA<NanoRouteBase>());
+      expect(biometric, isA<NanoRouteGuard>());
+      expect(biometric, isA<NanoRouteBase>());
+    });
   });
 }
