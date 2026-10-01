@@ -8,9 +8,9 @@ import 'models/nano_route_code.dart';
 import 'models/nano_route_error.dart';
 import 'routes/nano_animated_route.dart';
 import 'routes/nano_group_route.dart';
-import 'routes/nano_protected_route.dart';
 import 'routes/nano_redirect_route.dart';
 import 'routes/nano_route_base.dart';
+import 'routes/nano_route_guard.dart';
 import 'routes/nano_shell_route.dart';
 import 'widgets/nano_error_page.dart';
 
@@ -54,20 +54,20 @@ class NanoRouter {
 
   final Map<String, NanoRouteBase> _routeMap = {};
   final Map<String, String> _nameToPathMap = {};
-  final Map<String, List<NanoProtectedRoute>> _routeGuardsMap = {};
+  final Map<String, List<NanoRouteGuard>> _routeGuardsMap = {};
   final List<NanoRouteMatcher> _matchers = [];
 
   void _registerRoute(
     NanoRouteBase route,
     String parentPath,
-    List<NanoProtectedRoute> activeGuards,
+    List<NanoRouteGuard> activeGuards,
   ) {
     final fullPath = _joinPaths(parentPath, route.path);
-    final currentGuards = List<NanoProtectedRoute>.from(activeGuards);
+    final currentGuards = List<NanoRouteGuard>.from(activeGuards);
 
-    if (route is NanoProtectedRoute) currentGuards.add(route);
+    if (route is NanoRouteGuard) currentGuards.add(route);
 
-    if (route is! NanoGroupRoute && route is! NanoProtectedRoute) {
+    if (route is! NanoGroupRoute && route is! NanoRouteGuard) {
       _routeMap[fullPath] = route;
       if (NanoRouteMatcher.isDynamicPattern(fullPath)) {
         _matchers.add(NanoRouteMatcher(pattern: fullPath, route: route));

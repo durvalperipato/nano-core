@@ -70,7 +70,9 @@ A lightweight reactive architecture framework and design system toolkit for Flut
   - `NanoAnimatedRoute`: Custom page transitions (fade, slide, scale, size).
   - `NanoGroupRoute`: Path-prefixed nested sub-routes.
   - `NanoDetailsRoute<Args>`: Strongly-typed arguments route with automatic path parameter extraction.
-  - `NanoProtectedRoute`: Route guards with conditional redirection.
+  - `NanoRouteGuard`: Polymorphic route guard base contract unifying synchronous and asynchronous protection.
+  - `NanoProtectedRoute`: Permission and synchronous access guards with conditional redirection.
+  - `NanoBiometricProtectedRoute`: Asynchronous biometric authentication route guard.
   - `NanoRedirectRoute`: Declarative URL aliases and fallbacks.
 - 🐚 **Persistent Multi-Tab Shell ([`NanoShellRoute`](#5-persistent-multi-tab-navigation-nanoshellroute--nanoshellscaffold))**:
   - `NanoShellScaffold`: Multi-tab layout with keep-alive tabs, drawers, and persistent FABs.
@@ -134,7 +136,7 @@ A lightweight reactive architecture framework and design system toolkit for Flut
 
 - 📱 **Responsive Layout & Context Namespaces ([`NanoResponsiveLayout`](#15-responsive-layout--context-namespaces-nanoresponsivelayout-contextscreen--contexttheme))**:
   - `NanoResponsiveLayout`: Adaptive tree branching (`mobile`, `desktop`, `tablet`).
-  - `NanoResponsiveLayout.flex`: Dynamic axis switching (`Row` on desktop/tablet, `Column` on mobile) with directional spacing and `reverseOnMobile`.
+  - `NanoResponsiveLayout.flex`: Dynamic axis switching (`Row` on desktop/tablet, `Column` on mobile) configured via `NanoResponsiveFlexConfig` with cascading viewport overrides (`config`, `mobileConfig`, `tabletConfig`, `desktopConfig`).
   - `context.screen.*`: Viewport queries (`isMobile`, `isTablet`, `isDesktop`, `width`, `height`, `size`, `deviceType`) with `MediaQuery.sizeOf(context)` and 1-line `responsive<T>()`.
   - `context.theme.*`: Fast-path theme metrics (`data`, `colors`, `text`, `isDark`, `isLight`).
 - ✨ **Skeleton & Shimmer Loading ([`NanoSkeleton`](#14-native-skeleton-loading--wave-shimmer-nanoskeleton--nanoshimmer) & [`NanoShimmer`](#14-native-skeleton-loading--wave-shimmer-nanoskeleton--nanoshimmer))**:
@@ -152,8 +154,9 @@ A lightweight reactive architecture framework and design system toolkit for Flut
 
 ---
 
-### 🔐 Authentication, OAuth 2.0 & Security
+### 🔐 Authentication, Biometrics, OAuth 2.0 & Security
 
+- 🛡️ [**NanoBiometrics & Biometric Route Guards**](#16-cross-platform-biometric-authentication-nanobiometrics--nanobiometricprotectedroute): Zero-dependency cross-platform biometric contract (`isAvailable()`, `getAvailableTypes()`, `authenticate()`) with `NanoBiometricOptions`, `NanoBiometricType`, and declarative route gating (`NanoBiometricProtectedRoute`).
 - 🔐 [**NanoOAuth & NanoPkce**](#7-modern-oauth-20--pkce-nanooauth--nanopkce): Zero-dependency OAuth 2.0 PKCE toolkit (RFC 7636) with built-in pure-Dart SHA-256 for secure authorization URLs, code challenge generation, token exchange payloads, and anti-CSRF callback parsing.
 - 🔑 [**NanoAuthRepository**](#6-authentication--session-repository-nanoauthrepository): Pure token and session lifecycle management with symmetrical storage keys, automatic token storage, and session contracts.
 
@@ -161,6 +164,7 @@ A lightweight reactive architecture framework and design system toolkit for Flut
 
 ### 🪵 Observability, Diagnostics & Utilities
 
+- 📅 [**NanoDateTimeExtension**](#17-universal-date--timestamp-utilities-nanodatetimeextension): Zero-dependency extension on `DateTime` providing universal Unix timestamps (`timestampSeconds`, `timestampMillis`), calendar day boundaries (`startOfDay`, `endOfDay`), and query predicates (`isToday`, `isSameDay`, `isBetween`).
 - 📡 [**NanoTelemetry & Observers**](#9-telemetry--observability-nanotelemetry-nanoanalyticsobserver--nanocrashobserver): 100% decoupled telemetry architecture multiplexing analytics, anti-cardinality screen tracking, breadcrumbs, and error reporting to Firebase, Sentry, Datadog, or Mixpanel.
 - 🪵 [**NanoLogger & NanoLogFilter**](#8-structured-logging-with-nanologger--nanologfilter): Granular structured console logger with ANSI styling, execution tracing, and category filtering (`NanoLogFilter`).
 - 🌐 [**NanoConnectivity**](#10-reactive-connectivity--offline-handling): Reactive cross-platform network monitor with seamless `NanoScaffold(connectivityBuilder:)` integration.
@@ -176,7 +180,7 @@ Add `nano_core` to your `pubspec.yaml`:
 dependencies:
   flutter:
     sdk: flutter
-  nano_core: ^1.0.8
+  nano_core: ^1.1.0
 ```
 
 ## Quick Example
@@ -2026,18 +2030,98 @@ NanoResponsiveLayout(
 ```
 
 #### 4. Responsive Flex Axis Switching (`NanoResponsiveLayout.flex`)
-Dynamically switch a shared list of children between a horizontal `Row` (desktop/tablet) and a vertical `Column` (mobile), complete with automatic directional spacing and optional mobile ordering reversal:
+Dynamically switch a shared list of children between a horizontal `Row` (desktop/tablet) and a vertical `Column` (mobile), configured via `NanoResponsiveFlexConfig` with cascading viewport overrides:
 
 ```dart
 NanoResponsiveLayout.flex(
-  spacing: 16.0, // Applies horizontal spacing on desktop/tablet, vertical on mobile
-  reverseOnMobile: true, // Reverses children in column layout (e.g. actions above content)
-  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  // Base configuration applied across all viewports:
+  config: const NanoResponsiveFlexConfig(
+    spacing: 16.0,
+    crossAxisAlignment: CrossAxisAlignment.center,
+  ),
+  // Viewport-specific overrides (merges seamlessly with base config):
+  mobileConfig: const NanoResponsiveFlexConfig(
+    spacing: 8.0,
+    crossAxisAlignment: CrossAxisAlignment.stretch, // Actions stretch on mobile
+    reverse: true, // Reverses children in column layout (e.g. actions above content)
+  ),
   children: [
     const UserSummaryWidget(),
     const ActionButtonsGroup(),
   ],
 )
+```
+
+---
+
+### 16. Cross-Platform Biometric Authentication (`NanoBiometrics` & `NanoBiometricProtectedRoute`)
+
+`nano_core` provides a 100% zero-dependency architectural contract for biometric authentication along with a declarative router guard that seamlessly intercepts unauthorized route visits.
+
+#### 1. The Zero-Dependency Contract (`NanoBiometrics`)
+Pure abstract contract with zero native bloat in core:
+
+```dart
+abstract class NanoBiometrics {
+  Future<bool> isAvailable();
+  Future<List<NanoBiometricType>> getAvailableTypes();
+  Future<bool> authenticate([NanoBiometricOptions? options]);
+}
+```
+
+Value object `NanoBiometricOptions` has zero hardcoded strings for complete i18n/l10n flexibility:
+
+```dart
+final options = NanoBiometricOptions(
+  reason: 'Authenticate to access your secure wallet',
+  cancelTitle: 'Use PIN instead',
+);
+```
+
+#### 2. Declarative Biometric Route Guard (`NanoBiometricProtectedRoute`)
+Protect sensitive routes declaratively with automatic biometric gating, hardware availability checks, and fallback redirection:
+
+```dart
+NanoRouter(
+  routes: [
+    NanoBiometricProtectedRoute(
+      redirectTo: '/pin-fallback',
+      optionsBuilder: (context) => NanoBiometricOptions(
+        reason: context.l10n.biometricPrompt,
+      ),
+      routes: [
+        NanoRoute(
+          path: '/wallet',
+          builder: (context, args) => const WalletPage(),
+        ),
+      ],
+    ),
+  ],
+)
+```
+
+---
+
+### 17. Universal Date & Timestamp Utilities (`NanoDateTimeExtension`)
+
+Zero-dependency extension on `DateTime` for standard Unix timestamp conversions and daily calendar boundaries:
+
+```dart
+final now = DateTime.now();
+
+// Unix timestamps:
+final int seconds = now.timestampSeconds; // Seconds since epoch (REST API & database standard)
+final int millis = now.timestampMillis;   // Milliseconds since epoch
+
+// Calendar day boundaries:
+final DateTime start = now.startOfDay; // 2026-10-01 00:00:00.000
+final DateTime end = now.endOfDay;     // 2026-10-01 23:59:59.999999
+
+// Calendar predicates:
+if (now.isToday) print('Today');
+if (now.isYesterday) print('Yesterday');
+if (now.isSameDay(anotherDate)) print('Same day');
+if (now.isBetween(startDate, endDate)) print('Within range');
 ```
 
 ---

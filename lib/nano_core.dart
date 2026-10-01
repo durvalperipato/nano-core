@@ -6,6 +6,7 @@ export 'package:get_it/get_it.dart';
 
 export 'src/adapter/adapter.dart';
 export 'src/app/app.dart';
+export 'src/biometrics/biometrics.dart';
 export 'src/cache/cache.dart';
 export 'src/command/command.dart';
 export 'src/components/components.dart';

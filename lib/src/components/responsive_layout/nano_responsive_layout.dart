@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 
+import 'models/nano_responsive_flex_config.dart';
 import 'widgets/nano_responsive_builder_layout.dart';
 import 'widgets/nano_responsive_flex_layout.dart';
 
@@ -23,30 +24,58 @@ class NanoResponsiveLayout extends StatelessWidget {
     super.key,
   })  : _isFlex = false,
         children = const [],
-        spacing = 0.0,
-        reverseOnMobile = false,
-        mainAxisAlignment = MainAxisAlignment.start,
-        mainAxisSize = MainAxisSize.max,
-        crossAxisAlignment = CrossAxisAlignment.center,
+        config = null,
+        mobileConfig = null,
+        tabletConfig = null,
+        desktopConfig = null,
+        spacing = null,
+        reverseOnMobile = null,
+        mainAxisAlignment = null,
+        mainAxisSize = null,
+        crossAxisAlignment = null,
         textDirection = null,
-        verticalDirection = VerticalDirection.down,
+        verticalDirection = null,
         textBaseline = null;
 
   /// Creates a responsive flex container that renders [children] as a [Row]
   /// on desktop/tablet viewports and as a [Column] on mobile viewports.
   ///
-  /// * [spacing]: Spacing inserted between children (horizontal on desktop/tablet,
-  ///   vertical on mobile).
-  /// * [reverseOnMobile]: Whether to reverse the order of [children] on mobile.
+  /// * [config]: Base flex configuration applied across all viewports.
+  /// * [mobileConfig]: Optional flex configuration overrides for mobile.
+  /// * [tabletConfig]: Optional flex configuration overrides for tablet.
+  /// * [desktopConfig]: Optional flex configuration overrides for desktop.
   const NanoResponsiveLayout.flex({
     required this.children,
-    this.spacing = 0.0,
-    this.reverseOnMobile = false,
-    this.mainAxisAlignment = MainAxisAlignment.start,
-    this.mainAxisSize = MainAxisSize.max,
-    this.crossAxisAlignment = CrossAxisAlignment.center,
+    this.config,
+    this.mobileConfig,
+    this.tabletConfig,
+    this.desktopConfig,
+    // TODO(cleanup): Remove in version 1.2.0
+    @Deprecated('Use config parameter instead. Will be removed in 1.2.0.')
+    this.spacing,
+    // TODO(cleanup): Remove in version 1.2.0
+    @Deprecated(
+      'Use config or mobileConfig with reverse instead. '
+      'Will be removed in 1.2.0.',
+    )
+    this.reverseOnMobile,
+    // TODO(cleanup): Remove in version 1.2.0
+    @Deprecated('Use config parameter instead. Will be removed in 1.2.0.')
+    this.mainAxisAlignment,
+    // TODO(cleanup): Remove in version 1.2.0
+    @Deprecated('Use config parameter instead. Will be removed in 1.2.0.')
+    this.mainAxisSize,
+    // TODO(cleanup): Remove in version 1.2.0
+    @Deprecated('Use config parameter instead. Will be removed in 1.2.0.')
+    this.crossAxisAlignment,
+    // TODO(cleanup): Remove in version 1.2.0
+    @Deprecated('Use config parameter instead. Will be removed in 1.2.0.')
     this.textDirection,
-    this.verticalDirection = VerticalDirection.down,
+    // TODO(cleanup): Remove in version 1.2.0
+    @Deprecated('Use config parameter instead. Will be removed in 1.2.0.')
+    this.verticalDirection,
+    // TODO(cleanup): Remove in version 1.2.0
+    @Deprecated('Use config parameter instead. Will be removed in 1.2.0.')
     this.textBaseline,
     super.key,
   })  : _isFlex = true,
@@ -68,34 +97,69 @@ class NanoResponsiveLayout extends StatelessWidget {
   /// The list of child widgets for [NanoResponsiveLayout.flex].
   final List<Widget> children;
 
+  /// Base flex configuration applied across all viewports.
+  final NanoResponsiveFlexConfig? config;
+
+  /// Optional flex configuration overrides for mobile viewports.
+  final NanoResponsiveFlexConfig? mobileConfig;
+
+  /// Optional flex configuration overrides for tablet viewports.
+  final NanoResponsiveFlexConfig? tabletConfig;
+
+  /// Optional flex configuration overrides for desktop viewports.
+  final NanoResponsiveFlexConfig? desktopConfig;
+
   /// The space between each child widget in logical pixels.
-  final double spacing;
+  // TODO(cleanup): Remove in version 1.2.0
+  @Deprecated('Use config parameter instead. Will be removed in 1.2.0.')
+  final double? spacing;
 
   /// Whether to reverse children order when displayed in a mobile column.
-  final bool reverseOnMobile;
+  // TODO(cleanup): Remove in version 1.2.0
+  @Deprecated(
+    'Use config or mobileConfig with reverse instead. '
+    'Will be removed in 1.2.0.',
+  )
+  final bool? reverseOnMobile;
 
   /// How children should be placed along the main axis.
-  final MainAxisAlignment mainAxisAlignment;
+  // TODO(cleanup): Remove in version 1.2.0
+  @Deprecated('Use config parameter instead. Will be removed in 1.2.0.')
+  final MainAxisAlignment? mainAxisAlignment;
 
   /// How much space children should occupy in the main axis.
-  final MainAxisSize mainAxisSize;
+  // TODO(cleanup): Remove in version 1.2.0
+  @Deprecated('Use config parameter instead. Will be removed in 1.2.0.')
+  final MainAxisSize? mainAxisSize;
 
   /// How children should be placed along the cross axis.
-  final CrossAxisAlignment crossAxisAlignment;
+  // TODO(cleanup): Remove in version 1.2.0
+  @Deprecated('Use config parameter instead. Will be removed in 1.2.0.')
+  final CrossAxisAlignment? crossAxisAlignment;
 
   /// Determines the order to lay children out horizontally.
+  // TODO(cleanup): Remove in version 1.2.0
+  @Deprecated('Use config parameter instead. Will be removed in 1.2.0.')
   final TextDirection? textDirection;
 
   /// Determines the order to lay children out vertically.
-  final VerticalDirection verticalDirection;
+  // TODO(cleanup): Remove in version 1.2.0
+  @Deprecated('Use config parameter instead. Will be removed in 1.2.0.')
+  final VerticalDirection? verticalDirection;
 
   /// Baseline for aligning text children along the cross axis.
+  // TODO(cleanup): Remove in version 1.2.0
+  @Deprecated('Use config parameter instead. Will be removed in 1.2.0.')
   final TextBaseline? textBaseline;
 
   @override
   Widget build(BuildContext context) {
     if (_isFlex) {
       return NanoResponsiveFlexLayout(
+        config: config,
+        mobileConfig: mobileConfig,
+        tabletConfig: tabletConfig,
+        desktopConfig: desktopConfig,
         spacing: spacing,
         reverseOnMobile: reverseOnMobile,
         mainAxisAlignment: mainAxisAlignment,

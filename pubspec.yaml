@@ -44,3 +44,5 @@ flutter:
       linux:
         dartPluginClass: NanoCorePlugin
 
+nano:
+  auto_deploy: true
