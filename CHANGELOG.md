@@ -5,6 +5,14 @@ All notable changes to the `nano_core` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.1.1 (2026-11-01)
+
+### Added
+- **`NanoIterableExtension` Zero-Dependency Safe Collections**:
+  - `firstWhereOrNull`: Extension on `Iterable<T>` returning the first element that satisfies the given predicate, or `null` if no such element is found, preventing unhandled `StateError` crashes.
+- **`NanoStringExtension` Ergonomic String Parsing**:
+  - `toDateTimeOrNull`: Extension on nullable `String?` parsing ISO-8601 timestamps directly to `DateTime?`, automatically handling `null`, whitespace, or invalid string representations safely.
+
 ## 1.1.0 (2026-10-01)
 
 ### Added

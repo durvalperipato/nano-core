@@ -165,6 +165,7 @@ A lightweight reactive architecture framework and design system toolkit for Flut
 ### 🪵 Observability, Diagnostics & Utilities
 
 - 📅 [**NanoDateTimeExtension**](#17-universal-date--timestamp-utilities-nanodatetimeextension): Zero-dependency extension on `DateTime` providing universal Unix timestamps (`timestampSeconds`, `timestampMillis`), calendar day boundaries (`startOfDay`, `endOfDay`), and query predicates (`isToday`, `isSameDay`, `isBetween`).
+- 🧩 [**Safe Collections & String Parsing**](#18-safe-collections--string-parsing-nanoiterableextension--nanostringextension): Zero-dependency extensions on `Iterable` (`firstWhereOrNull`) avoiding `StateError` crashes and `String?` (`toDateTimeOrNull`) for resilient ISO-8601 parsing.
 - 📡 [**NanoTelemetry & Observers**](#9-telemetry--observability-nanotelemetry-nanoanalyticsobserver--nanocrashobserver): 100% decoupled telemetry architecture multiplexing analytics, anti-cardinality screen tracking, breadcrumbs, and error reporting to Firebase, Sentry, Datadog, or Mixpanel.
 - 🪵 [**NanoLogger & NanoLogFilter**](#8-structured-logging-with-nanologger--nanologfilter): Granular structured console logger with ANSI styling, execution tracing, and category filtering (`NanoLogFilter`).
 - 🌐 [**NanoConnectivity**](#10-reactive-connectivity--offline-handling): Reactive cross-platform network monitor with seamless `NanoScaffold(connectivityBuilder:)` integration.
@@ -180,7 +181,7 @@ Add `nano_core` to your `pubspec.yaml`:
 dependencies:
   flutter:
     sdk: flutter
-  nano_core: ^1.1.0
+  nano_core: ^1.1.1
 ```
 
 ## Quick Example
@@ -2122,6 +2123,20 @@ if (now.isToday) print('Today');
 if (now.isYesterday) print('Yesterday');
 if (now.isSameDay(anotherDate)) print('Same day');
 if (now.isBetween(startDate, endDate)) print('Within range');
+```
+
+---
+
+### 18. Safe Collections & String Parsing (`NanoIterableExtension` & `NanoStringExtension`)
+
+Zero-dependency utilities for safe iterable querying and resilient timestamp parsing:
+
+```dart
+// Safe Iterable querying (returns null instead of throwing StateError):
+final item = items.firstWhereOrNull((element) => element.id == targetId);
+
+// Resilient ISO-8601 parsing (handles null, empty, or malformed strings):
+final DateTime? createdAt = rawDateString.toDateTimeOrNull();
 ```
 
 ---
