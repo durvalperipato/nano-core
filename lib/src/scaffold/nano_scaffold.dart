@@ -5,6 +5,9 @@ import '../components/nano_toast.dart';
 import '../connectivity/nano_connectivity.dart';
 import '../connectivity/nano_connectivity_status.dart';
 import '../controller/nano_controller.dart';
+import '../extensions/nano_navigation_extension.dart';
+import '../router/models/nano_navigation_event.dart';
+import '../router/models/nano_navigation_mode.dart';
 import '../state/nano_message_key.dart';
 import '../state/nano_state.dart';
 import '../state/nano_state_observable.dart';
@@ -68,6 +71,8 @@ class NanoScaffold<
     this.defaultErrorMessage,
     this.defaultWarningMessage,
     this.listener,
+    this.autoNavigate = true,
+    this.onNavigate,
     super.key,
   });
 
@@ -146,6 +151,18 @@ class NanoScaffold<
   final void Function(BuildContext context, NanoState<ViewState> state)?
   listener;
 
+  /// Whether navigation events emitted by [controller] should be handled
+  /// automatically by [NanoScaffold]. Defaults to `true`.
+  final bool autoNavigate;
+
+  /// Optional custom interceptor callback invoked when a [NanoNavigationEvent]
+  /// is emitted.
+  ///
+  /// - Return `true` to signal that the event was handled, skipping execution.
+  /// - Return `false` to delegate execution to default [autoNavigate].
+  final bool Function(BuildContext context, NanoNavigationEvent event)?
+  onNavigate;
+
   /// Main page content builder, receiving current context and [NanoState].
   final Widget Function(BuildContext context, NanoState<ViewState> state)
   builder;
@@ -210,11 +227,39 @@ class _NanoScaffoldState<
     setState(() {});
   }
 
-  void _subscribeController(NanoStateObservable<ViewState>? controller) =>
-      controller?.addListener(_onStateChanged);
+  void _subscribeController(NanoStateObservable<ViewState>? controller) {
+    controller?.addListener(_onStateChanged);
+    controller?.navigation?.addListener(_onNavigationEvent);
+  }
 
-  void _unsubscribeController(NanoStateObservable<ViewState>? controller) =>
-      controller?.removeListener(_onStateChanged);
+  void _unsubscribeController(NanoStateObservable<ViewState>? controller) {
+    controller?.removeListener(_onStateChanged);
+    controller?.navigation?.removeListener(_onNavigationEvent);
+  }
+
+  void _onNavigationEvent() {
+    final event = widget.controller?.navigation?.value;
+    if (event == null || !mounted) return;
+
+    final handled = widget.onNavigate?.call(context, event) ?? false;
+    if (handled) return;
+
+    if (!widget.autoNavigate) return;
+
+    switch (event.mode) {
+      case NanoNavigationMode.push:
+        context.toNamed(event.routeName, arguments: event.args);
+      case NanoNavigationMode.replace:
+        context.toReplacementNamed(event.routeName, arguments: event.args);
+      case NanoNavigationMode.pop:
+        context.back(event.args);
+      case NanoNavigationMode.clearStack:
+        context.toAndRemoveUntilNamed(
+          event.routeName,
+          arguments: event.args,
+        );
+    }
+  }
 
   void _onStateChanged() {
     final controller = widget.controller;
