@@ -78,6 +78,7 @@ A lightweight reactive architecture framework and design system toolkit for Flut
   - `NanoShellScaffold`: Multi-tab layout with keep-alive tabs, drawers, and persistent FABs.
   - `NanoShellTab`: Independent tab navigation stack.
   - `NanoShellSubView`: Modal-like contextual overlays without unmounting tabs.
+- ⚡ [**Reactive Navigation Events**](#19-reactive-navigation-nanonavigationevent--nanonavigationmode): Decoupled one-shot transitions via `controller.emitNavigation()` with automated `NanoScaffold` resolution and interceptors.
 - 🔭 [**NanoRouteObserver**](#4-declarative-routing-with-nanorouter-observers--nanoapp): Granular navigation observer for analytics, Datadog, breadcrumbs, and route lifecycle telemetry.
 
 ---
@@ -181,7 +182,7 @@ Add `nano_core` to your `pubspec.yaml`:
 dependencies:
   flutter:
     sdk: flutter
-  nano_core: ^1.1.1
+  nano_core: ^1.1.2
 ```
 
 ## Quick Example
@@ -2137,6 +2138,36 @@ final item = items.firstWhereOrNull((element) => element.id == targetId);
 
 // Resilient ISO-8601 parsing (handles null, empty, or malformed strings):
 final DateTime? createdAt = rawDateString.toDateTimeOrNull();
+```
+
+### 19. Reactive Navigation (`NanoNavigationEvent` & `NanoNavigationMode`)
+
+Decouple navigation side-effects from widgets and asynchronous callbacks. Controllers emit one-shot navigation events that are cleanly executed or intercepted by `NanoScaffold`:
+
+```dart
+// 1. Controller emits one-shot navigation (cleared in microtask):
+class LoginController extends NanoController<LoginState> {
+  LoginController() : super(initialState: const LoginState());
+
+  void onLoginSuccess() {
+    emitNavigation('/home', mode: NanoNavigationMode.replace);
+  }
+}
+
+// 2. NanoScaffold resolves navigation automatically:
+NanoScaffold<LoginState, NanoMessageKey>(
+  controller: controller,
+  autoNavigate: true, // Defaults to true
+  onNavigate: (context, event) {
+    // Optional interceptor: return true to cancel automatic navigation
+    if (event.routeName == '/restricted') {
+      showCustomDialog(context);
+      return true; // Cancel default transition
+    }
+    return false; // Proceed with Navigator transition
+  },
+  builder: (context, state) => LoginForm(),
+)
 ```
 
 ---
