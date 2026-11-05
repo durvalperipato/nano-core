@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../router/models/nano_navigation_event.dart';
 import 'nano_state.dart';
 import 'nano_view_state.dart';
 
@@ -12,4 +13,7 @@ abstract interface class NanoStateObservable<ViewState extends NanoViewState>
     implements Listenable {
   /// The current [NanoState] snapshot.
   NanoState<ViewState> get state;
+
+  /// Optional observable for reactive one-shot navigation events.
+  ValueListenable<NanoNavigationEvent?>? get navigation;
 }

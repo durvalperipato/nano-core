@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../../router/models/nano_navigation_event.dart';
 import '../nano_state.dart';
 import '../nano_state_observable.dart';
 import '../nano_view_state.dart';
@@ -24,6 +25,9 @@ class NanoListenableAdapter<ViewState extends NanoViewState>
 
   @override
   NanoState<ViewState> get state => _stateGetter();
+
+  @override
+  ValueListenable<NanoNavigationEvent?>? get navigation => null;
 
   @override
   void dispose() {
