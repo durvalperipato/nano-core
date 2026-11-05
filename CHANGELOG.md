@@ -5,6 +5,20 @@ All notable changes to the `nano_core` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.1.2 (2026-11-05)
+
+### Added
+- **`NanoNavigationEvent` & `NanoNavigationMode`**: One-shot reactive navigation event models supporting `push`, `replace`, `pop`, and `clearStack` transitions with optional route arguments.
+- **`NanoController.emitNavigation()`**: Decoupled one-shot navigation trigger with automatic microtask clearing, ensuring clean event lifecycles without `BuildContext` coupling.
+- **`NanoController.isDisposed`**: Public getter to safely verify controller disposal status.
+- **`NanoStateObservable.navigation`**: Universal contract extension exposing `ValueListenable<NanoNavigationEvent?>` for reactive navigation stream consumption across any state adapter.
+- **`NanoScaffold.autoNavigate` & `NanoScaffold.onNavigate`**: Declarative reactive navigation orchestration in `NanoScaffold` with automatic `Navigator` transitions (`autoNavigate: true` by default) and custom interceptor support via `onNavigate: (context, event) => bool`.
+
+### Changed
+- **`NanoScaffold`**: Integrated reactive navigation lifecycle observer that automatically dispatches transitions (`push`, `replace`, `pop`, `clearStack`) upon controller events when mounted.
+- **`NanoController.emit`**: Added proactive `_isDisposed` guard preventing unhandled state notifications after controller disposal.
+- **`NanoListenableAdapter` & `NanoStreamAdapter`**: Implemented universal `navigation` stream adapter conforming to `NanoStateObservable`.
+
 ## 1.1.1 (2026-11-01)
 
 ### Added

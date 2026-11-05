@@ -108,5 +108,48 @@ void main() {
 
       controller.dispose();
     });
+
+    test(
+      'emitNavigation emits NanoNavigationEvent and clears in microtask',
+      () async {
+        final controller = _TestController();
+        expect(controller.navigation.value, isNull);
+
+        controller.emitNavigation(
+          '/details',
+          mode: NanoNavigationMode.replace,
+          args: '123',
+        );
+
+        expect(
+          controller.navigation.value,
+          equals(
+            const NanoNavigationEvent(
+              routeName: '/details',
+              mode: NanoNavigationMode.replace,
+              args: '123',
+            ),
+          ),
+        );
+
+        await Future<void>.delayed(Duration.zero);
+        expect(controller.navigation.value, isNull);
+
+        controller.dispose();
+      },
+    );
+
+    test(
+      'isDisposed tracks lifecycle and emit ignores calls after dispose',
+      () {
+      final controller = _TestController();
+      expect(controller.isDisposed, isFalse);
+
+      controller.dispose();
+      expect(controller.isDisposed, isTrue);
+
+      controller.emitLoaded(const _SampleViewState(count: 99));
+      expect(controller.viewState.count, equals(0));
+    });
   });
 }

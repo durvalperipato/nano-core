@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import '../../router/models/nano_navigation_event.dart';
 import '../nano_state.dart';
 import '../nano_state_observable.dart';
 import '../nano_view_state.dart';
@@ -38,6 +39,9 @@ class NanoStreamAdapter<ViewState extends NanoViewState, StreamEvent>
 
   @override
   NanoState<ViewState> get state => _state;
+
+  @override
+  ValueListenable<NanoNavigationEvent?>? get navigation => null;
 
   @override
   void dispose() {

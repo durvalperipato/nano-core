@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../command/nano_command.dart';
+import '../router/models/nano_navigation_event.dart';
+import '../router/models/nano_navigation_mode.dart';
 import '../state/nano_message_key.dart';
 import '../state/nano_state.dart';
 import '../state/nano_state_observable.dart';
@@ -19,6 +21,12 @@ abstract class NanoController<ViewState extends NanoViewState>
     : state = InitialState<ViewState>(data: initialState);
 
   final List<NanoCommand<dynamic>> _commands = [];
+  final ValueNotifier<NanoNavigationEvent?> _navigationNotifier =
+      ValueNotifier<NanoNavigationEvent?>(null);
+  bool _isDisposed = false;
+
+  /// Whether the controller has been disposed.
+  bool get isDisposed => _isDisposed;
 
   /// The current state of the controller.
   @override
@@ -26,6 +34,32 @@ abstract class NanoController<ViewState extends NanoViewState>
 
   /// Retrieves the current [ViewState] data from [state].
   ViewState get viewState => state.data!;
+
+  /// Observable stream of one-shot reactive navigation events.
+  @override
+  ValueListenable<NanoNavigationEvent?> get navigation => _navigationNotifier;
+
+  /// Emits a one-shot navigation event to be handled by [NanoScaffold].
+  ///
+  /// The event is automatically cleared in a microtask after dispatch, ensuring
+  /// subsequent emissions are always treated as fresh one-shot occurrences.
+  void emitNavigation(
+    String routeName, {
+    NanoNavigationMode mode = NanoNavigationMode.push,
+    Object? args,
+  }) {
+    if (_isDisposed) return;
+    _navigationNotifier.value = NanoNavigationEvent(
+      routeName: routeName,
+      mode: mode,
+      args: args,
+    );
+    Future.microtask(() {
+      if (!_isDisposed) {
+        _navigationNotifier.value = null;
+      }
+    });
+  }
 
   /// Creates and registers a parameterless [NanoCommand0] with automatic
   /// disposal.
@@ -65,6 +99,7 @@ abstract class NanoController<ViewState extends NanoViewState>
 
   /// Emits a new state and notifies all registered listeners.
   void emit(NanoState<ViewState> newState) {
+    if (_isDisposed) return;
     state = newState;
     notifyListeners();
   }
@@ -127,6 +162,8 @@ abstract class NanoController<ViewState extends NanoViewState>
 
   @override
   void dispose() {
+    _isDisposed = true;
+    _navigationNotifier.dispose();
     for (final command in _commands) {
       command.dispose();
     }
