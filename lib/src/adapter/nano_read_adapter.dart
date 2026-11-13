@@ -1,3 +1,5 @@
+import '../extensions/nano_iterable_extension.dart';
+
 /// An abstract contract to deserialize JSON maps into domain entities.
 abstract mixin class NanoReadAdapter<Entity> {
   /// Const constructor allowing subclasses to be const.
@@ -32,5 +34,25 @@ abstract mixin class NanoReadAdapter<Entity> {
   List<Entity> fromList(dynamic jsonList) {
     if (jsonList is! List) return const [];
     return jsonList.map(fromMapOrNull).whereType<Entity>().toList();
+  }
+
+  /// Safely converts a dynamic [raw] list of enum names into a strongly-typed
+  /// `List<T>?`, or returns `null` if [raw] is `null` or not a [List].
+  ///
+  /// Matches enum names against [values] and filters out unmatched or null
+  /// elements.
+  List<T>? enumList<T extends Enum>(
+    dynamic raw,
+    Iterable<T> values, {
+    bool caseSensitive = true,
+  }) {
+    if (raw is! List) return null;
+    return raw
+        .map(
+          (e) =>
+              values.byNameOrNull(e?.toString(), caseSensitive: caseSensitive),
+        )
+        .whereType<T>()
+        .toList();
   }
 }

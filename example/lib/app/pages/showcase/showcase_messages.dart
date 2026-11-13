@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:nano_core/nano_core.dart';
 import 'package:nano_core_example/app/core/extensions/l10n_extension.dart';
 

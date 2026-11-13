@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:nano_core/nano_core.dart';
 
 enum TestTab { home, profile }
@@ -45,9 +45,7 @@ void main() {
       expect(find.text('home'), findsOneWidget);
     });
 
-    testWidgets('renders bottomNavigationBar and switches tab', (
-      tester,
-    ) async {
+    testWidgets('renders bottomNavigationBar and switches tab', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: NanoShellScaffold<TestTab, TestSubView>(
@@ -58,10 +56,7 @@ void main() {
                 index == 0 ? TestTab.home : TestTab.profile,
               ),
               items: const [
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.home),
-                  label: 'Home',
-                ),
+                BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.person),
                   label: 'Profile',
@@ -152,58 +147,55 @@ void main() {
       expect(find.text('Profile Screen'), findsOneWidget);
     });
 
-    testWidgets(
-      'opens subView via context.shell.openSubView and closes via '
-      'context.shell.closeSubView',
-      (tester) async {
-        await tester.pumpWidget(
-          MaterialApp(
-            home: NanoShellScaffold<TestTab, TestSubView>(
-              initialTab: TestTab.home,
-              floatingActionButton: (context, controller) =>
-                  Text('SubView Open: ${context.shell.isSubViewOpen()}'),
-              tabs: [
-                NanoShellTab(
-                  value: TestTab.home,
-                  builder: (context) => ElevatedButton(
-                    onPressed: () {
-                      context.shell.openSubView(TestSubView.notifications);
-                    },
-                    child: const Text('Open Notifications'),
-                  ),
+    testWidgets('opens subView via context.shell.openSubView and closes via '
+        'context.shell.closeSubView', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: NanoShellScaffold<TestTab, TestSubView>(
+            initialTab: TestTab.home,
+            floatingActionButton: (context, controller) =>
+                Text('SubView Open: ${context.shell.isSubViewOpen()}'),
+            tabs: [
+              NanoShellTab(
+                value: TestTab.home,
+                builder: (context) => ElevatedButton(
+                  onPressed: () {
+                    context.shell.openSubView(TestSubView.notifications);
+                  },
+                  child: const Text('Open Notifications'),
                 ),
-              ],
-              subViews: [
-                NanoShellSubView(
-                  id: TestSubView.notifications,
-                  builder: (context) => ElevatedButton(
-                    onPressed: () {
-                      context.shell.closeSubView();
-                    },
-                    child: const Text('Close Notifications'),
-                  ),
+              ),
+            ],
+            subViews: [
+              NanoShellSubView(
+                id: TestSubView.notifications,
+                builder: (context) => ElevatedButton(
+                  onPressed: () {
+                    context.shell.closeSubView();
+                  },
+                  child: const Text('Close Notifications'),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        );
+        ),
+      );
 
-        expect(find.text('SubView Open: false'), findsOneWidget);
+      expect(find.text('SubView Open: false'), findsOneWidget);
 
-        // Open subview
-        await tester.tap(find.text('Open Notifications'));
-        await tester.pumpAndSettle();
+      // Open subview
+      await tester.tap(find.text('Open Notifications'));
+      await tester.pumpAndSettle();
 
-        expect(find.text('Close Notifications'), findsOneWidget);
-        expect(find.text('SubView Open: true'), findsOneWidget);
+      expect(find.text('Close Notifications'), findsOneWidget);
+      expect(find.text('SubView Open: true'), findsOneWidget);
 
-        // Close subview
-        await tester.tap(find.text('Close Notifications'));
-        await tester.pumpAndSettle();
+      // Close subview
+      await tester.tap(find.text('Close Notifications'));
+      await tester.pumpAndSettle();
 
-        expect(find.text('Open Notifications'), findsOneWidget);
-        expect(find.text('SubView Open: false'), findsOneWidget);
-      },
-    );
+      expect(find.text('Open Notifications'), findsOneWidget);
+      expect(find.text('SubView Open: false'), findsOneWidget);
+    });
   });
 }

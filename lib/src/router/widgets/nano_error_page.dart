@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../models/nano_route_error.dart';
 
 /// The default error and not-found page displayed by [NanoRouter].

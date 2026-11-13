@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:nano_core/nano_core.dart';
 
 class TestPageState extends NanoViewState {
@@ -67,11 +67,7 @@ void main() {
     testWidgets(
       'initializes scope, retrieves controller, calls init and disposes scope',
       (tester) async {
-        await tester.pumpWidget(
-          const MaterialApp(
-            home: TestPageWidget(),
-          ),
-        );
+        await tester.pumpWidget(const MaterialApp(home: TestPageWidget()));
 
         expect(find.text('Initialized: true - custom-id-123'), findsOneWidget);
 

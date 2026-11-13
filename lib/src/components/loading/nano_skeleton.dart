@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'nano_shimmer.dart';
 
@@ -61,10 +61,7 @@ class NanoSkeleton extends StatelessWidget {
       highlightColor: highlightColor,
       duration: duration,
       enabled: enabled,
-      child: _SkeletonCircle(
-        size: size,
-        color: color,
-      ),
+      child: _SkeletonCircle(size: size, color: color),
     );
   }
 
@@ -131,8 +128,10 @@ class NanoSkeleton extends StatelessWidget {
   factory NanoSkeleton.list({
     Key? key,
     int items = 6,
-    EdgeInsetsGeometry padding =
-        const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+    EdgeInsetsGeometry padding = const EdgeInsets.symmetric(
+      vertical: 8.0,
+      horizontal: 16.0,
+    ),
     double spacing = 16.0,
     Color? color,
     Color? highlightColor,
@@ -201,11 +200,7 @@ class NanoSkeleton extends StatelessWidget {
     Duration duration = const Duration(milliseconds: 1500),
   }) {
     if (!loading) {
-      return NanoSkeleton._(
-        key: key,
-        enabled: false,
-        child: child,
-      );
+      return NanoSkeleton._(key: key, enabled: false, child: child);
     }
 
     return NanoSkeleton._(
@@ -213,10 +208,7 @@ class NanoSkeleton extends StatelessWidget {
       baseColor: maskColor,
       highlightColor: highlightColor,
       duration: duration,
-      child: _SkeletonMask(
-        maskColor: maskColor,
-        child: child,
-      ),
+      child: _SkeletonMask(maskColor: maskColor, child: child),
     );
   }
 
@@ -247,12 +239,7 @@ class NanoSkeleton extends StatelessWidget {
 }
 
 class _SkeletonBox extends StatelessWidget {
-  const _SkeletonBox({
-    this.width,
-    this.height,
-    this.borderRadius,
-    this.color,
-  });
+  const _SkeletonBox({this.width, this.height, this.borderRadius, this.color});
 
   final double? width;
   final double? height;
@@ -262,8 +249,9 @@ class _SkeletonBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final defaultColor =
-        isDark ? const Color(0xFF2A2A2A) : const Color(0xFFE0E0E0);
+    final defaultColor = isDark
+        ? const Color(0xFF2A2A2A)
+        : const Color(0xFFE0E0E0);
 
     return Container(
       width: width,
@@ -277,10 +265,7 @@ class _SkeletonBox extends StatelessWidget {
 }
 
 class _SkeletonCircle extends StatelessWidget {
-  const _SkeletonCircle({
-    this.size = 48.0,
-    this.color,
-  });
+  const _SkeletonCircle({this.size = 48.0, this.color});
 
   final double size;
   final Color? color;
@@ -288,8 +273,9 @@ class _SkeletonCircle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final defaultColor =
-        isDark ? const Color(0xFF2A2A2A) : const Color(0xFFE0E0E0);
+    final defaultColor = isDark
+        ? const Color(0xFF2A2A2A)
+        : const Color(0xFFE0E0E0);
 
     return Container(
       width: size,
@@ -338,8 +324,8 @@ class _SkeletonText extends StatelessWidget {
         final effectiveWidth = isLastLine && width != null
             ? width! * 0.65
             : isLastLine
-                ? 120.0
-                : width;
+            ? 120.0
+            : width;
 
         return Padding(
           padding: EdgeInsets.only(bottom: isLastLine ? 0.0 : lineSpacing),
@@ -373,8 +359,9 @@ class _SkeletonCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final defaultBorderColor =
-        isDark ? const Color(0xFF333333) : const Color(0xFFEEEEEE);
+    final defaultBorderColor = isDark
+        ? const Color(0xFF333333)
+        : const Color(0xFFEEEEEE);
 
     return Container(
       width: width,
@@ -538,10 +525,7 @@ class _SkeletonGrid extends StatelessWidget {
 }
 
 class _SkeletonMask extends StatelessWidget {
-  const _SkeletonMask({
-    required this.child,
-    this.maskColor,
-  });
+  const _SkeletonMask({required this.child, this.maskColor});
 
   final Widget child;
   final Color? maskColor;
@@ -549,8 +533,9 @@ class _SkeletonMask extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final defaultColor =
-        isDark ? const Color(0xFF424242) : const Color(0xFFBDBDBD);
+    final defaultColor = isDark
+        ? const Color(0xFF424242)
+        : const Color(0xFFBDBDBD);
 
     return ColorFiltered(
       colorFilter: ColorFilter.mode(

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../scaffold/nano_shell_controller.dart';
 import '../../scaffold/nano_shell_scaffold.dart';
@@ -53,6 +53,3 @@ class NanoShellRoute<TTab extends Enum, TSubView> extends NanoRouteBase {
     enablePopScope: enablePopScope,
   );
 }
-
-
-

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Represents a primary persistent tab within a [NanoShellScaffold].
 class NanoShellTab<TTab extends Enum> {

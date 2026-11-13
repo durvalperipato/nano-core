@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:nano_core/nano_core.dart';
 import 'enums/showcase_sub_view.dart';
 import 'enums/showcase_tab.dart';
@@ -130,9 +130,8 @@ class _ShowcasePageState
                 ),
                 NanoShellTab(
                   value: ShowcaseTab.stateArchitecture,
-                  builder: (context) => StateArchitectureTab(
-                    controller: controller,
-                  ),
+                  builder: (context) =>
+                      StateArchitectureTab(controller: controller),
                 ),
                 NanoShellTab(
                   value: ShowcaseTab.dataNetwork,

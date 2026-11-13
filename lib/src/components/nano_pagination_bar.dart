@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../pagination/nano_paginator.dart';
 
 /// A reactive pagination navigation control bar that binds to a [NanoPaginator]

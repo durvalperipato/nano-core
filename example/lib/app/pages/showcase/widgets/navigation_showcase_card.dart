@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:nano_core/nano_core.dart';
 import '../../../core/routes/app_route_names.dart';
 import 'section_header.dart';
@@ -24,7 +24,8 @@ class NavigationShowcaseCard extends StatelessWidget {
             const SectionHeader(
               icon: Icons.navigation_outlined,
               title: 'Declarative NanoRouter & Navigation',
-              subtitle: 'Navigate fluidly using context extensions or NanoRouter',
+              subtitle:
+                  'Navigate fluidly using context extensions or NanoRouter',
             ),
             const SizedBox(height: 16),
             Wrap(

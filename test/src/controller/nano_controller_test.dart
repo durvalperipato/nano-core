@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:nano_core/nano_core.dart';
 
 class _SampleViewState extends NanoViewState {
@@ -16,7 +16,8 @@ class _TestMessageKey implements NanoMessageKey {
   final String text;
 
   @override
-  String Function(BuildContext) get message => (_) => text;
+  String Function(BuildContext) get message =>
+      (_) => text;
 }
 
 class _TestController extends NanoController<_SampleViewState> {
@@ -142,14 +143,15 @@ void main() {
     test(
       'isDisposed tracks lifecycle and emit ignores calls after dispose',
       () {
-      final controller = _TestController();
-      expect(controller.isDisposed, isFalse);
+        final controller = _TestController();
+        expect(controller.isDisposed, isFalse);
 
-      controller.dispose();
-      expect(controller.isDisposed, isTrue);
+        controller.dispose();
+        expect(controller.isDisposed, isTrue);
 
-      controller.emitLoaded(const _SampleViewState(count: 99));
-      expect(controller.viewState.count, equals(0));
-    });
+        controller.emitLoaded(const _SampleViewState(count: 99));
+        expect(controller.viewState.count, equals(0));
+      },
+    );
   });
 }

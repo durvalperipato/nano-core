@@ -1,20 +1,16 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:nano_core/nano_core.dart';
 
 void main() {
   group('NanoCommandBuilder', () {
-    testWidgets('renders different states as command executes', (
-      tester,
-    ) async {
-      final command = NanoCommand1<String, String>(
-        (arg) async {
-          if (arg == 'error') {
-            throw Exception('Command error');
-          }
-          return 'Result: $arg';
-        },
-      );
+    testWidgets('renders different states as command executes', (tester) async {
+      final command = NanoCommand1<String, String>((arg) async {
+        if (arg == 'error') {
+          throw Exception('Command error');
+        }
+        return 'Result: $arg';
+      });
 
       await tester.pumpWidget(
         MaterialApp(

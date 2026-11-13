@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'nano_shimmer_direction.dart';
 
@@ -57,10 +57,7 @@ class _NanoShimmerState extends State<NanoShimmer>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: widget.duration,
-    );
+    _controller = AnimationController(vsync: this, duration: widget.duration);
     if (widget.enabled) {
       _controller.repeat();
     }
@@ -93,25 +90,13 @@ class _NanoShimmerState extends State<NanoShimmer>
 
     switch (widget.direction) {
       case NanoShimmerDirection.ltr:
-        return (
-          Alignment(offset - 1.0, 0.0),
-          Alignment(offset + 1.0, 0.0),
-        );
+        return (Alignment(offset - 1.0, 0.0), Alignment(offset + 1.0, 0.0));
       case NanoShimmerDirection.rtl:
-        return (
-          Alignment(-offset + 1.0, 0.0),
-          Alignment(-offset - 1.0, 0.0),
-        );
+        return (Alignment(-offset + 1.0, 0.0), Alignment(-offset - 1.0, 0.0));
       case NanoShimmerDirection.ttb:
-        return (
-          Alignment(0.0, offset - 1.0),
-          Alignment(0.0, offset + 1.0),
-        );
+        return (Alignment(0.0, offset - 1.0), Alignment(0.0, offset + 1.0));
       case NanoShimmerDirection.btt:
-        return (
-          Alignment(0.0, -offset + 1.0),
-          Alignment(0.0, -offset - 1.0),
-        );
+        return (Alignment(0.0, -offset + 1.0), Alignment(0.0, -offset - 1.0));
     }
   }
 
@@ -122,9 +107,11 @@ class _NanoShimmerState extends State<NanoShimmer>
     }
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final baseColor = widget.baseColor ??
+    final baseColor =
+        widget.baseColor ??
         (isDark ? const Color(0xFF2A2A2A) : const Color(0xFFE0E0E0));
-    final highlightColor = widget.highlightColor ??
+    final highlightColor =
+        widget.highlightColor ??
         (isDark ? const Color(0xFF3D3D3D) : const Color(0xFFF5F5F5));
 
     return AnimatedBuilder(

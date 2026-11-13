@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:nano_core/nano_core.dart';
 
 void main() {
@@ -56,10 +56,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: NanoTextField(
-              value: 'secret123',
-              isPassword: true,
-            ),
+            body: NanoTextField(value: 'secret123', isPassword: true),
           ),
         ),
       );

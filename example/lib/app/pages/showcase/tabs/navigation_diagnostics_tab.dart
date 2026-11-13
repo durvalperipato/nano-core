@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../widgets/device_environment_card.dart';
 import '../widgets/logger_showcase_card.dart';
 import '../widgets/navigation_showcase_card.dart';

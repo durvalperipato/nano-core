@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:nano_core/nano_core.dart';
 import '../../../core/routes/app_route_names.dart';
 import 'section_header.dart';
@@ -35,7 +35,9 @@ class ShellScaffoldShowcaseCard extends StatelessWidget {
                 ElevatedButton.icon(
                   onPressed: () => context.toNamed(AppRouteNames.shellDemo),
                   icon: const Icon(Icons.tab_outlined),
-                  label: const Text('Open Interactive Shell Demo (/shell-demo)'),
+                  label: const Text(
+                    'Open Interactive Shell Demo (/shell-demo)',
+                  ),
                 ),
               ],
             ),

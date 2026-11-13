@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:nano_core/nano_core.dart';
 import '../showcase_controller.dart';
 import 'section_header.dart';
@@ -157,7 +157,11 @@ class _StateStatusIcon extends StatelessWidget {
       );
     }
     if (state is LoadedState) {
-      return const Icon(Icons.check_circle_outline, color: Color(0xFF3B82F6), size: 28);
+      return const Icon(
+        Icons.check_circle_outline,
+        color: Color(0xFF3B82F6),
+        size: 28,
+      );
     }
     if (state is SuccessState) {
       return const Icon(Icons.check_circle, color: Color(0xFF10B981), size: 28);

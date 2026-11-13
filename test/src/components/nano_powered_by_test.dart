@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:nano_core/nano_core.dart';
 
 void main() {
@@ -55,11 +55,7 @@ void main() {
       (tester) async {
         await tester.pumpWidget(
           const MaterialApp(
-            home: Scaffold(
-              body: NanoPoweredBy(
-                companyName: 'Acme Corp',
-              ),
-            ),
+            home: Scaffold(body: NanoPoweredBy(companyName: 'Acme Corp')),
           ),
         );
 
@@ -87,27 +83,20 @@ void main() {
 
       expect(tapped, isTrue);
     });
-    testWidgets(
-      'automatically displays resolved version from NanoAppInfo '
-      'when version is null',
-      (tester) async {
-        NanoAppInfo.setVersion('v1.0.5');
+    testWidgets('automatically displays resolved version from NanoAppInfo '
+        'when version is null', (tester) async {
+      NanoAppInfo.setVersion('v1.0.5');
 
-        await tester.pumpWidget(
-          const MaterialApp(
-            home: Scaffold(
-              body: NanoPoweredBy(
-                companyName: 'NanoDevs',
-              ),
-            ),
-          ),
-        );
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(body: NanoPoweredBy(companyName: 'NanoDevs')),
+        ),
+      );
 
-        expect(find.text('v1.0.5'), findsOneWidget);
-        expect(find.text('NanoDevs'), findsOneWidget);
+      expect(find.text('v1.0.5'), findsOneWidget);
+      expect(find.text('NanoDevs'), findsOneWidget);
 
-        NanoAppInfo.reset();
-      },
-    );
+      NanoAppInfo.reset();
+    });
   });
 }

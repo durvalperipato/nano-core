@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:nano_core/nano_core.dart';
 
 enum DemoTab { overview, settings }
@@ -57,8 +57,9 @@ void main() {
               Expanded(child: body),
             ],
           ),
-          bottomNavigationBar:
-              Text('Active Tab: ${controller.currentTab?.name}'),
+          bottomNavigationBar: Text(
+            'Active Tab: ${controller.currentTab?.name}',
+          ),
         ),
         tabs: [
           NanoShellTab(
