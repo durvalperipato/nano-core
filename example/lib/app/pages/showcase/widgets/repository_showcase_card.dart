@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:nano_core/nano_core.dart';
 import '../../../mocks/mock_models.dart';
 import 'section_header.dart';
@@ -86,7 +86,9 @@ class _RepositoryShowcaseCardState extends State<RepositoryShowcaseCard> {
     final stopwatch = Stopwatch()..start();
 
     try {
-      final users = await _searchRepository.getAll(cachePolicy: _selectedPolicy);
+      final users = await _searchRepository.getAll(
+        cachePolicy: _selectedPolicy,
+      );
       stopwatch.stop();
       if (!mounted) return;
 
@@ -152,8 +154,7 @@ class _RepositoryShowcaseCardState extends State<RepositoryShowcaseCard> {
                           vertical: 3,
                         ),
                         decoration: BoxDecoration(
-                          color:
-                              const Color(0xFF10B981).withValues(alpha: 0.2),
+                          color: const Color(0xFF10B981).withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: const Text(
@@ -174,10 +175,10 @@ class _RepositoryShowcaseCardState extends State<RepositoryShowcaseCard> {
                           ),
                           decoration: BoxDecoration(
                             color: _lastLatency.contains('Cache')
-                                ? const Color(0xFF38BDF8)
-                                    .withValues(alpha: 0.2)
-                                : const Color(0xFFF59E0B)
-                                    .withValues(alpha: 0.2),
+                                ? const Color(0xFF38BDF8).withValues(alpha: 0.2)
+                                : const Color(
+                                    0xFFF59E0B,
+                                  ).withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
@@ -237,7 +238,9 @@ class _RepositoryShowcaseCardState extends State<RepositoryShowcaseCard> {
                   selected: _selectedPolicy == NanoCachePolicy.cacheFirst,
                   onSelected: (selected) {
                     if (selected) {
-                      setState(() => _selectedPolicy = NanoCachePolicy.cacheFirst);
+                      setState(
+                        () => _selectedPolicy = NanoCachePolicy.cacheFirst,
+                      );
                     }
                   },
                 ),
@@ -247,7 +250,9 @@ class _RepositoryShowcaseCardState extends State<RepositoryShowcaseCard> {
                   selected: _selectedPolicy == NanoCachePolicy.networkOnly,
                   onSelected: (selected) {
                     if (selected) {
-                      setState(() => _selectedPolicy = NanoCachePolicy.networkOnly);
+                      setState(
+                        () => _selectedPolicy = NanoCachePolicy.networkOnly,
+                      );
                     }
                   },
                 ),
@@ -257,7 +262,9 @@ class _RepositoryShowcaseCardState extends State<RepositoryShowcaseCard> {
                   selected: _selectedPolicy == NanoCachePolicy.networkFirst,
                   onSelected: (selected) {
                     if (selected) {
-                      setState(() => _selectedPolicy = NanoCachePolicy.networkFirst);
+                      setState(
+                        () => _selectedPolicy = NanoCachePolicy.networkFirst,
+                      );
                     }
                   },
                 ),

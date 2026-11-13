@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'internal/nano_guarded_page.dart';
 import 'internal/nano_route_matcher.dart';

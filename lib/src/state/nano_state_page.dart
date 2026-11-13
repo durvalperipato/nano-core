@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:material_ui/material_ui.dart';
+
 import '../controller/nano_controller.dart';
 import '../injections/nano_injections.dart';
 

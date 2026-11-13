@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:nano_core/nano_core.dart';
 import '../../core/routes/app_route_names.dart';
 
@@ -26,9 +26,7 @@ class LoginPage extends StatelessWidget {
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
-                side: BorderSide(
-                  color: Colors.white.withValues(alpha: 0.1),
-                ),
+                side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(24),

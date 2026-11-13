@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../widgets/connectivity_and_debounce_card.dart';
 import '../widgets/repository_showcase_card.dart';
 import '../widgets/universal_adapter_showcase_card.dart';

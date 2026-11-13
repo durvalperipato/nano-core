@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:nano_core/nano_core.dart';
 
 class _NavigationViewState extends NanoViewState {
@@ -87,36 +87,35 @@ void main() {
       },
     );
 
-    testWidgets(
-      'onNavigate returning false delegates to autoNavigate',
-      (tester) async {
-        NanoNavigationEvent? interceptedEvent;
+    testWidgets('onNavigate returning false delegates to autoNavigate', (
+      tester,
+    ) async {
+      NanoNavigationEvent? interceptedEvent;
 
-        await tester.pumpWidget(
-          MaterialApp(
-            initialRoute: '/',
-            routes: {
-              '/': (context) =>
-                  NanoScaffold<_NavigationViewState, NanoMessageKey>(
-                    controller: controller,
-                    onNavigate: (context, event) {
-                      interceptedEvent = event;
-                      return false;
-                    },
-                    builder: (context, state) => const Text('Root Page'),
-                  ),
-              '/details': (context) => const Text('Details Page'),
-            },
-          ),
-        );
+      await tester.pumpWidget(
+        MaterialApp(
+          initialRoute: '/',
+          routes: {
+            '/': (context) =>
+                NanoScaffold<_NavigationViewState, NanoMessageKey>(
+                  controller: controller,
+                  onNavigate: (context, event) {
+                    interceptedEvent = event;
+                    return false;
+                  },
+                  builder: (context, state) => const Text('Root Page'),
+                ),
+            '/details': (context) => const Text('Details Page'),
+          },
+        ),
+      );
 
-        controller.emitNavigation('/details');
-        await tester.pumpAndSettle();
+      controller.emitNavigation('/details');
+      await tester.pumpAndSettle();
 
-        expect(interceptedEvent?.routeName, equals('/details'));
-        expect(find.text('Details Page'), findsOneWidget);
-      },
-    );
+      expect(interceptedEvent?.routeName, equals('/details'));
+      expect(find.text('Details Page'), findsOneWidget);
+    });
 
     testWidgets('autoNavigate false prevents automatic transition', (
       tester,

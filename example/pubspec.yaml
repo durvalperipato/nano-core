@@ -16,9 +16,11 @@ dependencies:
     sdk: flutter
   get_it: ^9.2.0
   intl: any
+  cupertino_ui: ^1.1.6
+  material_ui: ^1.11.0
   nano_core:
     path: ../
-
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter

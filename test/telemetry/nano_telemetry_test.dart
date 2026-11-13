@@ -1,6 +1,7 @@
 import 'dart:ui';
-import 'package:flutter/material.dart';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:nano_core/nano_core.dart';
 
 class MockAnalyticsObserver implements NanoAnalyticsObserver {
@@ -137,45 +138,51 @@ void main() {
       NanoTelemetry.onEvent('button_click', parameters: {'id': 'submit'});
 
       expect(obs1.screens, ['/home']);
-      expect(obs1.screenParameters, [{'origin': 'deeplink'}]);
+      expect(obs1.screenParameters, [
+        {'origin': 'deeplink'},
+      ]);
       expect(obs1.events, ['button_click']);
-      expect(obs1.eventParameters, [{'id': 'submit'}]);
+      expect(obs1.eventParameters, [
+        {'id': 'submit'},
+      ]);
 
       expect(obs2.screens, ['/home']);
       expect(obs2.events, ['button_click']);
     });
 
-    test('dispatches error, breadcrumbs, and custom keys to crash observers',
-        () {
-      final crash1 = MockCrashObserver();
-      final crash2 = MockCrashObserver();
+    test(
+      'dispatches error, breadcrumbs, and custom keys to crash observers',
+      () {
+        final crash1 = MockCrashObserver();
+        final crash2 = MockCrashObserver();
 
-      NanoTelemetry.init(crashObservers: [crash1, crash2]);
+        NanoTelemetry.init(crashObservers: [crash1, crash2]);
 
-      final error = Exception('Simulated test failure');
-      final stack = StackTrace.current;
+        final error = Exception('Simulated test failure');
+        final stack = StackTrace.current;
 
-      NanoTelemetry.recordError(
-        error,
-        stack,
-        reason: 'Payment timeout',
-        fatal: true,
-        debugPrint: false,
-      );
+        NanoTelemetry.recordError(
+          error,
+          stack,
+          reason: 'Payment timeout',
+          fatal: true,
+          debugPrint: false,
+        );
 
-      NanoTelemetry.log('Navigated to checkout');
-      NanoTelemetry.setCustomKey('tier', 'premium');
+        NanoTelemetry.log('Navigated to checkout');
+        NanoTelemetry.setCustomKey('tier', 'premium');
 
-      expect(crash1.errors, [error]);
-      expect(crash1.stackTraces, [stack]);
-      expect(crash1.reasons, ['Payment timeout']);
-      expect(crash1.fatalFlags, [true]);
-      expect(crash1.breadcrumbs, ['Navigated to checkout']);
-      expect(crash1.customKeys, {'tier': 'premium'});
+        expect(crash1.errors, [error]);
+        expect(crash1.stackTraces, [stack]);
+        expect(crash1.reasons, ['Payment timeout']);
+        expect(crash1.fatalFlags, [true]);
+        expect(crash1.breadcrumbs, ['Navigated to checkout']);
+        expect(crash1.customKeys, {'tier': 'premium'});
 
-      expect(crash2.errors, [error]);
-      expect(crash2.breadcrumbs, ['Navigated to checkout']);
-    });
+        expect(crash2.errors, [error]);
+        expect(crash2.breadcrumbs, ['Navigated to checkout']);
+      },
+    );
 
     test('synchronizes userId across both analytics and crash observers', () {
       final analytics = MockAnalyticsObserver();
@@ -266,8 +273,9 @@ void main() {
   });
 
   group('NanoRouteObserver Telemetry Integration', () {
-    testWidgets('automatically tracks PageRoute screen views and breadcrumbs',
-        (tester) async {
+    testWidgets('automatically tracks PageRoute screen views and breadcrumbs', (
+      tester,
+    ) async {
       final analytics = MockAnalyticsObserver();
       final crash = MockCrashObserver();
       NanoTelemetry.init(
@@ -283,17 +291,17 @@ void main() {
           initialRoute: '/',
           routes: {
             '/': (context) => Scaffold(
-                  body: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(
-                        context,
-                        '/details',
-                        arguments: {'id': '42'},
-                      );
-                    },
-                    child: const Text('Go to details'),
-                  ),
-                ),
+              body: ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(
+                    context,
+                    '/details',
+                    arguments: {'id': '42'},
+                  );
+                },
+                child: const Text('Go to details'),
+              ),
+            ),
             '/details': (context) => const Scaffold(body: Text('Details')),
           },
         ),
@@ -345,46 +353,43 @@ void main() {
   });
 
   group('NanoRepository Telemetry Integration', () {
-    test('reports parsing errors to recordError and network errors to log',
-        () async {
-      final crash = MockCrashObserver();
-      NanoTelemetry.init(crashObservers: [crash]);
+    test(
+      'reports parsing errors to recordError and network errors to log',
+      () async {
+        final crash = MockCrashObserver();
+        NanoTelemetry.init(crashObservers: [crash]);
 
-      final repo = _TestRepo(
-        client: _MockHttpClient(shouldThrowOnNetwork: true),
-        adapter: _TestAdapter(),
-      );
+        final repo = _TestRepo(
+          client: _MockHttpClient(shouldThrowOnNetwork: true),
+          adapter: _TestAdapter(),
+        );
 
-      // 1. Network error triggers breadcrumb log only
-      await expectLater(
-        () => repo.getById('123'),
-        throwsA(isA<Exception>()),
-      );
+        // 1. Network error triggers breadcrumb log only
+        await expectLater(() => repo.getById('123'), throwsA(isA<Exception>()));
 
-      expect(crash.breadcrumbs, isNotEmpty);
-      expect(crash.breadcrumbs.first, contains('getById failed'));
-      expect(crash.errors, isEmpty);
+        expect(crash.breadcrumbs, isNotEmpty);
+        expect(crash.breadcrumbs.first, contains('getById failed'));
+        expect(crash.errors, isEmpty);
 
-      // 2. Parsing error triggers recordError
-      final parsingFailRepo = _TestRepo(
-        client: _MockHttpClient(
-          responseData: {'invalid': 'payload'},
-        ),
-        adapter: _ThrowingAdapter(),
-      );
+        // 2. Parsing error triggers recordError
+        final parsingFailRepo = _TestRepo(
+          client: _MockHttpClient(responseData: {'invalid': 'payload'}),
+          adapter: _ThrowingAdapter(),
+        );
 
-      await expectLater(
-        () => parsingFailRepo.getById('456'),
-        throwsA(isA<FormatException>()),
-      );
+        await expectLater(
+          () => parsingFailRepo.getById('456'),
+          throwsA(isA<FormatException>()),
+        );
 
-      expect(crash.errors, isNotEmpty);
-      expect(crash.errors.first, isA<FormatException>());
-      expect(
-        crash.reasons.first.toString(),
-        contains('Failed to parse _TestEntity'),
-      );
-    });
+        expect(crash.errors, isNotEmpty);
+        expect(crash.errors.first, isA<FormatException>());
+        expect(
+          crash.reasons.first.toString(),
+          contains('Failed to parse _TestEntity'),
+        );
+      },
+    );
   });
 }
 
@@ -414,17 +419,12 @@ class _ThrowingAdapter extends NanoAdapter<_TestEntity> {
 }
 
 class _TestRepo extends NanoRepository<_TestEntity, String> {
-  _TestRepo({
-    required super.client,
-    required super.adapter,
-  }) : super(endpoint: '/items');
+  _TestRepo({required super.client, required super.adapter})
+    : super(endpoint: '/items');
 }
 
 class _MockHttpClient implements NanoHttpClient {
-  _MockHttpClient({
-    this.shouldThrowOnNetwork = false,
-    this.responseData,
-  });
+  _MockHttpClient({this.shouldThrowOnNetwork = false, this.responseData});
 
   final bool shouldThrowOnNetwork;
   final Map<String, dynamic>? responseData;
@@ -438,10 +438,7 @@ class _MockHttpClient implements NanoHttpClient {
     if (shouldThrowOnNetwork) {
       throw Exception('Network connection lost');
     }
-    return NanoHttpResponse<T>(
-      data: responseData as T?,
-      statusCode: 200,
-    );
+    return NanoHttpResponse<T>(data: responseData as T?, statusCode: 200);
   }
 
   @override

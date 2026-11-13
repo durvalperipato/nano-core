@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:material_ui/material_ui.dart';
+
 import '../components/loading/nano_loading_overlay.dart';
 import '../components/nano_toast.dart';
 import '../connectivity/nano_connectivity.dart';
@@ -254,10 +255,7 @@ class _NanoScaffoldState<
       case NanoNavigationMode.pop:
         context.back(event.args);
       case NanoNavigationMode.clearStack:
-        context.toAndRemoveUntilNamed(
-          event.routeName,
-          arguments: event.args,
-        );
+        context.toAndRemoveUntilNamed(event.routeName, arguments: event.args);
     }
   }
 

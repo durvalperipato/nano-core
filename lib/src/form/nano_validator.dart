@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'nano_validator_patterns.dart';
 
@@ -12,7 +12,6 @@ typedef NanoValidatorFunction<Value> = String? Function(Value? value);
 /// Collection of standard, chainable form field validators with full
 /// internationalization ([BuildContext]) support.
 abstract final class NanoValidator {
-
   /// Resolves an error message payload into a localized [String].
   static String? resolveMessage(dynamic error, [BuildContext? context]) {
     if (error == null) return null;

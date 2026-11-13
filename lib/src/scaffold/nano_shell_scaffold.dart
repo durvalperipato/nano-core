@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'internal/nano_shell_keep_alive_wrapper.dart';
 import 'internal/nano_shell_scope.dart';

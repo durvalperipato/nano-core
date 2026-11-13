@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:material_ui/material_ui.dart';
+
 import '../../biometrics/nano_biometrics.dart';
 import '../../logger/nano_logger.dart';
 import '../models/nano_route_args.dart';
@@ -66,8 +67,9 @@ class NanoGuardedPage extends StatelessWidget {
       content = targetRoute.builder(context, args);
     }
 
-    final biometricGuards =
-        guards.whereType<NanoBiometricProtectedRoute>().toList();
+    final biometricGuards = guards
+        .whereType<NanoBiometricProtectedRoute>()
+        .toList();
     if (biometricGuards.isNotEmpty) {
       return NanoBiometricGate(
         biometricGuards: biometricGuards,
@@ -260,26 +262,20 @@ class _NanoBiometricGateState extends State<NanoBiometricGate> {
         _hardwareChecked &&
         _hardwareAvailable &&
         !_isRedirecting) {
-      return guard.authBuilder!(
-        context,
-        () {
-          final biometrics = _resolveBiometrics(guard);
-          if (biometrics != null) {
-            _authenticate(guard, biometrics);
-          } else {
-            _redirect(guard.redirectTo);
-          }
-        },
-        () => _cancel(guard),
-      );
+      return guard.authBuilder!(context, () {
+        final biometrics = _resolveBiometrics(guard);
+        if (biometrics != null) {
+          _authenticate(guard, biometrics);
+        } else {
+          _redirect(guard.redirectTo);
+        }
+      }, () => _cancel(guard));
     }
 
     if (guard?.loadingBuilder != null) {
       return guard!.loadingBuilder!(context);
     }
 
-    return const Scaffold(
-      body: Center(child: CircularProgressIndicator()),
-    );
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }

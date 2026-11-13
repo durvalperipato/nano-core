@@ -21,4 +21,40 @@ void main() {
       expect(result, isNull);
     });
   });
+
+  group('NanoEnumIterableExtension', () {
+    test('returns matching enum when found by exact name', () {
+      final result = _SampleEnum.values.byNameOrNull('second');
+      expect(result, equals(_SampleEnum.second));
+    });
+
+    test('returns null when name is not found', () {
+      final result = _SampleEnum.values.byNameOrNull('invalid');
+      expect(result, isNull);
+    });
+
+    test('returns null when name is null', () {
+      final result = _SampleEnum.values.byNameOrNull(null);
+      expect(result, isNull);
+    });
+
+    test('returns null when case does not match and caseSensitive is true', () {
+      final result = _SampleEnum.values.byNameOrNull('SECOND');
+      expect(result, isNull);
+    });
+
+    test(
+      'returns matching enum when case does not match and caseSensitive is '
+      'false',
+      () {
+        final result = _SampleEnum.values.byNameOrNull(
+          'SECOND',
+          caseSensitive: false,
+        );
+        expect(result, equals(_SampleEnum.second));
+      },
+    );
+  });
 }
+
+enum _SampleEnum { first, second, third }

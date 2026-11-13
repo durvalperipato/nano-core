@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:nano_core/nano_core.dart';
 
 enum ShellDemoTab { feed, analytics, settings }
@@ -160,7 +160,9 @@ class _DemoFeedView extends StatelessWidget {
         child: ListTile(
           leading: CircleAvatar(child: Text('${index + 1}')),
           title: Text('Feed Item #${index + 1}'),
-          subtitle: const Text('State & scroll position preserved across tabs.'),
+          subtitle: const Text(
+            'State & scroll position preserved across tabs.',
+          ),
         ),
       ),
     );
@@ -178,7 +180,11 @@ class _DemoAnalyticsView extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.analytics_outlined, size: 64, color: Colors.indigo),
+            const Icon(
+              Icons.analytics_outlined,
+              size: 64,
+              color: Colors.indigo,
+            ),
             const SizedBox(height: 16),
             const Text(
               'Realtime Analytics Tab',
@@ -243,7 +249,11 @@ class _DemoNotificationsSubView extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.notifications_active, size: 64, color: Colors.amber),
+              const Icon(
+                Icons.notifications_active,
+                size: 64,
+                color: Colors.amber,
+              ),
               const SizedBox(height: 16),
               const Text(
                 'Contextual Sub-View (Notifications)',

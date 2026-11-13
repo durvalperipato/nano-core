@@ -5,6 +5,15 @@ All notable changes to the `nano_core` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.1.3 (2026-11-13)
+
+### Added
+- **`NanoEnumIterableExtension.byNameOrNull`**: Safe, nullable enum lookup by name on `Iterable<Enum>` with optional `caseSensitive` fallback.
+- **`NanoReadAdapter.enumList`**: Helper method to deserialize a dynamic list of enum names into `List<T>?`, filtering out invalid or `null` entries.
+
+### Changed
+- **Flutter 3.50 & `material_ui` Migration**: Migrated `package:flutter/material.dart` imports across `lib/`, `test/`, and `example/` to `package:material_ui/material_ui.dart` (and `package:cupertino_ui/cupertino_ui.dart` in `example/`).
+
 ## 1.1.2 (2026-11-05)
 
 ### Added

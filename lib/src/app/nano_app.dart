@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../router/nano_router.dart';
 import '../router/observers/nano_route_observer.dart';
 import '../telemetry/nano_telemetry.dart';
@@ -257,10 +257,7 @@ class NanoApp extends StatelessWidget {
       restorationScopeId: restorationScopeId,
       scrollBehavior: scrollBehavior,
       builder: builder,
-      navigatorObservers: _resolveObservers(
-        const [],
-        navigatorObservers,
-      ),
+      navigatorObservers: _resolveObservers(const [], navigatorObservers),
     );
   }
 }

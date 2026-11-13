@@ -1,18 +1,15 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:nano_core/nano_core.dart';
 
 void main() {
   group('NanoShimmer', () {
-    testWidgets('renders child widget with shimmer ShaderMask when enabled',
-        (tester) async {
+    testWidgets('renders child widget with shimmer ShaderMask when enabled', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: NanoShimmer(
-              child: Text('Shimmering content'),
-            ),
-          ),
+          home: Scaffold(body: NanoShimmer(child: Text('Shimmering content'))),
         ),
       );
 
@@ -20,15 +17,13 @@ void main() {
       expect(find.byType(ShaderMask), findsOneWidget);
     });
 
-    testWidgets('renders child directly without ShaderMask when disabled',
-        (tester) async {
+    testWidgets('renders child directly without ShaderMask when disabled', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: NanoShimmer(
-              enabled: false,
-              child: Text('Static content'),
-            ),
+            body: NanoShimmer(enabled: false, child: Text('Static content')),
           ),
         ),
       );
@@ -37,8 +32,9 @@ void main() {
       expect(find.byType(ShaderMask), findsNothing);
     });
 
-    testWidgets('accepts custom baseColor, highlightColor, and duration',
-        (tester) async {
+    testWidgets('accepts custom baseColor, highlightColor, and duration', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -67,9 +63,7 @@ void main() {
         MaterialApp(
           theme: ThemeData.dark(),
           home: const Scaffold(
-            body: NanoShimmer(
-              child: SizedBox(width: 50, height: 50),
-            ),
+            body: NanoShimmer(child: SizedBox(width: 50, height: 50)),
           ),
         ),
       );

@@ -58,5 +58,20 @@ void main() {
       expect(adapter.fromList(null), isEmpty);
       expect(adapter.fromList('string'), isEmpty);
     });
+
+    test('enumList deserializes valid enum strings and filters invalid', () {
+      final result = adapter.enumList<Role>(
+        ['admin', 'invalid', null, 'editor'],
+        Role.values,
+      );
+      expect(result, equals([Role.admin, Role.editor]));
+    });
+
+    test('enumList returns null when raw is null or not a list', () {
+      expect(adapter.enumList<Role>(null, Role.values), isNull);
+      expect(adapter.enumList<Role>('not-a-list', Role.values), isNull);
+    });
   });
 }
+
+enum Role { admin, editor, viewer }

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../form/nano_form_controller.dart';
 
 /// A reactive container widget that binds a [NanoFormController.formKey] to a
