@@ -4,8 +4,10 @@
 /// https://github.com/durvalperipato/nano-core/tree/main/example
 library;
 
-import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:flutter_localizations/flutter_localizations.dart'
+    show GlobalWidgetsLocalizations;
+import 'package:material_ui/material_ui.dart';
 import 'package:nano_core/nano_core.dart';
 import 'package:nano_core_example/l10n/generated/app_localizations.dart';
 import 'app/core/injections/app_injections.dart';

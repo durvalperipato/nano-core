@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:nano_core/nano_core.dart';
 import 'section_header.dart';
 
@@ -12,8 +12,9 @@ class ConnectivityAndDebounceCard extends StatefulWidget {
 
 class _ConnectivityAndDebounceCardState
     extends State<ConnectivityAndDebounceCard> {
-  final NanoConnectivity _connectivity =
-      NanoConnectivity(initialStatus: NanoConnectivityStatus.wifi);
+  final NanoConnectivity _connectivity = NanoConnectivity(
+    initialStatus: NanoConnectivityStatus.wifi,
+  );
 
   String _debouncedText = '';
 
@@ -42,10 +43,9 @@ class _ConnectivityAndDebounceCardState
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-          color: Theme.of(context)
-              .colorScheme
-              .outlineVariant
-              .withValues(alpha: 0.5),
+          color: Theme.of(
+            context,
+          ).colorScheme.outlineVariant.withValues(alpha: 0.5),
         ),
       ),
       child: Padding(
@@ -64,9 +64,9 @@ class _ConnectivityAndDebounceCardState
             // 1. Connectivity Demonstration
             Text(
               '1. NanoConnectivity Observable',
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             ListenableBuilder(
@@ -128,26 +128,30 @@ class _ConnectivityAndDebounceCardState
                           ChoiceChip(
                             label: const Text('Wi-Fi'),
                             selected: status == NanoConnectivityStatus.wifi,
-                            onSelected: (_) => _connectivity
-                                .updateStatus(NanoConnectivityStatus.wifi),
+                            onSelected: (_) => _connectivity.updateStatus(
+                              NanoConnectivityStatus.wifi,
+                            ),
                           ),
                           ChoiceChip(
                             label: const Text('Cellular (4G/5G)'),
                             selected: status == NanoConnectivityStatus.cellular,
-                            onSelected: (_) => _connectivity
-                                .updateStatus(NanoConnectivityStatus.cellular),
+                            onSelected: (_) => _connectivity.updateStatus(
+                              NanoConnectivityStatus.cellular,
+                            ),
                           ),
                           ChoiceChip(
                             label: const Text('Ethernet'),
                             selected: status == NanoConnectivityStatus.ethernet,
-                            onSelected: (_) => _connectivity
-                                .updateStatus(NanoConnectivityStatus.ethernet),
+                            onSelected: (_) => _connectivity.updateStatus(
+                              NanoConnectivityStatus.ethernet,
+                            ),
                           ),
                           ChoiceChip(
                             label: const Text('Offline (None)'),
                             selected: status == NanoConnectivityStatus.none,
-                            onSelected: (_) => _connectivity
-                                .updateStatus(NanoConnectivityStatus.none),
+                            onSelected: (_) => _connectivity.updateStatus(
+                              NanoConnectivityStatus.none,
+                            ),
                           ),
                         ],
                       ),
@@ -161,9 +165,9 @@ class _ConnectivityAndDebounceCardState
             // 2. Debounced Search Field
             Text(
               '2. Debounced Search (NanoTextField + NanoDebouncer)',
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             NanoTextField(

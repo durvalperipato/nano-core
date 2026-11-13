@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Reusable section header component for showcase cards.
 class SectionHeader extends StatelessWidget {

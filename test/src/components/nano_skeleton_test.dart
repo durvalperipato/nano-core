@@ -1,11 +1,12 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:nano_core/nano_core.dart';
 
 void main() {
   group('NanoSkeleton', () {
-    testWidgets('box factory renders with dimensions and borderRadius',
-        (tester) async {
+    testWidgets('box factory renders with dimensions and borderRadius', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -22,13 +23,23 @@ void main() {
       expect(find.byType(NanoShimmer), findsOneWidget);
     });
 
-    testWidgets('circle factory renders with circular dimensions',
-        (tester) async {
+    testWidgets('circle factory renders with circular dimensions', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(home: Scaffold(body: NanoSkeleton.circle(size: 64))),
+      );
+
+      expect(find.byType(NanoSkeleton), findsOneWidget);
+      expect(find.byType(NanoShimmer), findsOneWidget);
+    });
+
+    testWidgets('text factory renders requested number of lines', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(
-            body: NanoSkeleton.circle(size: 64),
-          ),
+          home: Scaffold(body: NanoSkeleton.text(lines: 3, lineSpacing: 12.0)),
         ),
       );
 
@@ -36,33 +47,11 @@ void main() {
       expect(find.byType(NanoShimmer), findsOneWidget);
     });
 
-    testWidgets('text factory renders requested number of lines',
-        (tester) async {
+    testWidgets('card factory renders pre-assembled card structure', (
+      tester,
+    ) async {
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: NanoSkeleton.text(
-              lines: 3,
-              lineSpacing: 12.0,
-            ),
-          ),
-        ),
-      );
-
-      expect(find.byType(NanoSkeleton), findsOneWidget);
-      expect(find.byType(NanoShimmer), findsOneWidget);
-    });
-
-    testWidgets('card factory renders pre-assembled card structure',
-        (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: NanoSkeleton.card(
-              height: 180,
-            ),
-          ),
-        ),
+        MaterialApp(home: Scaffold(body: NanoSkeleton.card(height: 180))),
       );
 
       expect(find.byType(NanoSkeleton), findsOneWidget);
@@ -71,29 +60,20 @@ void main() {
 
     testWidgets('list factory renders multiple skeleton rows', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: NanoSkeleton.list(
-              items: 4,
-            ),
-          ),
-        ),
+        MaterialApp(home: Scaffold(body: NanoSkeleton.list(items: 4))),
       );
 
       expect(find.byType(NanoSkeleton), findsOneWidget);
       expect(find.byType(NanoShimmer), findsOneWidget);
     });
 
-    testWidgets('grid factory renders rows and columns of cards',
-        (tester) async {
+    testWidgets('grid factory renders rows and columns of cards', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: NanoSkeleton.grid(
-              columns: 3,
-              rows: 2,
-              itemHeight: 100,
-            ),
+            body: NanoSkeleton.grid(columns: 3, rows: 2, itemHeight: 100),
           ),
         ),
       );
@@ -103,8 +83,9 @@ void main() {
     });
 
     group('mask factory', () {
-      testWidgets('renders redacted shimmering mask when loading is true',
-          (tester) async {
+      testWidgets('renders redacted shimmering mask when loading is true', (
+        tester,
+      ) async {
         await tester.pumpWidget(
           MaterialApp(
             home: Scaffold(
@@ -121,22 +102,23 @@ void main() {
       });
 
       testWidgets(
-          'renders child directly without shimmer when loading is false',
-          (tester) async {
-        await tester.pumpWidget(
-          MaterialApp(
-            home: Scaffold(
-              body: NanoSkeleton.mask(
-                loading: false,
-                child: const Text('Account Balance: \$1,000.00'),
+        'renders child directly without shimmer when loading is false',
+        (tester) async {
+          await tester.pumpWidget(
+            MaterialApp(
+              home: Scaffold(
+                body: NanoSkeleton.mask(
+                  loading: false,
+                  child: const Text('Account Balance: \$1,000.00'),
+                ),
               ),
             ),
-          ),
-        );
+          );
 
-        expect(find.text('Account Balance: \$1,000.00'), findsOneWidget);
-        expect(find.byType(ShaderMask), findsNothing);
-      });
+          expect(find.text('Account Balance: \$1,000.00'), findsOneWidget);
+          expect(find.byType(ShaderMask), findsNothing);
+        },
+      );
     });
   });
 }

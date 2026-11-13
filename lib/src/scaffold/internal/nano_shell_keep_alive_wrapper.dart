@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// An internal wrapper widget that preserves the state of child widgets in an
 /// [IndexedStack].

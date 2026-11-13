@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../utils/nano_device_type.dart';
 
 /// Enum representing the visual type of a [NanoToast].

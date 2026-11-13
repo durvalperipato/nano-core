@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:nano_core/nano_core.dart';
 
 /// Contextual modal sub-view presenting Nano Core architectural overview.
@@ -45,9 +45,9 @@ class ShowcaseInfoSubView extends StatelessWidget {
                       ),
                       Text(
                         'Architecture & Design System Toolkit',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey,
-                        ),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodySmall?.copyWith(color: Colors.grey),
                       ),
                     ],
                   ),
@@ -59,7 +59,9 @@ class ShowcaseInfoSubView extends StatelessWidget {
                 'major architectural pillars:',
               ),
               const Text('• Persistent Multi-Tab Shell (NanoShellScaffold)'),
-              const Text('• Declarative Router & Dynamic Deep Links (:id, ?tab)'),
+              const Text(
+                '• Declarative Router & Dynamic Deep Links (:id, ?tab)',
+              ),
               const Text('• Native Skeleton & Wave Shimmer loading'),
               const Text('• Reactive Controllers & NanoCommand State Machines'),
               const Text('• Zero-configuration Smart Cache (0ms response)'),

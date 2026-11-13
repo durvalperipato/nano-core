@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Represents a secondary contextual sub-view within a [NanoShellScaffold]
 /// that shares the same persistent shell (e.g. Notifications, Search overlay).

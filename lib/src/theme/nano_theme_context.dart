@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Contextual helper that exposes theme data, color scheme, text styles,
 /// and theme brightness checks bound to a [BuildContext].

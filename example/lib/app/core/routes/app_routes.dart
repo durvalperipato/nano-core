@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:nano_core/nano_core.dart';
 import '../../mocks/mock_models.dart';
 import '../../pages/login/login_page.dart';
@@ -92,9 +92,6 @@ final appRouter = NanoRouter(
     ),
 
     // Alias redirect route:
-    NanoRedirectRoute(
-      path: AppPaths.home,
-      redirectTo: AppRouteNames.showcase,
-    ),
+    NanoRedirectRoute(path: AppPaths.home, redirectTo: AppRouteNames.showcase),
   ],
 );

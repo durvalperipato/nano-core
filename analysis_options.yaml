@@ -9,6 +9,7 @@ analyzer:
     - windows/**
     - macos/**
     - linux/**
+    - example/lib/l10n/generated/**
 
 linter:
   rules:

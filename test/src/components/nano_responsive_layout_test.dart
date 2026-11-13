@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:nano_core/nano_core.dart';
 
 void main() {
@@ -55,24 +55,25 @@ void main() {
     testWidgets(
       'defaults to desktop builder on tablet when tablet is omitted',
       (tester) async {
-      tester.view.physicalSize = const Size(768, 1024);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
+        tester.view.physicalSize = const Size(768, 1024);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: NanoResponsiveLayout(
-              mobile: (context) => const Text('Mobile View'),
-              desktop: (context) => const Text('Desktop View'),
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: NanoResponsiveLayout(
+                mobile: (context) => const Text('Mobile View'),
+                desktop: (context) => const Text('Desktop View'),
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      expect(find.text('Desktop View'), findsOneWidget);
-      expect(find.text('Mobile View'), findsNothing);
-    });
+        expect(find.text('Desktop View'), findsOneWidget);
+        expect(find.text('Mobile View'), findsNothing);
+      },
+    );
 
     testWidgets('renders desktop builder on desktop viewport', (tester) async {
       tester.view.physicalSize = const Size(1200, 800);
@@ -111,10 +112,7 @@ void main() {
           home: Scaffold(
             body: NanoResponsiveLayout.flex(
               spacing: 16.0,
-              children: [
-                Text('First'),
-                Text('Second'),
-              ],
+              children: [Text('First'), Text('Second')],
             ),
           ),
         ),
@@ -148,31 +146,29 @@ void main() {
     testWidgets(
       'reverses children order on mobile when reverseOnMobile is true',
       (tester) async {
-      tester.view.physicalSize = const Size(400, 800);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
+        tester.view.physicalSize = const Size(400, 800);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
 
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: NanoResponsiveLayout.flex(
-              reverseOnMobile: true,
-              children: [
-                Text('Item 1'),
-                Text('Item 2'),
-              ],
+        await tester.pumpWidget(
+          const MaterialApp(
+            home: Scaffold(
+              body: NanoResponsiveLayout.flex(
+                reverseOnMobile: true,
+                children: [Text('Item 1'), Text('Item 2')],
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      final columnFinder = find.byType(Column);
-      expect(columnFinder, findsOneWidget);
+        final columnFinder = find.byType(Column);
+        expect(columnFinder, findsOneWidget);
 
-      final column = tester.widget<Column>(columnFinder);
-      expect((column.children.first as Text).data, 'Item 2');
-      expect((column.children.last as Text).data, 'Item 1');
-    });
+        final column = tester.widget<Column>(columnFinder);
+        expect((column.children.first as Text).data, 'Item 2');
+        expect((column.children.last as Text).data, 'Item 1');
+      },
+    );
 
     testWidgets('applies global config across viewports', (tester) async {
       tester.view.physicalSize = const Size(1200, 800);
@@ -187,10 +183,7 @@ void main() {
                 spacing: 24.0,
                 crossAxisAlignment: CrossAxisAlignment.end,
               ),
-              children: [
-                Text('A'),
-                Text('B'),
-              ],
+              children: [Text('A'), Text('B')],
             ),
           ),
         ),
@@ -224,10 +217,7 @@ void main() {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 reverse: true,
               ),
-              children: [
-                Text('First'),
-                Text('Second'),
-              ],
+              children: [Text('First'), Text('Second')],
             ),
           ),
         ),
@@ -256,10 +246,7 @@ void main() {
               config: NanoResponsiveFlexConfig(spacing: 16.0),
               tabletConfig: NanoResponsiveFlexConfig(spacing: 12.0),
               desktopConfig: NanoResponsiveFlexConfig(spacing: 32.0),
-              children: [
-                Text('A'),
-                Text('B'),
-              ],
+              children: [Text('A'), Text('B')],
             ),
           ),
         ),
