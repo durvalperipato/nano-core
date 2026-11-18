@@ -182,7 +182,7 @@ Add `nano_core` to your `pubspec.yaml`:
 dependencies:
   flutter:
     sdk: flutter
-  nano_core: ^1.1.3
+  nano_core: ^1.2.0
 ```
 
 ## Quick Example
