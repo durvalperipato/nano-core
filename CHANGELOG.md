@@ -5,6 +5,15 @@ All notable changes to the `nano_core` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.2.0 (2026-11-18)
+
+### Added
+- **`NanoController.hasUnsavedChanges`**: Opt-in contract (`false` by default) to expose dirty state across controllers.
+- **`NanoFormController.hasUnsavedChanges` & `loadForm()`**: Baseline snapshot management with automatic dirty-state tracking and baseline reset upon form loading.
+
+### Changed
+- **Deprecation Cleanup Window**: Deferred removal of deprecated `NanoNavigationExtension` methods (`toTab`, `toSubView`, `closeSubView`, `currentTab`) and `NanoResponsiveLayout.flex` legacy parameters from `1.2.0` to `2.0.0` to preserve strict SemVer backwards compatibility.
+
 ## 1.1.3 (2026-11-13)
 
 ### Added

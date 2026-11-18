@@ -67,3 +67,6 @@ windows/
 
 # BMAD
 _bmad/
+
+# Nano Handoff
+.nano/

@@ -44,31 +44,31 @@ extension NanoNavigationExtension on BuildContext {
   NanoShellContext get shell => NanoShellContext(this);
 
   /// Switches the active primary tab in the nearest [NanoShellScaffold].
-  // TODO(cleanup): Remove in version 1.2.0
+  // TODO(cleanup): Remove in version 2.0.0
   @Deprecated(
-    'Use context.shell.selectTab(tab) instead. Will be removed in 1.2.0.',
+    'Use context.shell.selectTab(tab) instead. Will be removed in 2.0.0.',
   )
   void toTab<TTab extends Enum>(TTab tab) => shell.selectTab(tab);
 
   /// Opens a contextual sub-view in the nearest [NanoShellScaffold].
-  // TODO(cleanup): Remove in version 1.2.0
+  // TODO(cleanup): Remove in version 2.0.0
   @Deprecated(
-    'Use context.shell.openSubView(subView) instead. Will be removed in 1.2.0.',
+    'Use context.shell.openSubView(subView) instead. Will be removed in 2.0.0.',
   )
   void toSubView<TSubView>(TSubView subView) => shell.openSubView(subView);
 
   /// Closes the active contextual sub-view in the nearest [NanoShellScaffold].
-  // TODO(cleanup): Remove in version 1.2.0
+  // TODO(cleanup): Remove in version 2.0.0
   @Deprecated(
-    'Use context.shell.closeSubView() instead. Will be removed in 1.2.0.',
+    'Use context.shell.closeSubView() instead. Will be removed in 2.0.0.',
   )
   void closeSubView() => shell.closeSubView();
 
   /// Retrieves the currently active tab in the nearest [NanoShellScaffold],
   /// or `null` if none is active or when a sub-view is open.
-  // TODO(cleanup): Remove in version 1.2.0
+  // TODO(cleanup): Remove in version 2.0.0
   @Deprecated(
-    'Use context.shell.currentTab<T>() instead. Will be removed in 1.2.0.',
+    'Use context.shell.currentTab<T>() instead. Will be removed in 2.0.0.',
   )
   TTab? currentTab<TTab extends Enum>() => shell.currentTab<TTab>();
 
