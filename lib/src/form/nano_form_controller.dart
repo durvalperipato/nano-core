@@ -14,9 +14,19 @@ abstract class NanoFormController<
     extends NanoController<ViewState> {
   /// Creates a [NanoFormController] with required initial view state.
   NanoFormController({required super.initialState})
-    : _initialState = initialState;
+    : _baselineState = initialState;
 
-  final ViewState _initialState;
+  ViewState _baselineState;
+
+  /// The baseline [ViewState] snapshot used for [hasUnsavedChanges] and
+  /// [reset].
+  ViewState get baselineState => _baselineState;
+
+  /// Convenience getter for the baseline form entity in [baselineState].
+  FormEntity get baselineForm => _baselineState.form;
+
+  @override
+  bool get hasUnsavedChanges => viewState.form != _baselineState.form;
 
   @override
   Future<void> init(String? id) async {}
@@ -49,10 +59,22 @@ abstract class NanoFormController<
     }
   }
 
-  /// Resets the form state and visual validation errors back to initial values.
+  /// Resets the form state and visual validation errors back to
+  /// [baselineState].
   void reset() {
     formKey.currentState?.reset();
-    emitLoaded(_initialState);
+    emitLoaded(_baselineState);
+  }
+
+  /// Replaces the current form view state and updates [baselineState].
+  ///
+  /// Use this when loading initial persisted data (e.g. inside [init]) or
+  /// after persisting edits so [hasUnsavedChanges] returns `false` and [reset]
+  /// restores this loaded snapshot.
+  void loadForm(ViewState Function(ViewState currentState) stateUpdater) {
+    final nextState = stateUpdater(viewState);
+    _baselineState = nextState;
+    emitLoaded(nextState);
   }
 
   /// Updates the form view state and emits the new state.

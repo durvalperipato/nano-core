@@ -31,6 +31,11 @@ class _TestController extends NanoController<_SampleViewState> {
   }
 }
 
+class _DirtyTrackingController extends _TestController {
+  @override
+  bool get hasUnsavedChanges => viewState.count > 0;
+}
+
 void main() {
   group('NanoController', () {
     test('initializes with InitialState holding viewState', () {
@@ -153,5 +158,26 @@ void main() {
         expect(controller.viewState.count, equals(0));
       },
     );
+
+    test(
+      'hasUnsavedChanges defaults to false and supports opt-in override',
+      () {
+      final baseController = _TestController();
+      expect(baseController.hasUnsavedChanges, isFalse);
+
+      baseController.increment();
+      expect(baseController.hasUnsavedChanges, isFalse);
+      baseController.dispose();
+
+      final dirtyController = _DirtyTrackingController();
+      expect(dirtyController.hasUnsavedChanges, isFalse);
+
+      dirtyController.increment();
+      expect(dirtyController.hasUnsavedChanges, isTrue);
+
+      dirtyController.emitLoaded(const _SampleViewState());
+      expect(dirtyController.hasUnsavedChanges, isFalse);
+      dirtyController.dispose();
+    });
   });
 }

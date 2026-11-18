@@ -50,32 +50,32 @@ class NanoResponsiveLayout extends StatelessWidget {
     this.mobileConfig,
     this.tabletConfig,
     this.desktopConfig,
-    // TODO(cleanup): Remove in version 1.2.0
-    @Deprecated('Use config parameter instead. Will be removed in 1.2.0.')
+    // TODO(cleanup): Remove in version 2.0.0
+    @Deprecated('Use config parameter instead. Will be removed in 2.0.0.')
     this.spacing,
-    // TODO(cleanup): Remove in version 1.2.0
+    // TODO(cleanup): Remove in version 2.0.0
     @Deprecated(
       'Use config or mobileConfig with reverse instead. '
-      'Will be removed in 1.2.0.',
+      'Will be removed in 2.0.0.',
     )
     this.reverseOnMobile,
-    // TODO(cleanup): Remove in version 1.2.0
-    @Deprecated('Use config parameter instead. Will be removed in 1.2.0.')
+    // TODO(cleanup): Remove in version 2.0.0
+    @Deprecated('Use config parameter instead. Will be removed in 2.0.0.')
     this.mainAxisAlignment,
-    // TODO(cleanup): Remove in version 1.2.0
-    @Deprecated('Use config parameter instead. Will be removed in 1.2.0.')
+    // TODO(cleanup): Remove in version 2.0.0
+    @Deprecated('Use config parameter instead. Will be removed in 2.0.0.')
     this.mainAxisSize,
-    // TODO(cleanup): Remove in version 1.2.0
-    @Deprecated('Use config parameter instead. Will be removed in 1.2.0.')
+    // TODO(cleanup): Remove in version 2.0.0
+    @Deprecated('Use config parameter instead. Will be removed in 2.0.0.')
     this.crossAxisAlignment,
-    // TODO(cleanup): Remove in version 1.2.0
-    @Deprecated('Use config parameter instead. Will be removed in 1.2.0.')
+    // TODO(cleanup): Remove in version 2.0.0
+    @Deprecated('Use config parameter instead. Will be removed in 2.0.0.')
     this.textDirection,
-    // TODO(cleanup): Remove in version 1.2.0
-    @Deprecated('Use config parameter instead. Will be removed in 1.2.0.')
+    // TODO(cleanup): Remove in version 2.0.0
+    @Deprecated('Use config parameter instead. Will be removed in 2.0.0.')
     this.verticalDirection,
-    // TODO(cleanup): Remove in version 1.2.0
-    @Deprecated('Use config parameter instead. Will be removed in 1.2.0.')
+    // TODO(cleanup): Remove in version 2.0.0
+    @Deprecated('Use config parameter instead. Will be removed in 2.0.0.')
     this.textBaseline,
     super.key,
   })  : _isFlex = true,
@@ -110,46 +110,46 @@ class NanoResponsiveLayout extends StatelessWidget {
   final NanoResponsiveFlexConfig? desktopConfig;
 
   /// The space between each child widget in logical pixels.
-  // TODO(cleanup): Remove in version 1.2.0
-  @Deprecated('Use config parameter instead. Will be removed in 1.2.0.')
+  // TODO(cleanup): Remove in version 2.0.0
+  @Deprecated('Use config parameter instead. Will be removed in 2.0.0.')
   final double? spacing;
 
   /// Whether to reverse children order when displayed in a mobile column.
-  // TODO(cleanup): Remove in version 1.2.0
+  // TODO(cleanup): Remove in version 2.0.0
   @Deprecated(
     'Use config or mobileConfig with reverse instead. '
-    'Will be removed in 1.2.0.',
+    'Will be removed in 2.0.0.',
   )
   final bool? reverseOnMobile;
 
   /// How children should be placed along the main axis.
-  // TODO(cleanup): Remove in version 1.2.0
-  @Deprecated('Use config parameter instead. Will be removed in 1.2.0.')
+  // TODO(cleanup): Remove in version 2.0.0
+  @Deprecated('Use config parameter instead. Will be removed in 2.0.0.')
   final MainAxisAlignment? mainAxisAlignment;
 
   /// How much space children should occupy in the main axis.
-  // TODO(cleanup): Remove in version 1.2.0
-  @Deprecated('Use config parameter instead. Will be removed in 1.2.0.')
+  // TODO(cleanup): Remove in version 2.0.0
+  @Deprecated('Use config parameter instead. Will be removed in 2.0.0.')
   final MainAxisSize? mainAxisSize;
 
   /// How children should be placed along the cross axis.
-  // TODO(cleanup): Remove in version 1.2.0
-  @Deprecated('Use config parameter instead. Will be removed in 1.2.0.')
+  // TODO(cleanup): Remove in version 2.0.0
+  @Deprecated('Use config parameter instead. Will be removed in 2.0.0.')
   final CrossAxisAlignment? crossAxisAlignment;
 
   /// Determines the order to lay children out horizontally.
-  // TODO(cleanup): Remove in version 1.2.0
-  @Deprecated('Use config parameter instead. Will be removed in 1.2.0.')
+  // TODO(cleanup): Remove in version 2.0.0
+  @Deprecated('Use config parameter instead. Will be removed in 2.0.0.')
   final TextDirection? textDirection;
 
   /// Determines the order to lay children out vertically.
-  // TODO(cleanup): Remove in version 1.2.0
-  @Deprecated('Use config parameter instead. Will be removed in 1.2.0.')
+  // TODO(cleanup): Remove in version 2.0.0
+  @Deprecated('Use config parameter instead. Will be removed in 2.0.0.')
   final VerticalDirection? verticalDirection;
 
   /// Baseline for aligning text children along the cross axis.
-  // TODO(cleanup): Remove in version 1.2.0
-  @Deprecated('Use config parameter instead. Will be removed in 1.2.0.')
+  // TODO(cleanup): Remove in version 2.0.0
+  @Deprecated('Use config parameter instead. Will be removed in 2.0.0.')
   final TextBaseline? textBaseline;
 
   @override

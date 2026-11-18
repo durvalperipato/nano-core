@@ -19,10 +19,15 @@ class LoginFormEntity extends NanoFormEntity {
 }
 
 class LoginFormState extends NanoFormState<LoginFormEntity> {
-  const LoginFormState({super.form = const LoginFormEntity()});
+  const LoginFormState({
+    super.form = const LoginFormEntity(),
+    this.isSubmitting = false,
+  });
+
+  final bool isSubmitting;
 
   @override
-  List<Object?> get props => [form];
+  List<Object?> get props => [form, isSubmitting];
 }
 
 class LoginFormController
@@ -70,6 +75,69 @@ void main() {
 
       controller.reset();
       expect(controller.currentForm?.email, isEmpty);
+      expect(controller.hasUnsavedChanges, isFalse);
+      controller.dispose();
     });
+
+    test(
+      'hasUnsavedChanges compares form value equality and ignores view flags',
+      () {
+        final controller = LoginFormController();
+        expect(controller.hasUnsavedChanges, isFalse);
+
+        controller.updateForm(
+          (current) => LoginFormState(form: current.form, isSubmitting: true),
+        );
+        expect(controller.hasUnsavedChanges, isFalse);
+
+        controller.updateForm(
+          (current) => LoginFormState(
+            form: current.form.copyWith(email: 'dirty@test.com'),
+          ),
+        );
+        expect(controller.hasUnsavedChanges, isTrue);
+
+        controller.updateForm(
+          (current) => LoginFormState(
+            form: current.form.copyWith(email: ''),
+          ),
+        );
+        expect(controller.hasUnsavedChanges, isFalse);
+        controller.dispose();
+      },
+    );
+
+    test(
+      'loadForm updates baselineState, baselineForm, and reset target',
+      () {
+        final controller = LoginFormController();
+        const loadedEntity = LoginFormEntity(
+          email: 'saved@test.com',
+          password: 'secret',
+        );
+
+        controller.loadForm(
+          (_) => const LoginFormState(form: loadedEntity),
+        );
+
+        expect(controller.baselineForm, equals(loadedEntity));
+        expect(controller.baselineState.form, equals(loadedEntity));
+        expect(controller.currentForm, equals(loadedEntity));
+        expect(controller.hasUnsavedChanges, isFalse);
+
+        controller.updateForm(
+          (current) => LoginFormState(
+            form: current.form.copyWith(email: 'edited@test.com'),
+          ),
+        );
+        expect(controller.hasUnsavedChanges, isTrue);
+
+        controller.reset();
+        expect(controller.currentForm, equals(loadedEntity));
+        expect(controller.baselineForm, equals(loadedEntity));
+        expect(controller.hasUnsavedChanges, isFalse);
+        controller.dispose();
+      },
+    );
   });
 }

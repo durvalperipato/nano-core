@@ -35,6 +35,13 @@ abstract class NanoController<ViewState extends NanoViewState>
   /// Retrieves the current [ViewState] data from [state].
   ViewState get viewState => state.data!;
 
+  /// Whether this controller currently holds unsaved changes.
+  ///
+  /// Defaults to `false` as an opt-in contract. Subclasses that manage mutable
+  /// user input (such as forms, settings, or editors) may override this getter
+  /// to expose dirty-state detection to the UI.
+  bool get hasUnsavedChanges => false;
+
   /// Observable stream of one-shot reactive navigation events.
   @override
   ValueListenable<NanoNavigationEvent?> get navigation => _navigationNotifier;
